@@ -9,6 +9,7 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.StackPane;
@@ -96,7 +97,69 @@ public class CalculatorView extends Application {
         fillRoot();
         Scene scene = new Scene(root);
         scene.getStylesheets().addAll("style.css");
+        addKeyEvents(scene);
         return scene;
+    }
+
+    private void addKeyEvents(Scene scene){
+        scene.setOnKeyPressed(new EventHandler<KeyEvent>() {
+            @Override
+            public void handle(KeyEvent event) {
+               switch (event.getCode()){
+                   case NUMPAD0:
+                       controller.pressDigitButton(0);
+                       break;
+                   case NUMPAD1:
+                       controller.pressDigitButton(1);
+                       break;
+                   case NUMPAD2:
+                       controller.pressDigitButton(2);
+                       break;
+                   case NUMPAD3:
+                       controller.pressDigitButton(3);
+                       break;
+                   case NUMPAD4:
+                       controller.pressDigitButton(4);
+                       break;
+                   case NUMPAD5:
+                       controller.pressDigitButton(5);
+                       break;
+                   case NUMPAD6:
+                       controller.pressDigitButton(6);
+                       break;
+                   case NUMPAD7:
+                       controller.pressDigitButton(7);
+                       break;
+                   case NUMPAD8:
+                       controller.pressDigitButton(8);
+                       break;
+                   case NUMPAD9:
+                       controller.pressDigitButton(9);
+                       break;
+                   case MULTIPLY:
+                       controller.pressOperationButton(Operation.MULTIPLY);
+                       break;
+                   case ADD:
+                       controller.pressOperationButton(Operation.PLUS);
+                       break;
+                   case SUBTRACT:
+                       controller.pressOperationButton(Operation.MINUS);
+                       break;
+                   case DECIMAL:
+                       controller.pressDotButton();
+                       break;
+                   case DIVIDE:
+                       controller.pressOperationButton(Operation.DIVIDE);
+                       break;
+                   case BACK_SPACE:
+                       controller.pressBackSpaceButton();
+                       break;
+                   case ENTER:
+                       controller.pressEqualButton();
+                       break;
+               }
+            }
+        });
     }
 
     private void fillRoot() {
