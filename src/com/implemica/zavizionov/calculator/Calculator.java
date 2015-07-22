@@ -7,7 +7,7 @@ import java.math.BigDecimal;
  * Created by Suff on 13.07.2015.
  */
 public class Calculator {
-    private static final int SCALE = 999;
+    private static final int SCALE = 30;
     BigDecimal memory = BigDecimal.ZERO;
     BigDecimal leftOperand = BigDecimal.ZERO;
     BigDecimal rightOperand = BigDecimal.ZERO;
@@ -168,7 +168,6 @@ public class Calculator {
     public void memorySubtract(BigDecimal value){
         memory = memory.subtract(value);
     }
-
 
     public Operation getOperation() {
         return operation;

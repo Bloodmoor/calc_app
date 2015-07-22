@@ -4,8 +4,6 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 
 import java.math.BigDecimal;
-import java.text.DecimalFormat;
-import java.text.DecimalFormatSymbols;
 
 public class CalculatorController {
 
@@ -55,13 +53,12 @@ public class CalculatorController {
     }
 
     private void setFirstScreenText(BigDecimal value){
-        if(value.toPlainString().length()>16){
-            DecimalFormat format = new DecimalFormat(DECIMAL_FORMAT);
-            format.setDecimalFormatSymbols(DecimalFormatSymbols.getInstance());
-            firstScreen.setText(format.format(value));
-        }else{
+//        if(value.toPlainString().length()>16){
+//            DecimalFormat format = new DecimalFormat(DECIMAL_FORMAT);
+//            firstScreen.setText(format.format(value).replace(",", "."));
+//        }else{
             firstScreen.setText(value.stripTrailingZeros().toPlainString());
-        }
+//        }
         ensureSize();
         return;
     }
@@ -155,6 +152,7 @@ public class CalculatorController {
                 }
                 isNext = true;
                 isWeakNumber = true;
+                isResult = false;
                 break;
             case MINUS:
                 if (isNext){
@@ -165,6 +163,7 @@ public class CalculatorController {
                     calculator.setOperation(new BigDecimal(firstScreen.getText()), operation);
                     setSecondScreenText(firstScreen.getText() + " -");
                 }
+                isResult = false;
                 isNext = true;
                 isWeakNumber = true;
                 break;
@@ -177,6 +176,7 @@ public class CalculatorController {
                     calculator.setOperation(new BigDecimal(firstScreen.getText()), operation);
                     setSecondScreenText(firstScreen.getText() + " /");
                 }
+                isResult = false;
                 isNext = true;
                 isWeakNumber = true;
                 break;
@@ -189,6 +189,7 @@ public class CalculatorController {
                     calculator.setOperation(new BigDecimal(firstScreen.getText()), operation);
                     setSecondScreenText(firstScreen.getText() + " *");
                 }
+                isResult = false;
                 isNext = true;
                 isWeakNumber = true;
                 break;

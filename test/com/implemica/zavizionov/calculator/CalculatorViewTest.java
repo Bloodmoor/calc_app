@@ -1008,7 +1008,44 @@ public class CalculatorViewTest extends GuiTest {
         assertEquals(FIRST_SCREEN_SMALL_FONT_SIZE, firstScreen.getFont().getSize(), 0.1);
     }
 
+    @Test
+    public void testOperationAfterResult(){
+        click("5");
+        click("5");
+        click("-");
+        click("5");
+        click("=");
 
+        assertFirstScreen("50");
+        assertSecondScreen("");
+
+        click("-");
+
+        assertFirstScreen("50");
+        assertSecondScreen("50 -");
+
+        click("7");
+        click("=");
+
+        assertFirstScreen("43");
+        assertSecondScreen("");
+
+    }
+
+    @Test
+    public void testRounding(){
+        click("3");
+        click(SQRT_BUTTON_ID);
+
+        assertFirstScreen("1.732050807568877");
+        assertSecondScreen("sqrt(3)");
+
+        click("*");
+        click("=");
+
+        assertFirstScreen("3");
+        assertSecondScreen("");
+    }
 
     private void assertMemoryScreen(String s) {
         assertEquals(s, memoryScreen.getText());
