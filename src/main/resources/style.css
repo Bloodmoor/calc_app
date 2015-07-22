@@ -1,0 +1,97 @@
+@font-face {
+    font-family: 'Monaco';
+    src: url('Monaco.ttf');
+}
+
+
+.button{
+    /*-fx-graphic: url('button.bmp');*/
+    /*-fx-content-display: center;*/
+
+    -fx-background-image: url("button.bmp");
+    -fx-background-size: auto;
+    -fx-background-repeat: no-repeat;
+    -fx-background-position:center;
+
+    -fx-focus-traversable: false;
+
+    -fx-padding: 0 0 0 0;
+    -fx-spacing: 0;
+
+}
+
+.digitButton{
+    -fx-font-size: 15.5;
+}
+
+.equalButton{
+    -fx-font-size: 22;
+}
+
+/*.reverseButton{*/
+    /*-fx-font-family: cursive;*/
+/*}*/
+
+.menu-bar{
+    -fx-background-color: #D4D0C8;
+}
+
+.menu{
+    -fx-font-size: 11;
+}
+
+.button:armed{
+    -fx-background-image: url("button_armed.bmp");
+}
+
+#equal{
+     -fx-background-image: url("button_equal.bmp");
+ }
+
+#equal:armed{
+    -fx-background-image: url("button_equal_armed.bmp");
+}
+
+#0{
+    -fx-background-image: url("button_zero.png");
+}
+
+#0:armed{
+    -fx-background-image: url("button_zero_armed.png");
+}
+
+.text-field{
+    -fx-text-box-border: transparent;
+    -fx-background-insets: 0;
+    -fx-padding: 0 0 0 0;
+    -fx-spacing: 0;
+    -fx-background-color:  -fx-focus-color, -fx-text-box-border, -fx-control-inner-background;
+    /*-fx-control-inner-background: );*/
+    /*-fx-background-insets: -0.4, 1, 2;*/
+    /*-fx-background-radius: 3.4, 2, 2;*/
+    -fx-text-fill: black;
+    -fx-opacity: 1.0;
+    /*-fx-font-family: Monaco, monospace;*/
+}
+
+#firstScreen{
+    -fx-background-color:  -fx-focus-color, linear-gradient(#ECF3FC, #ffffff), -fx-text-box-border;
+    -fx-font-family: "Monaco";
+    /*-fx-font-size: 8;*/
+    -fx-text-fill: #333333;
+    -fx-border-insets: 0;
+    -fx-border-width: 1px;
+    -fx-border-color: #EBF2FC #8E9CAD #8E9CAD #8E9CAD;
+ }
+
+#secondScreen{
+    -fx-background-color:  linear-gradient(#E5EEFB, #ECF3FC), -fx-text-box-border;
+    -fx-border-insets: 0;
+    -fx-border-width: 1px;
+    -fx-border-color: #8E9CAD #8E9CAD #EBF2FC #8E9CAD;
+}
+
+.text-field {
+    -fx-border-insets: 0;
+
+}
