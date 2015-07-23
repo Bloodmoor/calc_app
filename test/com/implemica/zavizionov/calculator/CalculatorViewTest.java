@@ -706,7 +706,7 @@ public class CalculatorViewTest extends GuiTest {
         assertSecondScreen("12 +");
 
     }
-    @Ignore
+
     @Test
     public void testFirstScreenOverflow(){
         for(int i = 0; i<16; i++){
@@ -987,6 +987,31 @@ public class CalculatorViewTest extends GuiTest {
         assertFirstScreen("9,989999999999999e+18");
         assertSecondScreen("");
 
+        controller.pressClearButton();
+
+        click("1");
+        click("/");
+        click("3");
+        click("6");
+        click("5");
+        click("=");
+        click("=");
+
+        assertFirstScreen("7.506098705197973e-6");
+        assertSecondScreen("");
+
+        controller.pressClearButton();
+
+        for (int i = 0; i<10;i++) {
+            click("9");
+        }
+
+        click("*");
+        click("=");
+
+        assertFirstScreen("9.999999998e+19");
+        assertSecondScreen("");
+
     }
 
     @Test
@@ -1045,6 +1070,22 @@ public class CalculatorViewTest extends GuiTest {
 
         assertFirstScreen("3");
         assertSecondScreen("");
+
+        controller.pressClearButton();
+
+        click("7");
+        click(SQRT_BUTTON_ID);
+
+        assertFirstScreen("2.645751311064591");
+        assertSecondScreen("sqrt(7)");
+
+        click("*");
+        click("=");
+
+        assertFirstScreen("7");
+        assertSecondScreen("");
+
+
     }
 
     private void assertMemoryScreen(String s) {
