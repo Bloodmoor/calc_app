@@ -4,6 +4,9 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 
 import java.math.BigDecimal;
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
+import java.util.Locale;
 
 public class CalculatorController {
 
@@ -15,7 +18,11 @@ public class CalculatorController {
     private static final int FIRST_SCREEN_MEDIUM_FONT_SIZE = 18;
     private static final int FIRST_SCREEN_SMALL_FONT_SIZE = 15;
     private static final int DISPLAY_SIZE = 16;
-    private static final String DECIMAL_FORMAT = "0.#####E0";
+    private static final BigDecimal DELTA = new BigDecimal("1E-" + (DISPLAY_SIZE-2)); //todo
+    private static final BigDecimal MAX = new BigDecimal("1E"+(DISPLAY_SIZE));
+    private static final BigDecimal MIN = new BigDecimal("1E-"+(DISPLAY_SIZE-2));
+    private static final int SCALE = 29;
+    private BigDecimal currentScreenValue = BigDecimal.ZERO;
 
     private TextField firstScreen;
     private TextField secondScreen;
@@ -46,6 +53,33 @@ public class CalculatorController {
         }
     }
 
+    private boolean isInteger(BigDecimal value){
+        if (value.scale()<=0){
+            return true;
+        }
+        BigDecimal nearestInteger = value.setScale(0, BigDecimal.ROUND_HALF_UP);
+        if(nearestInteger.compareTo(value) == 0){
+            return true;
+        }
+        return false;
+
+    }
+
+    private BigDecimal getRounded(BigDecimal value){
+        if (isInteger(value)){
+            System.out.println("isInt");
+            return value;
+        }
+        if(value.compareTo(MIN)<0){
+            return value;
+        }
+        BigDecimal nearestInteger = value.setScale(0, BigDecimal.ROUND_HALF_UP);
+        if(value.subtract(nearestInteger).abs().compareTo(DELTA) < 0){
+            System.out.println("here");
+            return nearestInteger;
+        }
+        return value;
+    }
 
     private void setFirstScreenText(String text){
         firstScreen.setText(text);
@@ -53,14 +87,34 @@ public class CalculatorController {
     }
 
     private void setFirstScreenText(BigDecimal value){
-//        if(value.toPlainString().length()>16){
-//            DecimalFormat format = new DecimalFormat(DECIMAL_FORMAT);
-//            firstScreen.setText(format.format(value).replace(",", "."));
-//        }else{
-            firstScreen.setText(value.stripTrailingZeros().toPlainString());
-//        }
-        ensureSize();
-        return;
+        currentScreenValue = value;
+        if(value.toPlainString().replace(".", "").length()<=DISPLAY_SIZE){
+            setFirstScreenText(value.toPlainString());
+        }else{
+            setFirstScreenText(format(getRounded(value)));
+        }
+    }
+
+    private String format(BigDecimal value) {
+        String result;
+
+        DecimalFormat f = new DecimalFormat("0E0");
+        f.setDecimalFormatSymbols(DecimalFormatSymbols.getInstance(Locale.ROOT));
+        f.setGroupingUsed(false);
+        if(value.compareTo(MAX)>=0){
+            f.setMaximumIntegerDigits(1);
+            f.setMaximumFractionDigits(DISPLAY_SIZE-1);
+            return f.format(value).replace("E", "e+");
+        }else if(value.compareTo(MIN)<0||value.scale()>SCALE){
+            f.setMaximumIntegerDigits(1);
+            f.setMaximumFractionDigits(DISPLAY_SIZE-1);
+            return f.format(value).replace("E", "e");
+        }else{
+            f.applyPattern("0");
+            int countOfIntDigits = value.toPlainString().lastIndexOf(".");
+            f.setMaximumFractionDigits(DISPLAY_SIZE - countOfIntDigits);
+            return f.format(value);
+        }
     }
 
     private void appendFirstScreenText(String text){
@@ -91,6 +145,7 @@ public class CalculatorController {
             return;
         }
         if (firstScreen.getText().equals("0") || isWeakNumber) {
+            currentScreenValue = BigDecimal.ZERO;
             setFirstScreenText(Integer.toString(digit));
             isWeakNumber = false;
         } else {
@@ -102,16 +157,25 @@ public class CalculatorController {
         if (calculator.getOperation().equals(Operation.NOOP)){
             return;
         }
+
         if(isSqrtResult){
             calculator.setOperation(Operation.NOOP);
             setSecondScreenText(DEFAULT_SECOND_SCREEN_TEXT);
             isSqrtResult = false;
             return;
         }
+
         if(isResult){
-            setFirstScreenText(calculator.getResultAfterEqual(new BigDecimal(firstScreen.getText())));
+            BigDecimal result;
+            if(currentScreenValue.equals(BigDecimal.ZERO)){
+                result = calculator.getResultAfterEqual(new BigDecimal(firstScreen.getText()));
+            }else{
+                result = calculator.getResultAfterEqual(currentScreenValue);
+            }
+            setFirstScreenText(result);
             return;
         }
+
         try {
            setFirstScreenText(calculator.getResult(new BigDecimal(firstScreen.getText())));
            setSecondScreenText(DEFAULT_SECOND_SCREEN_TEXT);
@@ -153,6 +217,7 @@ public class CalculatorController {
                 isNext = true;
                 isWeakNumber = true;
                 isResult = false;
+                isSqrtResult = false;
                 break;
             case MINUS:
                 if (isNext){
@@ -166,6 +231,7 @@ public class CalculatorController {
                 isResult = false;
                 isNext = true;
                 isWeakNumber = true;
+                isSqrtResult = false;
                 break;
             case DIVIDE:
                 if (isNext){
@@ -179,6 +245,7 @@ public class CalculatorController {
                 isResult = false;
                 isNext = true;
                 isWeakNumber = true;
+                isSqrtResult = false;
                 break;
             case MULTIPLY:
                 if (isNext){
@@ -191,6 +258,7 @@ public class CalculatorController {
                 }
                 isResult = false;
                 isNext = true;
+                isSqrtResult = false;
                 isWeakNumber = true;
                 break;
             case INVERT:

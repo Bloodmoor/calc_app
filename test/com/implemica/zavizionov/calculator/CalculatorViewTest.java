@@ -4,7 +4,6 @@ import javafx.scene.Parent;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
-import jdk.nashorn.internal.ir.annotations.Ignore;
 import org.junit.Before;
 import org.junit.Test;
 import org.loadui.testfx.GuiTest;
@@ -40,8 +39,6 @@ public class CalculatorViewTest extends GuiTest {
         controller.pressClearMemoryButton();
     }
 
-
-
     private void assertDigitButton(String buttonId) {
         Button b = find(buttonId);
         if (buttonId.equals("0")) {
@@ -63,7 +60,6 @@ public class CalculatorViewTest extends GuiTest {
         }
     }
 
-    @Ignore
     @Test
     public void testDigitButtons() {
         for (int i = 0; i < 9; i++) {
@@ -964,13 +960,13 @@ public class CalculatorViewTest extends GuiTest {
         click("1");
         click("=");
 
-        assertFirstScreen("1E+16");
+        assertFirstScreen("1e+16");
         assertSecondScreen("");
 
         click("-");
 
-        assertFirstScreen("1E+16");
-        assertSecondScreen("1E+16 -");
+        assertFirstScreen("1e+16");
+        assertSecondScreen("1e+16 -");
 
         click("1");
         click("=");
@@ -984,7 +980,7 @@ public class CalculatorViewTest extends GuiTest {
         click("9");
         click("=");
 
-        assertFirstScreen("9,989999999999999e+18");
+        assertFirstScreen("9.989999999999999e+18");
         assertSecondScreen("");
 
         controller.pressClearButton();
@@ -1087,6 +1083,11 @@ public class CalculatorViewTest extends GuiTest {
 
 
     }
+
+//    @Test
+//    public void testKeyboardKeys(){
+//        press(KeyCode.NUMPAD0);
+//    }
 
     private void assertMemoryScreen(String s) {
         assertEquals(s, memoryScreen.getText());
