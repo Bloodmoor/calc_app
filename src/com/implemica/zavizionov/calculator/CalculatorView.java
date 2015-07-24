@@ -9,6 +9,7 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
+import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
@@ -61,18 +62,29 @@ public class CalculatorView extends Application {
     }
 
     enum ButtonEnum {
-        ONE("1"), TWO("2"), THREE("3"), FOUR("4"), FIVE("5"), SIX("6"),
-        SEVEN("7"), EIGHT("8"), NINE("9"), ZERO("0"), EQUAL("="), DOT("."),
-        BACKSPACE("<-"), PLUS("+"), MINUS("-"), DIVIDE("/"), MULTIPLY("*"),
+        ONE("1", KeyCode.NUMPAD1), TWO("2", KeyCode.NUMPAD2), THREE("3", KeyCode.NUMPAD3),
+        FOUR("4", KeyCode.NUMPAD4), FIVE("5", KeyCode.NUMPAD5), SIX("6", KeyCode.NUMPAD6),
+        SEVEN("7", KeyCode.NUMPAD7), EIGHT("8" ,KeyCode.NUMPAD8), NINE("9", KeyCode.NUMPAD9),
+        ZERO("0", KeyCode.NUMPAD0), EQUAL("=", KeyCode.ENTER), DOT(".", KeyCode.DECIMAL),
+        BACKSPACE("<-", KeyCode.BACK_SPACE), PLUS("+", KeyCode.ADD), MINUS("-", KeyCode.SUBTRACT),
+        DIVIDE("/", KeyCode.DIVIDE), MULTIPLY("*", KeyCode.MULTIPLY),
         INVERT("\u00B1"), SQRT("\u221A"), PERCENT("%"), REVERSE("1/x"),
         MC("MC"), MR("MR"), MS("MS"), MPLUS("M+"), MMINUS("M-"), CE("CE"), C("C");
 
         private String text;
+        private KeyCode keyCode;
         public String getText() {
             return text;
         }
+        public KeyCode getKeyCode(){
+            return keyCode;
+        }
         ButtonEnum(String text) {
             this.text = text;
+        }
+        ButtonEnum(String text, KeyCode keyCode){
+            this(text);
+            this.keyCode = keyCode;
         }
     }
 

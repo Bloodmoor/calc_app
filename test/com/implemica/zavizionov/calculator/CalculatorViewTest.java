@@ -1,15 +1,17 @@
 package com.implemica.zavizionov.calculator;
 
+import com.sun.javafx.robot.FXRobot;
+import com.sun.javafx.robot.FXRobotFactory;
 import javafx.scene.Parent;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
+import javafx.scene.input.KeyCode;
 import org.junit.Before;
 import org.junit.Test;
 import org.loadui.testfx.GuiTest;
 
 import java.awt.*;
-import java.awt.event.KeyEvent;
 
 import static org.junit.Assert.assertEquals;
 
@@ -20,11 +22,13 @@ public class CalculatorViewTest extends GuiTest {
     private static final int FIRST_SCREEN_BIG_FONT_SIZE = 22;
     private static final int FIRST_SCREEN_MEDIUM_FONT_SIZE = 18;
     private static final int FIRST_SCREEN_SMALL_FONT_SIZE = 15;
+    private static final long DELAY = 500;
     Parent root;
     TextField firstScreen;
     TextField secondScreen;
     Label memoryScreen;
     CalculatorController controller;
+    FXRobot r;
 
     public Parent getRootNode() {
         CalculatorView view = new CalculatorView();
@@ -33,6 +37,7 @@ public class CalculatorViewTest extends GuiTest {
         secondScreen = view.secondScreen;
         memoryScreen = view.memoryScreen;
         controller = view.getController();
+        r = FXRobotFactory.createRobot(root.getScene());
         return root;
     }
 
@@ -1088,92 +1093,97 @@ public class CalculatorViewTest extends GuiTest {
     }
 
     @Test
-    public void testKeyboardKeys() throws AWTException {
-        Robot r = new Robot();
-        r.delay(1000);
-        r.setAutoDelay(100);
-        for (int k = KeyEvent.VK_ENTER; k <= KeyEvent.VK_ADD; k++) {
-            try {
-                switch (k) {
-                    case KeyEvent.VK_NUMPAD0:
-                        r.keyPress(KeyEvent.VK_NUMPAD1);
-                        r.keyPress(KeyEvent.VK_NUMPAD0);
-                        assertFirstScreen("10");
-                        break;
-                    case KeyEvent.VK_NUMPAD1:
-                        r.keyPress(k);
-                        assertFirstScreen("1");
-                        break;
-                    case KeyEvent.VK_NUMPAD2:
-                        r.keyPress(k);
-                        assertFirstScreen("2");
-                        break;
-                    case KeyEvent.VK_NUMPAD3:
-                        r.keyPress(k);
-                        assertFirstScreen("3");
-                        break;
-                    case KeyEvent.VK_NUMPAD4:
-                        r.keyPress(k);
-                        assertFirstScreen("4");
-                        break;
-                    case KeyEvent.VK_NUMPAD5:
-                        r.keyPress(k);
-                        assertFirstScreen("5");
-                        break;
-                    case KeyEvent.VK_NUMPAD6:
-                        r.keyPress(k);
-                        assertFirstScreen("6");
-                        break;
-                    case KeyEvent.VK_NUMPAD7:
-                        r.keyPress(k);
-                        assertFirstScreen("7");
-                        break;
-                    case KeyEvent.VK_NUMPAD8:
-                        r.keyPress(k);
-                        assertFirstScreen("8");
-                        break;
-                    case KeyEvent.VK_NUMPAD9:
-                        r.keyPress(k);
-                        assertFirstScreen("9");
-                        break;
-                    case KeyEvent.VK_MULTIPLY:
-                        r.keyPress(k);
-                        assertSecondScreen("0 *");
-                        break;
-                    case KeyEvent.VK_ADD:
-                        r.keyPress(k);
-                        assertSecondScreen("0 +");
-                        break;
-                    case KeyEvent.VK_SUBTRACT:
-                        assertSecondScreen("0 -");
-                        break;
-                    case KeyEvent.VK_DECIMAL:
-                        r.keyPress(k);
-                        assertFirstScreen("0.");
-                        break;
-                    case KeyEvent.VK_DIVIDE:
-                        r.keyPress(k);
-                        assertSecondScreen("0 /");
-                        break;
-                    case KeyEvent.VK_BACK_SPACE:
-                        r.keyPress(KeyEvent.VK_NUMPAD1);
-                        r.keyPress(KeyEvent.VK_NUMPAD2);
-                        assertFirstScreen("12");
-                        r.keyPress(KeyEvent.VK_BACK_SPACE);
-                        assertFirstScreen("1");
-                        r.keyPress(KeyEvent.VK_BACK_SPACE);
-                        assertFirstScreen("0");
-                        break;
-                    case KeyEvent.VK_ENTER:
-                        r.keyPress(KeyEvent.VK_NUMPAD1);
-                        r.keyPress(KeyEvent.VK_ADD);
-                        r.keyPress(KeyEvent.VK_NUMPAD2);
-                        r.keyPress(KeyEvent.VK_ENTER);
-                        assertFirstScreen("3");
-                        break;
-                }
-            } catch (IllegalArgumentException e) {
-                //Ignoring invalid keys
+    public void testKeyboardKeys() throws AWTException, InterruptedException {
+        for (CalculatorView.ButtonEnum b : CalculatorView.ButtonEnum.values()) {
+            KeyCode keyCode = b.getKeyCode();
+            switch (keyCode) {
+                case NUMPAD0:
+                    r.keyPress(KeyCode.NUMPAD1);
+                    r.keyPress(KeyCode.NUMPAD0);
+                    assertFirstScreen("10");
+                    break;
+//                    case NUMPAD1:
+//                        r.keyPress(keyCode);
+//                        assertFirstScreen("1");
+//                        break;
+                case NUMPAD2:
+//                        r.keyPress(keyCode);
+//                        Thread.sleep(500);
+                        pressFXRobot(keyCode);
+//                    pressTFX(keyCode);
+                    assertFirstScreen("2");
+                    break;
+                case NUMPAD3:
+                    pressTFX(keyCode);
+                    Thread.sleep(DELAY);
+                    assertFirstScreen("3");
+                    break;
+                case NUMPAD4:
+                    pressTFX(keyCode);
+                    Thread.sleep(DELAY);
+                    assertFirstScreen("4");
+                    break;
+                case NUMPAD5:
+                    pressTFX(keyCode);
+                    Thread.sleep(DELAY);
+                    assertFirstScreen("5");
+                    break;
+                case NUMPAD6:
+                    pressTFX(keyCode);
+                    Thread.sleep(DELAY);
+                    assertFirstScreen("6");
+                    break;
+                case NUMPAD7:
+                    pressTFX(keyCode);
+                    Thread.sleep(DELAY);
+                    assertFirstScreen("7");
+                    break;
+                case NUMPAD8:
+                    pressTFX(keyCode);
+                    Thread.sleep(DELAY);
+                    assertFirstScreen("8");
+                    break;
+                case NUMPAD9:
+                    pressTFX(keyCode);
+                    Thread.sleep(DELAY);
+                    assertFirstScreen("9");
+                    break;
+                case MULTIPLY:
+                    r.keyPress(keyCode);
+                    assertSecondScreen("0 *");
+                    break;
+                case ADD:
+                    r.keyPress(keyCode);
+                    assertSecondScreen("0 +");
+                    break;
+                case SUBTRACT:
+                    r.keyPress(keyCode);
+                    assertSecondScreen("0 -");
+                    break;
+                case DECIMAL:
+                    r.keyPress(keyCode);
+                    assertFirstScreen("0.");
+                    break;
+                case DIVIDE:
+                    r.keyPress(keyCode);
+                    assertSecondScreen("0 /");
+                    break;
+                case BACK_SPACE:
+                    r.keyPress(KeyCode.NUMPAD1);
+                    r.keyPress(KeyCode.NUMPAD2);
+                    assertFirstScreen("12");
+                    r.keyPress(KeyCode.BACK_SPACE);
+                    assertFirstScreen("1");
+                    r.keyPress(KeyCode.BACK_SPACE);
+                    assertFirstScreen("0");
+                    break;
+                case ENTER:
+                    r.keyPress(KeyCode.NUMPAD1);
+                    r.keyPress(KeyCode.ADD);
+                    r.keyPress(KeyCode.NUMPAD2);
+                    r.keyPress(KeyCode.ENTER);
+                    assertFirstScreen("3");
+                    break;
             }
             controller.pressClearButton();
         }
@@ -1192,4 +1202,13 @@ public class CalculatorViewTest extends GuiTest {
         assertEquals(s, secondScreen.getText());
     }
 
+    private void pressFXRobot(KeyCode keyCode) throws InterruptedException {
+        r.keyPress(keyCode);
+        Thread.sleep(DELAY);
+    }
+
+    private void pressTFX(KeyCode keyCode) throws InterruptedException {
+        press(keyCode);
+        Thread.sleep(DELAY);
+    }
 }
