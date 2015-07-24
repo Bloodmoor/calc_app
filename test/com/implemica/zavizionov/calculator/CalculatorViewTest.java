@@ -8,6 +8,9 @@ import org.junit.Before;
 import org.junit.Test;
 import org.loadui.testfx.GuiTest;
 
+import java.awt.*;
+import java.awt.event.KeyEvent;
+
 import static org.junit.Assert.assertEquals;
 
 public class CalculatorViewTest extends GuiTest {
@@ -31,7 +34,7 @@ public class CalculatorViewTest extends GuiTest {
         memoryScreen = view.memoryScreen;
         controller = view.getController();
         return root;
-}
+    }
 
     @Before
     public void initialize() {
@@ -572,7 +575,7 @@ public class CalculatorViewTest extends GuiTest {
     }
 
     @Test
-    public void testOperatorCombinations(){
+    public void testOperatorCombinations() {
         //5 + 9 * 2 - 1 / 3 =
         click("5");
         click("+");
@@ -602,7 +605,7 @@ public class CalculatorViewTest extends GuiTest {
     }
 
     @Test
-    public void testEquals(){
+    public void testEquals() {
         //= =  after init
 
         click("=");
@@ -634,7 +637,7 @@ public class CalculatorViewTest extends GuiTest {
     }
 
     @Test
-    public void testBackSpace(){
+    public void testBackSpace() {
         //one symbol
         click("1");
 
@@ -704,8 +707,8 @@ public class CalculatorViewTest extends GuiTest {
     }
 
     @Test
-    public void testFirstScreenOverflow(){
-        for(int i = 0; i<16; i++){
+    public void testFirstScreenOverflow() {
+        for (int i = 0; i < 16; i++) {
             click("9");
         }
         String text = firstScreen.getText();
@@ -720,12 +723,12 @@ public class CalculatorViewTest extends GuiTest {
     }
 
     @Test
-    public void testSecondScreenOverflow(){
+    public void testSecondScreenOverflow() {
 
     }
 
     @Test
-    public void testMemoryButtonsOnZero(){
+    public void testMemoryButtonsOnZero() {
         click("MS");
 
         assertMemoryScreen("");
@@ -741,7 +744,7 @@ public class CalculatorViewTest extends GuiTest {
     }
 
     @Test
-    public void testMemoryStoreAndRecall(){
+    public void testMemoryStoreAndRecall() {
         // for single number
         click("5");
         click("MS");
@@ -815,7 +818,7 @@ public class CalculatorViewTest extends GuiTest {
     }
 
     @Test
-    public void testMemoryPlus(){
+    public void testMemoryPlus() {
         click("5");
         click("M+");
 
@@ -855,7 +858,7 @@ public class CalculatorViewTest extends GuiTest {
     }
 
     @Test
-    public void testMemoryMinus(){
+    public void testMemoryMinus() {
         click("5");
         click("M-");
 
@@ -895,7 +898,7 @@ public class CalculatorViewTest extends GuiTest {
     }
 
     @Test
-    public void testMemoryClear(){
+    public void testMemoryClear() {
         click("5");
         click("MS");
 
@@ -925,7 +928,7 @@ public class CalculatorViewTest extends GuiTest {
     }
 
     @Test
-    public void testInputAfterResult(){
+    public void testInputAfterResult() {
         click("5");
         click("5");
         click("+");
@@ -952,8 +955,8 @@ public class CalculatorViewTest extends GuiTest {
     }
 
     @Test
-    public void testScienceRepresentation(){
-        for (int i = 0; i<16;i++) {
+    public void testScienceRepresentation() {
+        for (int i = 0; i < 16; i++) {
             click("9");
         }
         click("+");
@@ -998,7 +1001,7 @@ public class CalculatorViewTest extends GuiTest {
 
         controller.pressClearButton();
 
-        for (int i = 0; i<10;i++) {
+        for (int i = 0; i < 10; i++) {
             click("9");
         }
 
@@ -1011,12 +1014,12 @@ public class CalculatorViewTest extends GuiTest {
     }
 
     @Test
-    public void testTextSizing(){
-        for (int i=0; i<12; i++) {
+    public void testTextSizing() {
+        for (int i = 0; i < 12; i++) {
             click("9");
         }
 
-        assertEquals(FIRST_SCREEN_BIG_FONT_SIZE,firstScreen.getFont().getSize(), 0.1);
+        assertEquals(FIRST_SCREEN_BIG_FONT_SIZE, firstScreen.getFont().getSize(), 0.1);
 
         click("9");
 
@@ -1030,7 +1033,7 @@ public class CalculatorViewTest extends GuiTest {
     }
 
     @Test
-    public void testOperationAfterResult(){
+    public void testOperationAfterResult() {
         click("5");
         click("5");
         click("-");
@@ -1054,7 +1057,7 @@ public class CalculatorViewTest extends GuiTest {
     }
 
     @Test
-    public void testRounding(){
+    public void testRounding() {
         click("3");
         click(SQRT_BUTTON_ID);
 
@@ -1084,10 +1087,98 @@ public class CalculatorViewTest extends GuiTest {
 
     }
 
-//    @Test
-//    public void testKeyboardKeys(){
-//        press(KeyCode.NUMPAD0);
-//    }
+    @Test
+    public void testKeyboardKeys() throws AWTException {
+        Robot r = new Robot();
+        r.delay(1000);
+        r.setAutoDelay(100);
+        for (int k = KeyEvent.VK_ENTER; k <= KeyEvent.VK_ADD; k++) {
+            try {
+                switch (k) {
+                    case KeyEvent.VK_NUMPAD0:
+                        r.keyPress(KeyEvent.VK_NUMPAD1);
+                        r.keyPress(KeyEvent.VK_NUMPAD0);
+                        assertFirstScreen("10");
+                        break;
+                    case KeyEvent.VK_NUMPAD1:
+                        r.keyPress(k);
+                        assertFirstScreen("1");
+                        break;
+                    case KeyEvent.VK_NUMPAD2:
+                        r.keyPress(k);
+                        assertFirstScreen("2");
+                        break;
+                    case KeyEvent.VK_NUMPAD3:
+                        r.keyPress(k);
+                        assertFirstScreen("3");
+                        break;
+                    case KeyEvent.VK_NUMPAD4:
+                        r.keyPress(k);
+                        assertFirstScreen("4");
+                        break;
+                    case KeyEvent.VK_NUMPAD5:
+                        r.keyPress(k);
+                        assertFirstScreen("5");
+                        break;
+                    case KeyEvent.VK_NUMPAD6:
+                        r.keyPress(k);
+                        assertFirstScreen("6");
+                        break;
+                    case KeyEvent.VK_NUMPAD7:
+                        r.keyPress(k);
+                        assertFirstScreen("7");
+                        break;
+                    case KeyEvent.VK_NUMPAD8:
+                        r.keyPress(k);
+                        assertFirstScreen("8");
+                        break;
+                    case KeyEvent.VK_NUMPAD9:
+                        r.keyPress(k);
+                        assertFirstScreen("9");
+                        break;
+                    case KeyEvent.VK_MULTIPLY:
+                        r.keyPress(k);
+                        assertSecondScreen("0 *");
+                        break;
+                    case KeyEvent.VK_ADD:
+                        r.keyPress(k);
+                        assertSecondScreen("0 +");
+                        break;
+                    case KeyEvent.VK_SUBTRACT:
+                        assertSecondScreen("0 -");
+                        break;
+                    case KeyEvent.VK_DECIMAL:
+                        r.keyPress(k);
+                        assertFirstScreen("0.");
+                        break;
+                    case KeyEvent.VK_DIVIDE:
+                        r.keyPress(k);
+                        assertSecondScreen("0 /");
+                        break;
+                    case KeyEvent.VK_BACK_SPACE:
+                        r.keyPress(KeyEvent.VK_NUMPAD1);
+                        r.keyPress(KeyEvent.VK_NUMPAD2);
+                        assertFirstScreen("12");
+                        r.keyPress(KeyEvent.VK_BACK_SPACE);
+                        assertFirstScreen("1");
+                        r.keyPress(KeyEvent.VK_BACK_SPACE);
+                        assertFirstScreen("0");
+                        break;
+                    case KeyEvent.VK_ENTER:
+                        r.keyPress(KeyEvent.VK_NUMPAD1);
+                        r.keyPress(KeyEvent.VK_ADD);
+                        r.keyPress(KeyEvent.VK_NUMPAD2);
+                        r.keyPress(KeyEvent.VK_ENTER);
+                        assertFirstScreen("3");
+                        break;
+                }
+            } catch (IllegalArgumentException e) {
+                //Ignoring invalid keys
+            }
+            controller.pressClearButton();
+        }
+
+    }
 
     private void assertMemoryScreen(String s) {
         assertEquals(s, memoryScreen.getText());
