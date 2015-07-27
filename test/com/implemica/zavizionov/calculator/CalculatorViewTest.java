@@ -15,7 +15,8 @@ import static org.junit.Assert.assertEquals;
 
 public class CalculatorViewTest extends GuiTest {
 
-    private static final String DIVIDE_BY_ZERO = "\u0414\u0435\u043B\u0435\u043D\u0438\u0435 \u043D\u0430 \u043D\u043E\u043B\u044C \u043D\u0435\u0432\u043E\u0437\u043C\u043E\u0436\u043D\u043E";
+    private static final String DIVIDE_BY_ZERO_MESSAGE = "\u0414\u0435\u043B\u0435\u043D\u0438\u0435 \u043D\u0430 \u043D\u043E\u043B\u044C \u043D\u0435\u0432\u043E\u0437\u043C\u043E\u0436\u043D\u043E";
+    private static final String OVERFLOW_MESSAGE = "\u041F\u0435\u0440\u0435\u043F\u043E\u043B\u043D\u0435\u043D\u0438\u0435";
     private static final String SQRT_BUTTON_ID = "\u221A";
     private static final String INVERT_BUTTOD_ID = "\u00B1";
     private static final String SCREEN_OVRFLOW_SYMBOL = "\u2039\u2039";
@@ -23,6 +24,7 @@ public class CalculatorViewTest extends GuiTest {
     private static final int FIRST_SCREEN_MEDIUM_FONT_SIZE = 18;
     private static final int FIRST_SCREEN_SMALL_FONT_SIZE = 15;
     private static final long DELAY = 500;
+    private static final String DOT_BUTTON_ID = ",";
 
     Parent root;
     TextField firstScreen;
@@ -302,7 +304,7 @@ public class CalculatorViewTest extends GuiTest {
         click("0");
         click("=");
 
-        assertFirstScreen(DIVIDE_BY_ZERO);
+        assertFirstScreen(DIVIDE_BY_ZERO_MESSAGE);
         assertSecondScreen("0 /");
 
         controller.pressClearButton();
@@ -317,7 +319,7 @@ public class CalculatorViewTest extends GuiTest {
         click("0");
         click("=");
 
-        assertFirstScreen(DIVIDE_BY_ZERO);
+        assertFirstScreen(DIVIDE_BY_ZERO_MESSAGE);
         assertSecondScreen("5 /");
     }
 
@@ -496,7 +498,7 @@ public class CalculatorViewTest extends GuiTest {
         click("0");
         click("1/x");
 
-        assertFirstScreen(DIVIDE_BY_ZERO);
+        assertFirstScreen(DIVIDE_BY_ZERO_MESSAGE);
         assertSecondScreen("reciproc(0)");
 
         controller.pressClearButton();
@@ -508,7 +510,7 @@ public class CalculatorViewTest extends GuiTest {
         click("0");
         click("1/x");
 
-        assertFirstScreen(DIVIDE_BY_ZERO);
+        assertFirstScreen(DIVIDE_BY_ZERO_MESSAGE);
         assertSecondScreen("1 + reciproc(0)");
     }
 
@@ -1247,6 +1249,39 @@ public class CalculatorViewTest extends GuiTest {
             controller.pressClearButton();
         }
 
+    }
+
+    @Test
+    public void testNumberOverflow(){
+        click("1");
+        click("*");
+        click("0");
+        click(DOT_BUTTON_ID);
+        for(int i = 0; i<9; i++){
+            click("0");
+        }
+        click("1");
+        for(int i = 0; i<10; i++){
+            click("=");
+        }
+        click("*");
+        for(int i = 0; i<9; i++){
+            click("=");
+        }
+        click("*");
+        for(int i = 0; i<9; i++){
+            click("=");
+        }
+
+        assertFirstScreen("1e-10000");
+
+        click("*");
+        click("0");
+        click(DOT_BUTTON_ID);
+        click("1");
+        click("=");
+
+        assertFirstScreen(OVERFLOW_MESSAGE);
     }
 
     private void assertMemoryScreen(String s) {

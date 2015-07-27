@@ -11,13 +11,13 @@ import static junit.framework.Assert.fail;
  */
 public class CalculatorTest {
 
-    private void assertOperation(BigDecimal leftOperand, BigDecimal rightOperand, Operation op, BigDecimal expectedResult) {
+    private void assertOperation(BigDecimal leftOperand, BigDecimal rightOperand, Operation op, BigDecimal expectedResult) throws Exception {
         Calculator calc = new Calculator();
         calc.setOperation(leftOperand, op);
         assertEqualsBD(expectedResult, calc.getResult(rightOperand));
     }
 
-    private void assertOperation(BigDecimal leftOperand, Operation op, BigDecimal expectedResult) {
+    private void assertOperation(BigDecimal leftOperand, Operation op, BigDecimal expectedResult) throws Exception {
         Calculator calc = new Calculator();
         calc.setOperation(leftOperand, op);
         assertEqualsBD(expectedResult, calc.getResult());
@@ -35,19 +35,19 @@ public class CalculatorTest {
         }
     }
 
-    private void assertOperation(double leftOperand, double rightOperand, Operation op, double expectedResult) {
+    private void assertOperation(double leftOperand, double rightOperand, Operation op, double expectedResult) throws Exception {
         assertOperation(asBD(leftOperand), asBD(rightOperand), op, asBD(expectedResult));
     }
 
-    private void assertOperation(String leftOperand, String rightOperand, Operation op, String expectedResult) {
+    private void assertOperation(String leftOperand, String rightOperand, Operation op, String expectedResult) throws Exception {
         assertOperation(asBD(leftOperand), asBD(rightOperand), op, asBD(expectedResult));
     }
 
-    private void assertOperation(double leftOperand, Operation op, double expectedResult) {
+    private void assertOperation(double leftOperand, Operation op, double expectedResult) throws Exception {
         assertOperation(asBD(leftOperand), op, asBD(expectedResult));
     }
 
-    private void assertOperation(String leftOperand, Operation op, String expectedResult) {
+    private void assertOperation(String leftOperand, Operation op, String expectedResult) throws Exception {
         assertOperation(asBD(leftOperand), op, asBD(expectedResult));
     }
 
@@ -72,7 +72,7 @@ public class CalculatorTest {
     }
 
 
-    private void assertBadArguments(BigDecimal leftOperand, BigDecimal rightOperand, Operation op) {
+    private void assertBadArguments(BigDecimal leftOperand, BigDecimal rightOperand, Operation op) throws Exception {
         Calculator calc = new Calculator();
         calc.setOperation(leftOperand, op);
         try {
@@ -83,7 +83,7 @@ public class CalculatorTest {
         }
     }
 
-    private void assertBadArguments(BigDecimal leftOperand, Operation op) {
+    private void assertBadArguments(BigDecimal leftOperand, Operation op) throws Exception {
         Calculator calc = new Calculator();
         calc.setOperation(leftOperand, op);
         try {
@@ -94,11 +94,11 @@ public class CalculatorTest {
         }
     }
 
-    private void assertBadArguments(String leftOperand, String rightOperand, Operation op) {
+    private void assertBadArguments(String leftOperand, String rightOperand, Operation op) throws Exception {
         assertBadArguments(asBD(leftOperand), asBD(rightOperand), op);
     }
 
-    private void assertBadArguments(String leftOperand, Operation op) {
+    private void assertBadArguments(String leftOperand, Operation op) throws Exception {
         assertBadArguments(asBD(leftOperand),  op);
     }
 

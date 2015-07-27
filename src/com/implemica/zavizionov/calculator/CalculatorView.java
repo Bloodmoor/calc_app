@@ -63,7 +63,7 @@ public class CalculatorView extends Application {
         ONE("1", KeyCode.NUMPAD1), TWO("2", KeyCode.NUMPAD2), THREE("3", KeyCode.NUMPAD3),
         FOUR("4", KeyCode.NUMPAD4), FIVE("5", KeyCode.NUMPAD5), SIX("6", KeyCode.NUMPAD6),
         SEVEN("7", KeyCode.NUMPAD7), EIGHT("8" ,KeyCode.NUMPAD8), NINE("9", KeyCode.NUMPAD9),
-        ZERO("0", KeyCode.NUMPAD0), EQUAL("=", KeyCode.ENTER), DOT(".", KeyCode.DECIMAL),
+        ZERO("0", KeyCode.NUMPAD0), EQUAL("=", KeyCode.ENTER), DOT(",", KeyCode.DECIMAL),
         BACKSPACE("<-", KeyCode.BACK_SPACE), PLUS("+", KeyCode.ADD), MINUS("-", KeyCode.SUBTRACT),
         DIVIDE("/", KeyCode.DIVIDE), MULTIPLY("*", KeyCode.MULTIPLY),
         INVERT("\u00B1"), SQRT("\u221A"), PERCENT("%"), REVERSE("1/x"),
@@ -343,7 +343,7 @@ public class CalculatorView extends Application {
         }
         if(buttonEnum.equals(ButtonEnum.EQUAL)){
             b.setId("equal");
-        }else{
+        }else {
             b.setId(buttonEnum.getText());
         }
         b.setText(buttonEnum.getText());

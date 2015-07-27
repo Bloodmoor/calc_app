@@ -14,16 +14,20 @@ public class CalculatorController {
     private static final String DEFAULT_SECOND_SCREEN_TEXT = "";
     private static final String MEMORY_INDICATOR = "M";
     private static final String SCREEN_OVERFLOW_SYMBOL = "‹‹";
+    private static final String OVERFLOW_MESSAGE = "\u041F\u0435\u0440\u0435\u043F\u043E\u043B\u043D\u0435\u043D\u0438\u0435";
     private static final String DIVIDE_BY_ZERO_MESSAGE = "\u0414\u0435\u043B\u0435\u043D\u0438\u0435 \u043D\u0430 \u043D\u043E\u043B\u044C \u043D\u0435\u0432\u043E\u0437\u043C\u043E\u0436\u043D\u043E";
     private static final int FIRST_SCREEN_BIG_FONT_SIZE = 22;
     private static final int FIRST_SCREEN_MEDIUM_FONT_SIZE = 18;
-    private static final int FIRST_SCREEN_SMALL_FONT_SIZE = 15;
+    private static final int FIRST_SCREEN_SMALL_FONT_SIZE = 13;
     private static final int FIRST_DISPLAY_SIZE = 16;
     private static final int SECOND_DISPLAY_SIZE = 30;
+
     private static final BigDecimal DELTA = new BigDecimal("1E-" + (FIRST_DISPLAY_SIZE -2));
     private static final BigDecimal MAX = new BigDecimal("1E"+(FIRST_DISPLAY_SIZE));
     private static final BigDecimal MIN = new BigDecimal("1E-"+(FIRST_DISPLAY_SIZE -2));
     private static final int SCALE = 29;
+    private static final int BIG_FONT_SYMBOLS_COUNT = 12;
+
     private BigDecimal currentScreenValue = BigDecimal.ZERO;
 
     private TextField firstScreen;
@@ -46,7 +50,8 @@ public class CalculatorController {
     }
 
     private void ensureSize(){
-        if (firstScreen.getLength() < 13) {
+
+        if (firstScreen.getLength() <= BIG_FONT_SYMBOLS_COUNT) {
             firstScreen.setStyle("-fx-font-size: " + FIRST_SCREEN_BIG_FONT_SIZE + ";");
         } else if(firstScreen.getLength() < 18) {
             firstScreen.setStyle("-fx-font-size: " + FIRST_SCREEN_MEDIUM_FONT_SIZE + ";");
@@ -97,23 +102,27 @@ public class CalculatorController {
 
     private String format(BigDecimal value) {
         String result;
-
         DecimalFormat f = new DecimalFormat("0E0");
         f.setDecimalFormatSymbols(DecimalFormatSymbols.getInstance(Locale.ROOT));
         f.setGroupingUsed(false);
         if(value.compareTo(MAX)>=0){
             f.setMaximumIntegerDigits(1);
             f.setMaximumFractionDigits(FIRST_DISPLAY_SIZE - 1);
-            return f.format(value).replace("E", "e+");
+            result = f.format(value);
         }else if(value.compareTo(MIN)<0||value.scale()>SCALE){
             f.setMaximumIntegerDigits(1);
             f.setMaximumFractionDigits(FIRST_DISPLAY_SIZE -1);
-            return f.format(value).replace("E", "e");
+            result = f.format(value);
         }else{
             f.applyPattern("0");
             int countOfIntDigits = value.toPlainString().lastIndexOf(".");
             f.setMaximumFractionDigits(FIRST_DISPLAY_SIZE - countOfIntDigits);
-            return f.format(value);
+            result = f.format(value);
+        }
+        if (value.compareTo(MIN)<0 || value.scale()>SCALE){
+            return result.replace("E", "e");
+        }else{
+            return result.replace("E", "e+");
         }
     }
 
@@ -169,7 +178,7 @@ public class CalculatorController {
             isSqrtResult = false;
             return;
         }
-
+        try {
         if(isResult){
             BigDecimal result;
             if(currentScreenValue.equals(BigDecimal.ZERO)){
@@ -181,13 +190,19 @@ public class CalculatorController {
             return;
         }
 
-        try {
+
            setFirstScreenText(calculator.getResult(new BigDecimal(firstScreen.getText())));
            setSecondScreenText(DEFAULT_SECOND_SCREEN_TEXT);
         } catch (IllegalArgumentException e) {
             if (e.getMessage().contains("divide by zero")) {
                 setFirstScreenText(DIVIDE_BY_ZERO_MESSAGE);
             } else {
+                setFirstScreenText("Error");
+            }
+        } catch (Exception e) {
+            if(e.getMessage().contains("Overflow")){
+                setFirstScreenText(OVERFLOW_MESSAGE);
+            }else{
                 setFirstScreenText("Error");
             }
         }
@@ -209,136 +224,144 @@ public class CalculatorController {
     }
 
     public void pressOperationButton(Operation operation) {
-        switch (operation) {
-            case PLUS:
-                if (isNext){
-                    if(isWeakNumber){
-                        replaceLastSign("+");
+        try {
+            switch (operation) {
+                case PLUS:
+                    if (isNext) {
+                        if (isWeakNumber) {
+                            replaceLastSign("+");
+                            calculator.setOperation(new BigDecimal(firstScreen.getText()), operation);
+                        } else {
+                            appendSecondScreenText(" " + firstScreen.getText() + " +");
+                            setFirstScreenText(calculator.getResultOnGo(new BigDecimal(firstScreen.getText())));
+                            calculator.setOperation(new BigDecimal(firstScreen.getText()), operation);
+                        }
+                    } else {
                         calculator.setOperation(new BigDecimal(firstScreen.getText()), operation);
-                    }else{
-                        appendSecondScreenText(" " + firstScreen.getText() + " +");
-                        setFirstScreenText(calculator.getResultOnGo(new BigDecimal(firstScreen.getText())));
-                        calculator.setOperation(new BigDecimal(firstScreen.getText()), operation);
+                        setSecondScreenText(firstScreen.getText() + " +");
                     }
-                }else{
+                    isNext = true;
+                    isWeakNumber = true;
+                    isResult = false;
+                    isSqrtResult = false;
+                    break;
+                case MINUS:
+                    if (isNext) {
+                        if (isWeakNumber) {
+                            replaceLastSign("-");
+                            calculator.setOperation(new BigDecimal(firstScreen.getText()), operation);
+                        } else {
+                            appendSecondScreenText(" " + firstScreen.getText() + " -");
+                            setFirstScreenText(calculator.getResultOnGo(new BigDecimal(firstScreen.getText())));
+                            calculator.setOperation(new BigDecimal(firstScreen.getText()), operation);
+                        }
+                    } else {
+                        calculator.setOperation(new BigDecimal(firstScreen.getText()), operation);
+                        setSecondScreenText(firstScreen.getText() + " -");
+                    }
+                    isNext = true;
+                    isWeakNumber = true;
+                    isResult = false;
+                    isSqrtResult = false;
+                    break;
+                case DIVIDE:
+                    if (isNext) {
+                        if (isWeakNumber) {
+                            replaceLastSign("/");
+                            calculator.setOperation(new BigDecimal(firstScreen.getText()), operation);
+                        } else {
+                            appendSecondScreenText(" " + firstScreen.getText() + " /");
+                            setFirstScreenText(calculator.getResultOnGo(new BigDecimal(firstScreen.getText())));
+                            calculator.setOperation(new BigDecimal(firstScreen.getText()), operation);
+                        }
+                    } else {
+                        calculator.setOperation(new BigDecimal(firstScreen.getText()), operation);
+                        setSecondScreenText(firstScreen.getText() + " /");
+                    }
+                    isNext = true;
+                    isWeakNumber = true;
+                    isResult = false;
+                    isSqrtResult = false;
+                    break;
+                case MULTIPLY:
+                    if (isNext) {
+                        if (isWeakNumber) {
+                            replaceLastSign("*");
+                            calculator.setOperation(new BigDecimal(firstScreen.getText()), operation);
+                        } else {
+                            appendSecondScreenText(" " + firstScreen.getText() + " *");
+                            setFirstScreenText(calculator.getResultOnGo(new BigDecimal(firstScreen.getText())));
+                            calculator.setOperation(new BigDecimal(firstScreen.getText()), operation);
+                        }
+                    } else {
+                        calculator.setOperation(new BigDecimal(firstScreen.getText()), operation);
+                        setSecondScreenText(firstScreen.getText() + " *");
+                    }
+                    isNext = true;
+                    isWeakNumber = true;
+                    isResult = false;
+                    isSqrtResult = false;
+                    break;
+                case INVERT:
                     calculator.setOperation(new BigDecimal(firstScreen.getText()), operation);
-                    setSecondScreenText(firstScreen.getText() + " +");
-                }
-                isNext = true;
-                isWeakNumber = true;
-                isResult = false;
-                isSqrtResult = false;
-                break;
-            case MINUS:
-                if (isNext){
-                    if(isWeakNumber){
-                        replaceLastSign("-");
-                        calculator.setOperation(new BigDecimal(firstScreen.getText()), operation);
-                    }else{
-                        appendSecondScreenText(" " + firstScreen.getText() + " -");
-                        setFirstScreenText(calculator.getResultOnGo(new BigDecimal(firstScreen.getText())));
-                        calculator.setOperation(new BigDecimal(firstScreen.getText()), operation);
-                    }
-                }else{
+                    setFirstScreenText(calculator.getResult());
+                    break;
+                case SQRT:
                     calculator.setOperation(new BigDecimal(firstScreen.getText()), operation);
-                    setSecondScreenText(firstScreen.getText() + " -");
-                }
-                isNext = true;
-                isWeakNumber = true;
-                isResult = false;
-                isSqrtResult = false;
-                break;
-            case DIVIDE:
-                if (isNext){
-                    if(isWeakNumber){
-                        replaceLastSign("/");
-                        calculator.setOperation(new BigDecimal(firstScreen.getText()), operation);
-                    }else{
-                        appendSecondScreenText(" " + firstScreen.getText() + " /");
-                        setFirstScreenText(calculator.getResultOnGo(new BigDecimal(firstScreen.getText())));
-                        calculator.setOperation(new BigDecimal(firstScreen.getText()), operation);
+                    if (secondScreen.getText().equals("")) {
+                        setSecondScreenText("sqrt(" + firstScreen.getText() + ")");
+                    } else {
+                        if (isSqrtResult) {
+                            int start = secondScreen.getText().lastIndexOf("s");
+                            String oldText = secondScreen.getText().substring(start, secondScreen.getLength());
+                            String newText = "sqrt(" + oldText + ")";
+                            secondScreen.replaceText(start, secondScreen.getLength(), newText);
+                        } else {
+                            appendSecondScreenText(" sqrt(" + firstScreen.getText() + ")");
+                        }
                     }
-                }else{
-                    calculator.setOperation(new BigDecimal(firstScreen.getText()), operation);
-                    setSecondScreenText(firstScreen.getText() + " /");
-                }
-                isNext = true;
-                isWeakNumber = true;
-                isResult = false;
-                isSqrtResult = false;
-                break;
-            case MULTIPLY:
-                if (isNext){
-                    if(isWeakNumber){
-                        replaceLastSign("*");
-                        calculator.setOperation(new BigDecimal(firstScreen.getText()), operation);
-                    }else{
-                        appendSecondScreenText(" " + firstScreen.getText() + " *");
-                        setFirstScreenText(calculator.getResultOnGo(new BigDecimal(firstScreen.getText())));
-                        calculator.setOperation(new BigDecimal(firstScreen.getText()), operation);
+                    setFirstScreenText(calculator.getResult());
+                    isSqrtResult = true;
+                    isWeakNumber = true;
+                    break;
+                case PERCENT:
+                    pressPercentButton();
+                    break;
+                case REVERSE:
+                    pressReverseButton();
+                    break;
+                case MC:
+                    pressClearMemoryButton();
+                    break;
+                case MR:
+                    setFirstScreenText(calculator.memoryRecall());
+                    isWeakNumber = true;
+                    break;
+                case MS:
+                    if (!firstScreen.getText().equals(DEFAULT_FIRST_SCREEN_TEXT)) {
+                        memoryIndication(true);
+                        calculator.memoryStore(new BigDecimal(firstScreen.getText()));
                     }
-                }else{
-                    calculator.setOperation(new BigDecimal(firstScreen.getText()), operation);
-                    setSecondScreenText(firstScreen.getText() + " *");
-                }
-                isNext = true;
-                isWeakNumber = true;
-                isResult = false;
-                isSqrtResult = false;
-                break;
-            case INVERT:
-                calculator.setOperation(new BigDecimal(firstScreen.getText()), operation);
-                setFirstScreenText(calculator.getResult());
-                break;
-            case SQRT:
-                calculator.setOperation(new BigDecimal(firstScreen.getText()), operation);
-                if(secondScreen.getText().equals("")){
-                    setSecondScreenText("sqrt(" + firstScreen.getText() + ")");
-                }else{
-                    if(isSqrtResult){
-                        int start = secondScreen.getText().lastIndexOf("s");
-                        String oldText = secondScreen.getText().substring(start, secondScreen.getLength());
-                        String newText = "sqrt(" + oldText + ")";
-                        secondScreen.replaceText(start, secondScreen.getLength(), newText);
-                    }else{
-                        appendSecondScreenText(" sqrt(" + firstScreen.getText() + ")");
+                    break;
+                case MPLUS:
+                    if (!firstScreen.getText().equals(DEFAULT_FIRST_SCREEN_TEXT)) {
+                        memoryIndication(true);
+                        calculator.memoryAdd(new BigDecimal(firstScreen.getText()));
                     }
-                }
-                setFirstScreenText(calculator.getResult());
-                isSqrtResult = true;
-                isWeakNumber = true;
-                break;
-            case PERCENT:
-                pressPercentButton();
-                break;
-            case REVERSE:
-                pressReverseButton();
-                break;
-            case MC:
-                pressClearMemoryButton();
-                break;
-            case MR:
-                setFirstScreenText(calculator.memoryRecall());
-                isWeakNumber = true;
-                break;
-            case MS:
-                if (!firstScreen.getText().equals(DEFAULT_FIRST_SCREEN_TEXT)) {
-                    memoryIndication(true);
-                    calculator.memoryStore(new BigDecimal(firstScreen.getText()));
-                }
-                break;
-            case MPLUS:
-                if (!firstScreen.getText().equals(DEFAULT_FIRST_SCREEN_TEXT)) {
-                    memoryIndication(true);
-                    calculator.memoryAdd(new BigDecimal(firstScreen.getText()));
-                }
-                break;
-            case MMINUS:
-                if (!firstScreen.getText().equals(DEFAULT_FIRST_SCREEN_TEXT)) {
-                    memoryIndication(true);
-                    calculator.memorySubtract(new BigDecimal(firstScreen.getText()));
-                }
-                break;
+                    break;
+                case MMINUS:
+                    if (!firstScreen.getText().equals(DEFAULT_FIRST_SCREEN_TEXT)) {
+                        memoryIndication(true);
+                        calculator.memorySubtract(new BigDecimal(firstScreen.getText()));
+                    }
+                    break;
+            }
+        }catch (Exception e){
+            if (e.getMessage().contains("Overflow")){
+                setFirstScreenText(OVERFLOW_MESSAGE);
+            }else{
+                setFirstScreenText("Error");
+            }
         }
     }
 
@@ -373,6 +396,13 @@ public class CalculatorController {
             }else{
                 setFirstScreenText("Error");
             }
+        }catch (Exception e){
+            if (e.getMessage().contains("Overflow")){
+                setFirstScreenText(OVERFLOW_MESSAGE);
+            }else{
+                setFirstScreenText("Error");
+            }
+
         }
 
         if (secondScreen.getText().equals("")) {

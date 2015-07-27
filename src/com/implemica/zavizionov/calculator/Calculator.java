@@ -7,7 +7,8 @@ import java.math.BigDecimal;
  * Created by Suff on 13.07.2015.
  */
 public class Calculator {
-    private static final int SCALE = 30;
+    private static final int DIVIDE_SCALE = 10000;
+    private static final int MAX_SCALE = 10000;
     BigDecimal memory = BigDecimal.ZERO;
     BigDecimal leftOperand = BigDecimal.ZERO;
     BigDecimal rightOperand = BigDecimal.ZERO;
@@ -31,9 +32,9 @@ public class Calculator {
 //        return performOperation();
 //    }
 
-    private BigDecimal performOperation(){
+    private BigDecimal performOperation() throws Exception {
         BigDecimal result = BigDecimal.ZERO;
-        switch (operation){
+        switch (operation) {
             case PLUS:
                 result = performPlus();
                 break;
@@ -66,10 +67,13 @@ public class Calculator {
             case MMINUS:
                 break;
         }
+        if (result.scale() > MAX_SCALE) {
+            throw new Exception("Overflow");
+        }
         return result;
     }
 
-    public void setOperation(BigDecimal leftOperand, Operation operation){
+    public void setOperation(BigDecimal leftOperand, Operation operation) {
         done = false;
         this.leftOperand = leftOperand;
         this.operation = operation;
@@ -78,13 +82,13 @@ public class Calculator {
     /**
      * Should be called for one-operand operations
      */
-    public BigDecimal getResult(){
+    public BigDecimal getResult() throws Exception {
         leftOperand = performOperation();
         return leftOperand;
     }
 
-    public BigDecimal getResult(BigDecimal rightOperand){
-        if (!done){
+    public BigDecimal getResult(BigDecimal rightOperand) throws Exception {
+        if (!done) {
             this.rightOperand = rightOperand;
         }
         done = true;
@@ -92,80 +96,80 @@ public class Calculator {
         return leftOperand;
     }
 
-    public BigDecimal getResultOnGo(BigDecimal rightOperand){
+    public BigDecimal getResultOnGo(BigDecimal rightOperand) throws Exception {
         done = false;
         this.rightOperand = rightOperand;
         leftOperand = performOperation();
         return leftOperand;
     }
 
-    private BigDecimal performPlus(){
-        return leftOperand.add(rightOperand) ;
+    private BigDecimal performPlus() {
+        return leftOperand.add(rightOperand);
     }
 
-    private BigDecimal performMinus(){
+    private BigDecimal performMinus() {
         return leftOperand.subtract(rightOperand);
     }
 
-    private BigDecimal performDivide(){
-        if (rightOperand.compareTo(BigDecimal.ZERO) == 0){
+    private BigDecimal performDivide() {
+        if (rightOperand.compareTo(BigDecimal.ZERO) == 0) {
             throw new IllegalArgumentException("Can't divide by zero. Right operand expected : non-zero, actual: " + rightOperand);
         }
-        return leftOperand.divide(rightOperand, SCALE,BigDecimal.ROUND_HALF_UP).stripTrailingZeros();
+        return leftOperand.divide(rightOperand, DIVIDE_SCALE, BigDecimal.ROUND_HALF_UP).stripTrailingZeros();
     }
 
-    private BigDecimal performMultiply(){
+    private BigDecimal performMultiply() {
         return leftOperand.multiply(rightOperand);
     }
 
-    private BigDecimal performInvert(){
+    private BigDecimal performInvert() {
         return leftOperand.multiply(BigDecimal.valueOf(-1));
     }
 
-    private BigDecimal performSqrt(){
-        if (Double.isInfinite(leftOperand.doubleValue())){
+    private BigDecimal performSqrt() {
+        if (Double.isInfinite(leftOperand.doubleValue())) {
             throw new IllegalArgumentException("To big value");
         }
-        if (leftOperand.compareTo(BigDecimal.ZERO)<0){
-            throw new  IllegalArgumentException("Expected: non-negative, actual: " + leftOperand);
+        if (leftOperand.compareTo(BigDecimal.ZERO) < 0) {
+            throw new IllegalArgumentException("Expected: non-negative, actual: " + leftOperand);
         }
         return BigDecimal.valueOf(Math.sqrt(leftOperand.doubleValue())).stripTrailingZeros();
     }
 
-    private BigDecimal performReverse(){
-        if (leftOperand.compareTo(BigDecimal.ZERO) == 0){
+    private BigDecimal performReverse() {
+        if (leftOperand.compareTo(BigDecimal.ZERO) == 0) {
             throw new IllegalArgumentException("Can't divide by zero. Left operand expected : non-zero, actual: " + rightOperand);
         }
-        return BigDecimal.ONE.divide(leftOperand,SCALE ,BigDecimal.ROUND_HALF_UP).stripTrailingZeros();
+        return BigDecimal.ONE.divide(leftOperand, DIVIDE_SCALE, BigDecimal.ROUND_HALF_UP).stripTrailingZeros();
     }
 
     public BigDecimal getPercent(BigDecimal percent) {
         return leftOperand.multiply(percent.divide(BigDecimal.valueOf(100))).stripTrailingZeros();
     }
 
-    public void clear(){
+    public void clear() {
         leftOperand = BigDecimal.ZERO;
         rightOperand = BigDecimal.ZERO;
         done = false;
     }
 
-    public void memoryClear(){
+    public void memoryClear() {
         memory = BigDecimal.ZERO;
     }
 
-    public BigDecimal memoryRecall(){
+    public BigDecimal memoryRecall() {
         return memory;
     }
 
-    public void memoryStore(BigDecimal value){
+    public void memoryStore(BigDecimal value) {
         memory = value;
     }
 
-    public void memoryAdd(BigDecimal value){
+    public void memoryAdd(BigDecimal value) {
         memory = memory.add(value);
     }
 
-    public void memorySubtract(BigDecimal value){
+    public void memorySubtract(BigDecimal value) {
         memory = memory.subtract(value);
     }
 
@@ -177,7 +181,7 @@ public class Calculator {
         this.operation = operation;
     }
 
-    public BigDecimal getResultAfterEqual(BigDecimal newLeftOperand){
+    public BigDecimal getResultAfterEqual(BigDecimal newLeftOperand) throws Exception {
         this.leftOperand = newLeftOperand;
         this.leftOperand = performOperation();
         return this.leftOperand;
