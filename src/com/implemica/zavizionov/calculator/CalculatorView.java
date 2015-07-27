@@ -66,7 +66,7 @@ public class CalculatorView extends Application {
         BACKSPACE("\u2190", "backspace", KeyCode.BACK_SPACE), PLUS("+", KeyCode.ADD), MINUS("-", KeyCode.SUBTRACT),
         DIVIDE("/", KeyCode.DIVIDE), MULTIPLY("*", KeyCode.MULTIPLY),
         INVERT("\u00B1"), SQRT("\u221A"), PERCENT("%"), REVERSE("1/x"),
-        MC("MC"), MR("MR"), MS("MS"), MPLUS("M+"), MMINUS("M-"), CE("CE"), C("C");
+        MC("MC"), MR("MR"), MS("MS"), MPLUS("M+"), MMINUS("M-"), CE("CE"), C("C", KeyCode.ESCAPE);
 
         private String text;
         private String id;
@@ -180,6 +180,9 @@ public class CalculatorView extends Application {
                         break;
                     case ENTER:
                         controller.pressEqualButton();
+                        break;
+                    case ESCAPE:
+                        controller.pressClearButton();
                         break;
                 }
             }

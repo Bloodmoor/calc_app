@@ -252,6 +252,22 @@ public class CalculatorTest {
         assertEqualsBD(asBD("0"), calc.memoryRecall());
     }
 
+    @Test
+    public void testGetResultOnGo() throws Exception {
+        Calculator calc = new Calculator();
+        calc.setOperation(asBD("3"), Operation.MULTIPLY);
+        assertEqualsBD(asBD("6"), calc.getResult(asBD("2")));
+        assertEqualsBD(asBD("18"), calc.getResultOnGo(asBD("3")));
+    }
+
+    @Test
+    public void testResultAfterEquals() throws Exception {
+        Calculator calc = new Calculator();
+        calc.setOperation(asBD("3"), Operation.MULTIPLY);
+        assertEqualsBD(asBD("6"), calc.getResult(asBD("2")));
+        assertEqualsBD(asBD("8"), calc.getResultAfterEqual(asBD("4")));
+    }
+
 
 
 }

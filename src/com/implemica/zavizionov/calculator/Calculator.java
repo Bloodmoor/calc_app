@@ -148,6 +148,7 @@ public class Calculator {
     }
 
     public void clear() {
+        operation = Operation.NOOP;
         leftOperand = BigDecimal.ZERO;
         rightOperand = BigDecimal.ZERO;
         done = false;

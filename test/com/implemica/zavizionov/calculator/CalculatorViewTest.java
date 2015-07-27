@@ -16,13 +16,13 @@ public class CalculatorViewTest extends GuiTest {
     private static final String DIVIDE_BY_ZERO_MESSAGE = "\u0414\u0435\u043B\u0435\u043D\u0438\u0435 \u043D\u0430 \u043D\u043E\u043B\u044C \u043D\u0435\u0432\u043E\u0437\u043C\u043E\u0436\u043D\u043E";
     private static final String OVERFLOW_MESSAGE = "\u041F\u0435\u0440\u0435\u043F\u043E\u043B\u043D\u0435\u043D\u0438\u0435";
     private static final String SQRT_BUTTON_LABEL = "\u221A";
-    private static final String INVERT_BUTTOD_LABEL = "\u00B1";
+    private static final String INVERT_BUTTON_LABEL = "\u00B1";
     private static final String BACKSPACE_BUTTON_LABEL = "\u2190";
-    private static final String SCREEN_OVRFLOW_SYMBOL = "\u2039\u2039";
+    private static final String SCREEN_OVERFLOW_SYMBOL = "\u2039\u2039";
     private static final int FIRST_SCREEN_BIG_FONT_SIZE = 22;
     private static final int FIRST_SCREEN_MEDIUM_FONT_SIZE = 18;
     private static final int FIRST_SCREEN_SMALL_FONT_SIZE = 13;
-    private static final long DELAY = 500;
+    private static final long DELAY = 200;
     private static final String DOT_BUTTON_ID = ",";
 
     Parent root;
@@ -443,7 +443,7 @@ public class CalculatorViewTest extends GuiTest {
     public void testInvert() {
         //(±)5
         click("5");
-        click(INVERT_BUTTOD_LABEL);
+        click(INVERT_BUTTON_LABEL);
 
         assertFirstScreen("-5");
         assertSecondScreen("");
@@ -454,7 +454,7 @@ public class CalculatorViewTest extends GuiTest {
         click("1");
         click("+");
         click("5");
-        click(INVERT_BUTTOD_LABEL);
+        click(INVERT_BUTTON_LABEL);
 
         assertFirstScreen("-5");
         assertSecondScreen("1 +");
@@ -463,7 +463,7 @@ public class CalculatorViewTest extends GuiTest {
 
         //(±)0
         click("0");
-        click(INVERT_BUTTOD_LABEL);
+        click(INVERT_BUTTON_LABEL);
 
         assertFirstScreen("0");
         assertSecondScreen("");
@@ -786,7 +786,7 @@ public class CalculatorViewTest extends GuiTest {
         assertSecondScreen("9999999999999999 + 99999999 +");
         click("1");
         click("+");
-        assertSecondScreen(SCREEN_OVRFLOW_SYMBOL + "9999999999999 + 99999999 + 1 +");
+        assertSecondScreen(SCREEN_OVERFLOW_SYMBOL + "9999999999999 + 99999999 + 1 +");
     }
 
     @Test
@@ -1242,6 +1242,24 @@ public class CalculatorViewTest extends GuiTest {
                     pressKey(KeyCode.ENTER);
                     assertFirstScreen("3");
                     break;
+                case ESCAPE:
+                    pressKey(KeyCode.NUMPAD1);
+                    pressKey(KeyCode.NUMPAD2);
+                    pressKey(KeyCode.ESCAPE);
+
+                    assertFirstScreen("0");
+
+                    pressKey(KeyCode.NUMPAD1);
+                    pressKey(KeyCode.ADD);
+                    pressKey(KeyCode.NUMPAD2);
+
+                    assertFirstScreen("2");
+                    assertSecondScreen("1 +");
+
+                    pressKey(KeyCode.ESCAPE);
+
+                    assertFirstScreen("0");
+                    assertSecondScreen("");
             }
             controller.pressClearButton();
         }
