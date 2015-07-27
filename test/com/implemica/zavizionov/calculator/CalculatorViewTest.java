@@ -1,7 +1,5 @@
 package com.implemica.zavizionov.calculator;
 
-import com.sun.javafx.robot.FXRobot;
-import com.sun.javafx.robot.FXRobotFactory;
 import javafx.scene.Parent;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -23,7 +21,7 @@ public class CalculatorViewTest extends GuiTest {
     private static final String SCREEN_OVRFLOW_SYMBOL = "\u2039\u2039";
     private static final int FIRST_SCREEN_BIG_FONT_SIZE = 22;
     private static final int FIRST_SCREEN_MEDIUM_FONT_SIZE = 18;
-    private static final int FIRST_SCREEN_SMALL_FONT_SIZE = 15;
+    private static final int FIRST_SCREEN_SMALL_FONT_SIZE = 13;
     private static final long DELAY = 500;
     private static final String DOT_BUTTON_ID = ",";
 
@@ -32,16 +30,14 @@ public class CalculatorViewTest extends GuiTest {
     TextField secondScreen;
     Label memoryScreen;
     CalculatorController controller;
-    FXRobot r;
 
     public Parent getRootNode() {
         CalculatorView view = new CalculatorView();
-        root = view.getCalculatorRoot();
+        root = view.getRoot();
         firstScreen = view.firstScreen;
         secondScreen = view.secondScreen;
         memoryScreen = view.memoryScreen;
         controller = view.getController();
-        r = FXRobotFactory.createRobot(root.getScene());
         return root;
     }
 

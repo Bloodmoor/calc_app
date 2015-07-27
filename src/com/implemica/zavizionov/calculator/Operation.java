@@ -5,8 +5,23 @@ package com.implemica.zavizionov.calculator;
  */
 public enum Operation {
     NOOP,
-    PLUS, MINUS, DIVIDE, MULTIPLY,
-    INVERT, SQRT, PERCENT, REVERSE,  MC,
+    PLUS("+"), MINUS("-"), DIVIDE("/"), MULTIPLY("*"),
+    INVERT, SQRT, PERCENT, REVERSE, MC,
     MR, MS, MPLUS, MMINUS;
+
+    String sign;
+
+    public String getSign() {
+        return sign;
+    }
+
+    Operation(String sign) {
+        this.sign = sign;
+    }
+
+    Operation() {
+        this.sign = "";
+    }
+
 
 }

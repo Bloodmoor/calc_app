@@ -50,9 +50,8 @@ public class CalculatorView extends Application {
             {ButtonEnum.ZERO, null, ButtonEnum.DOT, ButtonEnum.PLUS, null}
     };
 
-    Parent getCalculatorRoot() {
-        createRoot();
-        return root;
+    Parent getRoot() {
+        return createRoot();
     }
 
     CalculatorController getController() {
@@ -123,7 +122,6 @@ public class CalculatorView extends Application {
         Scene scene = new Scene(root);
         scene.getStylesheets().add("style.css");
         scene.getRoot().requestFocus();
-        controller = CalculatorController.getInstance(firstScreen, secondScreen, memoryScreen);
         return scene;
     }
 
@@ -246,6 +244,9 @@ public class CalculatorView extends Application {
 
         root.setTop(top);
         root.setCenter(createButtons());
+
+        controller = CalculatorController.getInstance(firstScreen, secondScreen, memoryScreen);
+
         return root;
     }
 

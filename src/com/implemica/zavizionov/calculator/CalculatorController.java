@@ -228,75 +228,21 @@ public class CalculatorController {
         try {
             switch (operation) {
                 case PLUS:
-                    if (isNext) {
-                        if (isWeakNumber) {
-                            replaceLastSign("+");
-                            calculator.setOperation(new BigDecimal(firstScreen.getText()), operation);
-                        } else {
-                            appendSecondScreenText(" " + firstScreen.getText() + " +");
-                            setFirstScreenText(calculator.getResultOnGo(new BigDecimal(firstScreen.getText())));
-                            calculator.setOperation(new BigDecimal(firstScreen.getText()), operation);
-                        }
-                    } else {
-                        calculator.setOperation(new BigDecimal(firstScreen.getText()), operation);
-                        setSecondScreenText(firstScreen.getText() + " +");
-                    }
-                    isNext = true;
-                    isWeakNumber = true;
-                    isResult = false;
-                    isSqrtResult = false;
-                    break;
                 case MINUS:
-                    if (isNext) {
-                        if (isWeakNumber) {
-                            replaceLastSign("-");
-                            calculator.setOperation(new BigDecimal(firstScreen.getText()), operation);
-                        } else {
-                            appendSecondScreenText(" " + firstScreen.getText() + " -");
-                            setFirstScreenText(calculator.getResultOnGo(new BigDecimal(firstScreen.getText())));
-                            calculator.setOperation(new BigDecimal(firstScreen.getText()), operation);
-                        }
-                    } else {
-                        calculator.setOperation(new BigDecimal(firstScreen.getText()), operation);
-                        setSecondScreenText(firstScreen.getText() + " -");
-                    }
-                    isNext = true;
-                    isWeakNumber = true;
-                    isResult = false;
-                    isSqrtResult = false;
-                    break;
                 case DIVIDE:
-                    if (isNext) {
-                        if (isWeakNumber) {
-                            replaceLastSign("/");
-                            calculator.setOperation(new BigDecimal(firstScreen.getText()), operation);
-                        } else {
-                            appendSecondScreenText(" " + firstScreen.getText() + " /");
-                            setFirstScreenText(calculator.getResultOnGo(new BigDecimal(firstScreen.getText())));
-                            calculator.setOperation(new BigDecimal(firstScreen.getText()), operation);
-                        }
-                    } else {
-                        calculator.setOperation(new BigDecimal(firstScreen.getText()), operation);
-                        setSecondScreenText(firstScreen.getText() + " /");
-                    }
-                    isNext = true;
-                    isWeakNumber = true;
-                    isResult = false;
-                    isSqrtResult = false;
-                    break;
                 case MULTIPLY:
                     if (isNext) {
                         if (isWeakNumber) {
-                            replaceLastSign("*");
+                            replaceLastSign(operation.getSign());
                             calculator.setOperation(new BigDecimal(firstScreen.getText()), operation);
                         } else {
-                            appendSecondScreenText(" " + firstScreen.getText() + " *");
+                            appendSecondScreenText(" " + firstScreen.getText() + " " + operation.getSign());
                             setFirstScreenText(calculator.getResultOnGo(new BigDecimal(firstScreen.getText())));
                             calculator.setOperation(new BigDecimal(firstScreen.getText()), operation);
                         }
                     } else {
                         calculator.setOperation(new BigDecimal(firstScreen.getText()), operation);
-                        setSecondScreenText(firstScreen.getText() + " *");
+                        setSecondScreenText(firstScreen.getText() + " " + operation.getSign());
                     }
                     isNext = true;
                     isWeakNumber = true;
