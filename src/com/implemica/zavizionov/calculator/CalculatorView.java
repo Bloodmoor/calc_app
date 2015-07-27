@@ -19,7 +19,6 @@ import javafx.stage.Stage;
 
 public class CalculatorView extends Application {
 
-    private static final String DEFAULT_TEXT = "0";
     private static final String MENU_FILE_TEXT = "\u0424\u0430\u0439\u043B";
     private static final String MENU_FILE_EXIT_TEXT = "\u0412\u044B\u0445\u043E\u0434";
     private static final String TITLE_TEXT = "\u041A\u0430\u043B\u044C\u043A\u0443\u043B\u044F\u0442\u043E\u0440";
@@ -58,6 +57,9 @@ public class CalculatorView extends Application {
         return controller;
     }
 
+    /**
+     * Holds calculator buttons.
+     */
     enum ButtonEnum {
         ONE("1", KeyCode.NUMPAD1), TWO("2", KeyCode.NUMPAD2), THREE("3", KeyCode.NUMPAD3),
         FOUR("4", KeyCode.NUMPAD4), FIVE("5", KeyCode.NUMPAD5), SIX("6", KeyCode.NUMPAD6),
@@ -68,33 +70,74 @@ public class CalculatorView extends Application {
         INVERT("\u00B1"), SQRT("\u221A"), PERCENT("%"), REVERSE("1/x"),
         MC("MC"), MR("MR"), MS("MS"), MPLUS("M+"), MMINUS("M-"), CE("CE"), C("C", KeyCode.ESCAPE);
 
+        /**
+         * Text of the button.
+         */
         private String text;
+
+        /**
+         * Id of the button.
+         */
         private String id;
+
+        /**
+         * Key code of the button.
+         */
         private KeyCode keyCode;
+
+        /**
+         * Text field getter.
+         * @return text of the button.
+         */
         public String getText() {
             return text;
         }
+
+        /**
+         * Id field getter.
+         * @return id of the button.
+         */
         public String getId(){
             return id;
         }
+
+        /**
+         * Key code field getter.
+         * @return key code of the button.
+         * @throws Exception - if button has no key code.
+         */
         public KeyCode getKeyCode() throws Exception{
             if(keyCode == null){
                 throw new Exception("No key for this button");
             }
             return keyCode;
         }
+
+        /**
+         * Creates button with given text and id same as text.
+         * @param text - text of the button.
+         */
         ButtonEnum(String text) {
             this.text = text;
             this.id = text;
         }
+
+        /**
+         * Creates button with given text and key code.
+         * @param text - text of the button.
+         * @param keyCode - key code of the button.
+         */
         ButtonEnum(String text, KeyCode keyCode){
             this.text = text;
             this.keyCode = keyCode;
         }
-        ButtonEnum(String text, String id){
-            this.text = text;
-            this.id = id;
-        }
+
+        /**
+         * Creates button with given text, id and key code.
+         * @param text - text of the button.
+         * @param id - id of the button.
+         * @param keyCode - key code of the button.
+         */
         ButtonEnum(String text, String id, KeyCode keyCode){
             this.text = text;
             this.id = id;
@@ -102,10 +145,19 @@ public class CalculatorView extends Application {
         }
     }
 
+    /**
+     * Application entry point.
+     * @param args - command line arguments.
+     */
     public static void main(String[] args) {
         launch(args);
     }
 
+    /**
+     * Starts JavaFX application.
+     * @param primaryStage - primary stage.
+     * @throws Exception
+     */
     @Override
     public void start(Stage primaryStage) throws Exception {
         primaryStage.setResizable(false);
@@ -117,6 +169,10 @@ public class CalculatorView extends Application {
         primaryStage.show();
     }
 
+    /**
+     * Creates scene with calculator.
+     * @return scene.
+     */
     private Scene createScene() {
         root = createRoot();
         Scene scene = new Scene(root);
@@ -125,6 +181,10 @@ public class CalculatorView extends Application {
         return scene;
     }
 
+    /**
+     * Add key events to the given parent node.
+     * @param root - given parent node
+     */
     void addKeyEvents(Parent root){
         root.setOnKeyPressed(new EventHandler<KeyEvent>() {
             @Override
@@ -189,6 +249,10 @@ public class CalculatorView extends Application {
         });
     }
 
+    /**
+     * Creates node with calculator screens.
+     * @return calculator screens in VBox.
+     */
     private VBox createScreens(){
         firstScreen.setEditable(false);
         firstScreen.setDisable(true);
@@ -218,6 +282,10 @@ public class CalculatorView extends Application {
         return screens;
     }
 
+    /**
+     * Creates menu bar for application.
+     * @return menu bar.
+     */
     private MenuBar createMenu(){
         MenuBar menuBar = new MenuBar();
         menuBar.setPadding(new Insets(0, 0, 2, 0));
@@ -236,6 +304,10 @@ public class CalculatorView extends Application {
         return menuBar;
     }
 
+    /**
+     * Creates root node for application scene.
+     * @return root node.
+     */
     private BorderPane createRoot() {
         BorderPane root = new BorderPane();
         root.setId("root");
@@ -253,6 +325,10 @@ public class CalculatorView extends Application {
         return root;
     }
 
+    /**
+     * Creates buttons for calculator.
+     * @return grid pane with buttons.
+     */
     private GridPane createButtons() {
         GridPane buttons = new GridPane();
         for (int i = 0; i < grid.length; i++) {
@@ -278,6 +354,11 @@ public class CalculatorView extends Application {
         return buttons;
     }
 
+    /**
+     * Creates a single button based on information from buttons enum.
+     * @param buttonEnum - information about button.
+     * @return new button
+     */
     private Button createButton(ButtonEnum buttonEnum) {
         Button b = null;
         switch (buttonEnum) {
@@ -376,6 +457,10 @@ public class CalculatorView extends Application {
         return b;
     }
 
+    /**
+     * Creates clear button (C).
+     * @return clear button.
+     */
     private Button createClearButton() {
         Button button = new Button();
         button.setOnAction(new EventHandler<ActionEvent>() {
@@ -387,6 +472,10 @@ public class CalculatorView extends Application {
         return button;
     }
 
+    /**
+     * Creates clear entry button (CE).
+     * @return clear entry button.
+     */
     private Button createClearEntryButton() {
         Button button = new Button("=");
         button.setOnAction(new EventHandler<ActionEvent>() {
@@ -398,6 +487,11 @@ public class CalculatorView extends Application {
         return button;
     }
 
+    /**
+     * Creates operation button, based on information from operation enum.
+     * @param operation - information about operation.
+     * @return operation button.
+     */
     private Button createOperationButton(final Operation operation) {
         Button button = new Button("");
         button.setOnAction(new EventHandler<ActionEvent>() {
@@ -409,6 +503,10 @@ public class CalculatorView extends Application {
         return button;
     }
 
+    /**
+     * Creates backspace button.
+     * @return backspace button.
+     */
     private Button createBackSpaceButton() {
         Button button = new Button("=");
 
@@ -422,6 +520,10 @@ public class CalculatorView extends Application {
         return button;
     }
 
+    /**
+     * Creates dot (decimal) button.
+     * @return dot button.
+     */
     private Button createDotButton() {
         Button button = new Button("=");
         button.setOnAction(new EventHandler<ActionEvent>() {
@@ -433,6 +535,10 @@ public class CalculatorView extends Application {
         return button;
     }
 
+    /**
+     * Creates equal button.
+     * @return equal button.
+     */
     private Button createEqualButton() {
         Button button = new Button("=");
         button.setOnAction(new EventHandler<ActionEvent>() {
@@ -445,6 +551,11 @@ public class CalculatorView extends Application {
         return button;
     }
 
+    /**
+     * Creates digit button with given digit.
+     * @param digit - digit of button
+     * @return digit button
+     */
     private Button createDigitButton(final int digit) {
         Button button = new Button();
         button.setOnAction(new EventHandler<ActionEvent>() {
