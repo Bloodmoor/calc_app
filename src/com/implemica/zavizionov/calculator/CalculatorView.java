@@ -32,14 +32,12 @@ public class CalculatorView extends Application {
     private static final Insets MEMORY_INDICATOR_PADDING = new Insets(0, 0, 0, 5);
     private static final double FIRST_SCREEN_HEIGHT = 35;
     private static final double SECOND_SCREEN_HEIGHT = 12;
-
-
+    private static final double SCREENS_WIDTH = 189;
 
     BorderPane root = new BorderPane();
     TextField secondScreen = new TextField();
     TextField screen = new TextField();
     Label memoryScreen = new Label();
-
 
     private CalculatorController controller;
 
@@ -76,14 +74,17 @@ public class CalculatorView extends Application {
         public String getText() {
             return text;
         }
-        public KeyCode getKeyCode(){
+        public KeyCode getKeyCode() throws Exception{
+            if(keyCode == null){
+                throw new Exception("No key for this button");
+            }
             return keyCode;
         }
         ButtonEnum(String text) {
             this.text = text;
         }
         ButtonEnum(String text, KeyCode keyCode){
-            this(text);
+            this.text = text;
             this.keyCode = keyCode;
         }
     }
@@ -94,11 +95,11 @@ public class CalculatorView extends Application {
 
     @Override
     public void start(Stage primaryStage) throws Exception {
-        primaryStage.setResizable(false);
+//        primaryStage.setResizable(false);
         primaryStage.setTitle(TITLE_TEXT);
         primaryStage.setScene(createScene());
-        primaryStage.setMaxHeight(318);
-        primaryStage.setMaxWidth(215);
+//        primaryStage.setMaxHeight(318);
+//        primaryStage.setMaxWidth(215);
         primaryStage.getIcons().addAll(new Image("icon.png"));
         primaryStage.show();
     }
@@ -107,10 +108,11 @@ public class CalculatorView extends Application {
         fillRoot();
         Scene scene = new Scene(root);
         scene.getStylesheets().addAll("style.css");
+        scene.getRoot().requestFocus();
         return scene;
     }
 
-    private void addKeyEvents(BorderPane root){
+    void addKeyEvents(Parent root){
         root.setOnKeyPressed(new EventHandler<KeyEvent>() {
             @Override
             public void handle(KeyEvent event) {
@@ -176,12 +178,17 @@ public class CalculatorView extends Application {
         screen.setEditable(false);
         screen.setDisable(true);
         screen.setId("firstScreen");
-        screen.setAlignment(Pos.CENTER_RIGHT);
+        screen.setAlignment(Pos.BASELINE_RIGHT);
+        screen.setPrefWidth(SCREENS_WIDTH);
+        screen.setMaxWidth(SCREENS_WIDTH);
+        secondScreen.setPrefWidth(SCREENS_WIDTH);
+        secondScreen.setMaxWidth(SCREENS_WIDTH);
+
         screen.setPrefHeight(FIRST_SCREEN_HEIGHT);
         secondScreen.setEditable(false);
         secondScreen.setDisable(true);
         secondScreen.setId("secondScreen");
-        secondScreen.setAlignment(Pos.CENTER_RIGHT);
+        secondScreen.setAlignment(Pos.BOTTOM_RIGHT);
         secondScreen.setPrefHeight(SECOND_SCREEN_HEIGHT);
         memoryScreen.setId("memoryScreen");
         memoryScreen.setMaxSize(25, 25);
