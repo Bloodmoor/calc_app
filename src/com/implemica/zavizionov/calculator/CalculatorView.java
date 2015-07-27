@@ -10,6 +10,8 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyCodeCombination;
+import javafx.scene.input.KeyCombination;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
@@ -32,6 +34,8 @@ public class CalculatorView extends Application {
     private static final double FIRST_SCREEN_HEIGHT = 35;
     private static final double SECOND_SCREEN_HEIGHT = 12;
     private static final double SCREENS_WIDTH = 189;
+    private static final KeyCodeCombination COPY_COMBINATION = new KeyCodeCombination(KeyCode.C, KeyCombination.CONTROL_ANY);
+    private static final KeyCodeCombination PASTE_COMBINATION = new KeyCodeCombination(KeyCode.V, KeyCombination.CONTROL_ANY);
 
     BorderPane root;
     TextField secondScreen = new TextField();
@@ -243,6 +247,16 @@ public class CalculatorView extends Application {
                         break;
                     case ESCAPE:
                         controller.pressClearButton();
+                        break;
+                    case C:
+                        if(event.isControlDown()){
+                            controller.setClipboard();
+                        }
+                        break;
+                    case V:
+                        if(event.isControlDown()){
+                            controller.getClipboard();
+                        }
                         break;
                 }
             }

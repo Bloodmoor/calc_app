@@ -2,11 +2,15 @@ package com.implemica.zavizionov.calculator;
 
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
+import javafx.scene.input.Clipboard;
+import javafx.scene.input.DataFormat;
 
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
+import java.util.HashMap;
 import java.util.Locale;
+import java.util.Map;
 
 public class CalculatorController {
 
@@ -29,6 +33,8 @@ public class CalculatorController {
     private static final int BIG_FONT_SYMBOLS_COUNT = 12;
 
     private BigDecimal currentScreenValue = BigDecimal.ZERO;
+
+    private Clipboard clipboard = Clipboard.getSystemClipboard();
 
     private TextField firstScreen;
     private TextField secondScreen;
@@ -53,7 +59,7 @@ public class CalculatorController {
 
         if (firstScreen.getLength() <= BIG_FONT_SYMBOLS_COUNT) {
             firstScreen.setStyle("-fx-font-size: " + FIRST_SCREEN_BIG_FONT_SIZE + ";");
-        } else if(firstScreen.getLength() < 18) {
+        } else if(firstScreen.getLength() < 17) {
             firstScreen.setStyle("-fx-font-size: " + FIRST_SCREEN_MEDIUM_FONT_SIZE + ";");
         }else{
             firstScreen.setStyle("-fx-font-size: " + FIRST_SCREEN_SMALL_FONT_SIZE + ";");
@@ -397,5 +403,18 @@ public class CalculatorController {
             firstScreen.deleteText(firstScreen.getLength() - 1, firstScreen.getLength());
         }
 
+    }
+
+    public void setClipboard(){
+        Map<DataFormat, Object> map = new HashMap<>();
+        map.put(DataFormat.PLAIN_TEXT, firstScreen.getText());
+        clipboard.setContent(map);
+    }
+
+    public void getClipboard(){
+        String clip = clipboard.getString();
+        String text = clip.contains("e") ? clip.substring(0, clip.lastIndexOf("e")):clip;
+        BigDecimal number = new BigDecimal(text);
+        setFirstScreenText(number);
     }
 }

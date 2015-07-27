@@ -9,6 +9,12 @@ import org.junit.Before;
 import org.junit.Test;
 import org.loadui.testfx.GuiTest;
 
+import java.awt.*;
+import java.awt.datatransfer.Clipboard;
+import java.awt.datatransfer.DataFlavor;
+import java.awt.datatransfer.UnsupportedFlavorException;
+import java.io.IOException;
+
 import static org.junit.Assert.assertEquals;
 
 public class CalculatorViewTest extends GuiTest {
@@ -22,7 +28,7 @@ public class CalculatorViewTest extends GuiTest {
     private static final int FIRST_SCREEN_BIG_FONT_SIZE = 22;
     private static final int FIRST_SCREEN_MEDIUM_FONT_SIZE = 18;
     private static final int FIRST_SCREEN_SMALL_FONT_SIZE = 13;
-    private static final long DELAY = 200;
+    private static final long DELAY = 100;
     private static final String DOT_BUTTON_ID = ",";
 
     Parent root;
@@ -1297,6 +1303,66 @@ public class CalculatorViewTest extends GuiTest {
         click("=");
 
         assertFirstScreen(OVERFLOW_MESSAGE);
+    }
+
+    @Test
+    public void testClipboard() throws InterruptedException, IOException, UnsupportedFlavorException {
+        String clip;
+        Toolkit toolkit = Toolkit.getDefaultToolkit();
+        Clipboard clipboard = toolkit.getSystemClipboard();
+
+        //simple
+        pressKey(KeyCode.NUMPAD1);
+        pressKey(KeyCode.NUMPAD2);
+        press(KeyCode.CONTROL, KeyCode.C);
+        release(KeyCode.CONTROL, KeyCode.C);
+        sleep(DELAY);
+
+        assertFirstScreen("12");
+        assertSecondScreen("");
+        clip = (String) clipboard.getData(DataFlavor.stringFlavor);
+        assertEquals("12", clip);
+
+        controller.pressClearButton();
+
+        press(KeyCode.CONTROL, KeyCode.V);
+        release(KeyCode.CONTROL, KeyCode.V);
+        sleep(DELAY);
+
+        assertFirstScreen("12");
+        assertSecondScreen("");
+
+        controller.pressClearButton();
+
+        //with science
+        for(int i=0; i<16; i++){
+            pressKey(KeyCode.NUMPAD9);
+        }
+        pressKey(KeyCode.MULTIPLY);
+        for(int i=0; i<16; i++){
+            pressKey(KeyCode.NUMPAD9);
+        }
+        pressKey(KeyCode.ENTER);
+
+        assertFirstScreen("9.999999999999998e+31");
+        assertSecondScreen("");
+
+        press(KeyCode.CONTROL, KeyCode.C);
+        release(KeyCode.CONTROL, KeyCode.C);
+        sleep(DELAY);
+
+        clip = (String) clipboard.getData(DataFlavor.stringFlavor);
+        assertEquals("9.999999999999998e+31", clip);
+
+        controller.pressClearButton();
+
+        press(KeyCode.CONTROL, KeyCode.V);
+        release(KeyCode.CONTROL, KeyCode.V);
+        sleep(DELAY);
+
+        assertFirstScreen("9.999999999999998");
+        assertSecondScreen("");
+
     }
 
     private void assertMemoryScreen(String s) {
