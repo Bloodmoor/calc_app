@@ -1,7 +1,10 @@
 package com.implemica.zavizionov.calculator;
 
 /**
- * Created by Suff on 14.07.2015.
+ * Enumeration hold possible calculator operations.
+ * Some of operations can also have their signs, all
+ * others have empty string as sign.
+ * @author Zavizionov Andrii
  */
 public enum Operation {
     NOOP,
@@ -11,17 +14,26 @@ public enum Operation {
 
     String sign;
 
+    /**
+     * Returns a sign of operation.
+     * @return sign of operation.
+     */
     public String getSign() {
         return sign;
     }
 
+    /**
+     * Creates operation with sign.
+     * @param sign - sign of operation
+     */
     Operation(String sign) {
         this.sign = sign;
     }
 
+    /**
+     * Creates operation without sign.
+     */
     Operation() {
-        this.sign = "";
+        this("");
     }
-
-
 }
