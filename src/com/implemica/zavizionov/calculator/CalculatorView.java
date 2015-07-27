@@ -34,9 +34,9 @@ public class CalculatorView extends Application {
     private static final double SECOND_SCREEN_HEIGHT = 12;
     private static final double SCREENS_WIDTH = 189;
 
-    BorderPane root = new BorderPane();
+    BorderPane root;
     TextField secondScreen = new TextField();
-    TextField screen = new TextField();
+    TextField firstScreen = new TextField();
     Label memoryScreen = new Label();
 
     private CalculatorController controller;
@@ -51,7 +51,7 @@ public class CalculatorView extends Application {
     };
 
     Parent getCalculatorRoot() {
-        fillRoot();
+        createRoot();
         return root;
     }
 
@@ -63,16 +63,20 @@ public class CalculatorView extends Application {
         ONE("1", KeyCode.NUMPAD1), TWO("2", KeyCode.NUMPAD2), THREE("3", KeyCode.NUMPAD3),
         FOUR("4", KeyCode.NUMPAD4), FIVE("5", KeyCode.NUMPAD5), SIX("6", KeyCode.NUMPAD6),
         SEVEN("7", KeyCode.NUMPAD7), EIGHT("8" ,KeyCode.NUMPAD8), NINE("9", KeyCode.NUMPAD9),
-        ZERO("0", KeyCode.NUMPAD0), EQUAL("=", KeyCode.ENTER), DOT(",", KeyCode.DECIMAL),
-        BACKSPACE("<-", KeyCode.BACK_SPACE), PLUS("+", KeyCode.ADD), MINUS("-", KeyCode.SUBTRACT),
+        ZERO("0", "0", KeyCode.NUMPAD0), EQUAL("=", "equal", KeyCode.ENTER), DOT(",", KeyCode.DECIMAL),
+        BACKSPACE("\u2190", "backspace", KeyCode.BACK_SPACE), PLUS("+", KeyCode.ADD), MINUS("-", KeyCode.SUBTRACT),
         DIVIDE("/", KeyCode.DIVIDE), MULTIPLY("*", KeyCode.MULTIPLY),
         INVERT("\u00B1"), SQRT("\u221A"), PERCENT("%"), REVERSE("1/x"),
         MC("MC"), MR("MR"), MS("MS"), MPLUS("M+"), MMINUS("M-"), CE("CE"), C("C");
 
         private String text;
+        private String id;
         private KeyCode keyCode;
         public String getText() {
             return text;
+        }
+        public String getId(){
+            return id;
         }
         public KeyCode getKeyCode() throws Exception{
             if(keyCode == null){
@@ -82,9 +86,19 @@ public class CalculatorView extends Application {
         }
         ButtonEnum(String text) {
             this.text = text;
+            this.id = text;
         }
         ButtonEnum(String text, KeyCode keyCode){
             this.text = text;
+            this.keyCode = keyCode;
+        }
+        ButtonEnum(String text, String id){
+            this.text = text;
+            this.id = id;
+        }
+        ButtonEnum(String text, String id, KeyCode keyCode){
+            this.text = text;
+            this.id = id;
             this.keyCode = keyCode;
         }
     }
@@ -95,20 +109,21 @@ public class CalculatorView extends Application {
 
     @Override
     public void start(Stage primaryStage) throws Exception {
-//        primaryStage.setResizable(false);
+        primaryStage.setResizable(false);
         primaryStage.setTitle(TITLE_TEXT);
         primaryStage.setScene(createScene());
-//        primaryStage.setMaxHeight(318);
-//        primaryStage.setMaxWidth(215);
+        primaryStage.setMaxHeight(318);
+        primaryStage.setMaxWidth(215);
         primaryStage.getIcons().addAll(new Image("icon.png"));
         primaryStage.show();
     }
 
     private Scene createScene() {
-        fillRoot();
+        root = createRoot();
         Scene scene = new Scene(root);
-        scene.getStylesheets().addAll("style.css");
+        scene.getStylesheets().add("style.css");
         scene.getRoot().requestFocus();
+        controller = CalculatorController.getInstance(firstScreen, secondScreen, memoryScreen);
         return scene;
     }
 
@@ -173,18 +188,16 @@ public class CalculatorView extends Application {
         });
     }
 
-    private void fillRoot() {
-        addKeyEvents(root);
-        screen.setEditable(false);
-        screen.setDisable(true);
-        screen.setId("firstScreen");
-        screen.setAlignment(Pos.BASELINE_RIGHT);
-        screen.setPrefWidth(SCREENS_WIDTH);
-        screen.setMaxWidth(SCREENS_WIDTH);
+    private VBox createScreens(){
+        firstScreen.setEditable(false);
+        firstScreen.setDisable(true);
+        firstScreen.setId("firstScreen");
+        firstScreen.setAlignment(Pos.BASELINE_RIGHT);
+        firstScreen.setPrefWidth(SCREENS_WIDTH);
+        firstScreen.setMaxWidth(SCREENS_WIDTH);
         secondScreen.setPrefWidth(SCREENS_WIDTH);
         secondScreen.setMaxWidth(SCREENS_WIDTH);
-
-        screen.setPrefHeight(FIRST_SCREEN_HEIGHT);
+        firstScreen.setPrefHeight(FIRST_SCREEN_HEIGHT);
         secondScreen.setEditable(false);
         secondScreen.setDisable(true);
         secondScreen.setId("secondScreen");
@@ -193,17 +206,22 @@ public class CalculatorView extends Application {
         memoryScreen.setId("memoryScreen");
         memoryScreen.setMaxSize(25, 25);
         memoryScreen.setPadding(MEMORY_INDICATOR_PADDING);
-        StackPane firstScreen = new StackPane();
+        StackPane firstScreenWithMemory = new StackPane();
+        firstScreenWithMemory.getChildren().add(firstScreen);
+        firstScreenWithMemory.getChildren().add(memoryScreen);
+        firstScreenWithMemory.setAlignment(Pos.BOTTOM_LEFT);
         VBox screens = new VBox();
-//        screens.setStyle("-fx-background-color: linear-gradient(#E5EEFB, #ffffff)");
-        screens.getChildren().addAll(secondScreen, firstScreen);
+        screens.getChildren().addAll(secondScreen, firstScreenWithMemory);
         screens.setId("screens");
         screens.setPadding(SCREENS_PADDING);
-        VBox top = new VBox();
+        return screens;
+    }
+
+    private MenuBar createMenu(){
         MenuBar menuBar = new MenuBar();
-        menuBar.setPadding(new Insets(0, 0 ,2 ,0));
+        menuBar.setPadding(new Insets(0, 0, 2, 0));
         menuBar.setStyle("-fx-border-color: #D4D0C8");
-        top.setStyle("-fx-background-color: #D9E4F1");
+
         Menu menuFile = new Menu(MENU_FILE_TEXT);
         MenuItem exit = new MenuItem(MENU_FILE_EXIT_TEXT);
         exit.setOnAction(new EventHandler<ActionEvent>() {
@@ -214,14 +232,21 @@ public class CalculatorView extends Application {
         });
         menuFile.getItems().addAll(exit);
         menuBar.getMenus().addAll(menuFile);
-        firstScreen.getChildren().add(screen);
-        firstScreen.getChildren().add(memoryScreen);
-        firstScreen.setAlignment(Pos.BOTTOM_LEFT);
-        top.getChildren().addAll(menuBar, screens);
-        controller = CalculatorController.getInstance(screen, secondScreen, memoryScreen);
+        return menuBar;
+    }
+
+    private BorderPane createRoot() {
+        BorderPane root = new BorderPane();
+        root.setId("root");
+        addKeyEvents(root);
+
+        VBox top = new VBox();
+        top.setId("top");
+        top.getChildren().addAll(createMenu(), createScreens());
+
         root.setTop(top);
         root.setCenter(createButtons());
-        root.setStyle("-fx-background-color: #D9E4F1");
+        return root;
     }
 
     private GridPane createButtons() {
@@ -341,11 +366,7 @@ public class CalculatorView extends Application {
         if (b == null) {
             b = new Button(buttonEnum.getText());
         }
-        if(buttonEnum.equals(ButtonEnum.EQUAL)){
-            b.setId("equal");
-        }else {
-            b.setId(buttonEnum.getText());
-        }
+        b.setId(buttonEnum.getId());
         b.setText(buttonEnum.getText());
         b.setPrefSize(BUTTON_WIDTH, BUTTON_HEIGHT);
         return b;

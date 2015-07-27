@@ -17,8 +17,9 @@ public class CalculatorViewTest extends GuiTest {
 
     private static final String DIVIDE_BY_ZERO_MESSAGE = "\u0414\u0435\u043B\u0435\u043D\u0438\u0435 \u043D\u0430 \u043D\u043E\u043B\u044C \u043D\u0435\u0432\u043E\u0437\u043C\u043E\u0436\u043D\u043E";
     private static final String OVERFLOW_MESSAGE = "\u041F\u0435\u0440\u0435\u043F\u043E\u043B\u043D\u0435\u043D\u0438\u0435";
-    private static final String SQRT_BUTTON_ID = "\u221A";
-    private static final String INVERT_BUTTOD_ID = "\u00B1";
+    private static final String SQRT_BUTTON_LABEL = "\u221A";
+    private static final String INVERT_BUTTOD_LABEL = "\u00B1";
+    private static final String BACKSPACE_BUTTON_LABEL = "\u2190";
     private static final String SCREEN_OVRFLOW_SYMBOL = "\u2039\u2039";
     private static final int FIRST_SCREEN_BIG_FONT_SIZE = 22;
     private static final int FIRST_SCREEN_MEDIUM_FONT_SIZE = 18;
@@ -36,7 +37,7 @@ public class CalculatorViewTest extends GuiTest {
     public Parent getRootNode() {
         CalculatorView view = new CalculatorView();
         root = view.getCalculatorRoot();
-        firstScreen = view.screen;
+        firstScreen = view.firstScreen;
         secondScreen = view.secondScreen;
         memoryScreen = view.memoryScreen;
         controller = view.getController();
@@ -81,7 +82,7 @@ public class CalculatorViewTest extends GuiTest {
 
     @Test
     public void testClearEntryButton() {
-        //screen clearing
+        //firstScreen clearing
         firstScreen.setText("123");
         secondScreen.setText("123");
         click("CE");
@@ -117,7 +118,7 @@ public class CalculatorViewTest extends GuiTest {
 
     @Test
     public void testClearButton() {
-        //screen clearing
+        //firstScreen clearing
         firstScreen.setText("Some text");
         secondScreen.setText("Some text");
         click("C");
@@ -446,7 +447,7 @@ public class CalculatorViewTest extends GuiTest {
     public void testInvert() {
         //(±)5
         click("5");
-        click(INVERT_BUTTOD_ID);
+        click(INVERT_BUTTOD_LABEL);
 
         assertFirstScreen("-5");
         assertSecondScreen("");
@@ -457,7 +458,7 @@ public class CalculatorViewTest extends GuiTest {
         click("1");
         click("+");
         click("5");
-        click(INVERT_BUTTOD_ID);
+        click(INVERT_BUTTOD_LABEL);
 
         assertFirstScreen("-5");
         assertSecondScreen("1 +");
@@ -466,7 +467,7 @@ public class CalculatorViewTest extends GuiTest {
 
         //(±)0
         click("0");
-        click(INVERT_BUTTOD_ID);
+        click(INVERT_BUTTOD_LABEL);
 
         assertFirstScreen("0");
         assertSecondScreen("");
@@ -520,7 +521,7 @@ public class CalculatorViewTest extends GuiTest {
         click("1");
         click("0");
         click("0");
-        click(SQRT_BUTTON_ID);
+        click(SQRT_BUTTON_LABEL);
 
         assertFirstScreen("10");
         assertSecondScreen("sqrt(100)");
@@ -531,7 +532,7 @@ public class CalculatorViewTest extends GuiTest {
         click("5");
         click("+");
         click("9");
-        click(SQRT_BUTTON_ID);
+        click(SQRT_BUTTON_LABEL);
 
         assertFirstScreen("3");
         assertSecondScreen("5 + sqrt(9)");
@@ -541,8 +542,8 @@ public class CalculatorViewTest extends GuiTest {
         //sqrt after sqrt
         click("8");
         click("1");
-        click(SQRT_BUTTON_ID);
-        click(SQRT_BUTTON_ID);
+        click(SQRT_BUTTON_LABEL);
+        click(SQRT_BUTTON_LABEL);
 
         assertFirstScreen("3");
         assertSecondScreen("sqrt(sqrt(81))");
@@ -554,8 +555,8 @@ public class CalculatorViewTest extends GuiTest {
         click("+");
         click("8");
         click("1");
-        click(SQRT_BUTTON_ID);
-        click(SQRT_BUTTON_ID);
+        click(SQRT_BUTTON_LABEL);
+        click(SQRT_BUTTON_LABEL);
 
         assertFirstScreen("3");
         assertSecondScreen("5 + sqrt(sqrt(81))");
@@ -564,7 +565,7 @@ public class CalculatorViewTest extends GuiTest {
 
         //sqrt and =
         click("9");
-        click(SQRT_BUTTON_ID);
+        click(SQRT_BUTTON_LABEL);
 
         assertFirstScreen("3");
         assertSecondScreen("sqrt(9)");
@@ -697,7 +698,7 @@ public class CalculatorViewTest extends GuiTest {
 
         assertFirstScreen("1");
 
-        click("<-");
+        click(BACKSPACE_BUTTON_LABEL);
 
         assertFirstScreen("0");
 
@@ -710,11 +711,11 @@ public class CalculatorViewTest extends GuiTest {
 
         assertFirstScreen("123");
 
-        click("<-");
+        click(BACKSPACE_BUTTON_LABEL);
 
         assertFirstScreen("12");
 
-        click("<-");
+        click(BACKSPACE_BUTTON_LABEL);
 
         assertFirstScreen("1");
 
@@ -722,8 +723,8 @@ public class CalculatorViewTest extends GuiTest {
 
         assertFirstScreen("15");
 
-        click("<-");
-        click("<-");
+        click(BACKSPACE_BUTTON_LABEL);
+        click(BACKSPACE_BUTTON_LABEL);
 
         assertFirstScreen("0");
 
@@ -737,7 +738,7 @@ public class CalculatorViewTest extends GuiTest {
         assertFirstScreen("12");
         assertSecondScreen("12 +");
 
-        click("<-");
+        click(BACKSPACE_BUTTON_LABEL);
 
         assertFirstScreen("1");
         assertSecondScreen("12 +");
@@ -748,12 +749,12 @@ public class CalculatorViewTest extends GuiTest {
         assertFirstScreen("34");
         assertSecondScreen("12 +");
 
-        click("<-");
+        click(BACKSPACE_BUTTON_LABEL);
 
         assertFirstScreen("3");
         assertSecondScreen("12 +");
 
-        click("<-");
+        click(BACKSPACE_BUTTON_LABEL);
 
         assertFirstScreen("0");
         assertSecondScreen("12 +");
@@ -1124,7 +1125,7 @@ public class CalculatorViewTest extends GuiTest {
     @Test
     public void testRounding() {
         click("3");
-        click(SQRT_BUTTON_ID);
+        click(SQRT_BUTTON_LABEL);
 
         assertFirstScreen("1.732050807568877");
         assertSecondScreen("sqrt(3)");
@@ -1138,7 +1139,7 @@ public class CalculatorViewTest extends GuiTest {
         controller.pressClearButton();
 
         click("7");
-        click(SQRT_BUTTON_ID);
+        click(SQRT_BUTTON_LABEL);
 
         assertFirstScreen("2.645751311064591");
         assertSecondScreen("sqrt(7)");

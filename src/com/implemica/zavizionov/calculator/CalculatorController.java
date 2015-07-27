@@ -119,7 +119,8 @@ public class CalculatorController {
             f.setMaximumFractionDigits(FIRST_DISPLAY_SIZE - countOfIntDigits);
             result = f.format(value);
         }
-        if (value.compareTo(MIN)<0 || value.scale()>SCALE){
+
+        if (result.contains("E-")){
             return result.replace("E", "e");
         }else{
             return result.replace("E", "e+");
