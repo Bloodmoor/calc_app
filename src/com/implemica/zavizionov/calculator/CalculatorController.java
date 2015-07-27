@@ -65,10 +65,7 @@ public class CalculatorController {
             return true;
         }
         BigDecimal nearestInteger = value.setScale(0, BigDecimal.ROUND_HALF_UP);
-        if(nearestInteger.compareTo(value) == 0){
-            return true;
-        }
-        return false;
+        return nearestInteger.compareTo(value) == 0;
 
     }
 
@@ -135,9 +132,6 @@ public class CalculatorController {
     private void setSecondScreenText(String text){
         if(text.length()>SECOND_DISPLAY_SIZE){
             text = SCREEN_OVERFLOW_SYMBOL + text.substring(text.length()-SECOND_DISPLAY_SIZE);
-//            secondScreen.setAlignment(Pos.CENTER_LEFT);
-        }else{
-//            secondScreen.setAlignment(Pos.CENTER_RIGHT);
         }
         secondScreen.setText(text);
     }
