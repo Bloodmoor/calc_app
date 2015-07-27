@@ -238,7 +238,7 @@ public class Calculator {
      * @return percent from left operand
      */
     public BigDecimal getPercent(BigDecimal percent) {
-        return leftOperand.multiply(percent.divide(BigDecimal.valueOf(100))).stripTrailingZeros();
+        return leftOperand.multiply(percent.divide(BigDecimal.valueOf(100), DIVIDE_SCALE, BigDecimal.ROUND_HALF_UP)).stripTrailingZeros();
     }
 
     /**
