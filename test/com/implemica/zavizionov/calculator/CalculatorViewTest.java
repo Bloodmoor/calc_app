@@ -196,21 +196,13 @@ public class CalculatorViewTest extends GuiTest {
         assertSequence("1", "50 + 1", "50+2%");
         assertSequence("40", "200 + 40", "200+10%%");
         assertSequence("0", "0", "20%");
+
         //input after result
-        click("5");
-        click("0");
-        click("+");
-        click("2");
-        click("%");
-
-        assertFirstScreen("1");
-        assertSecondScreen("50 + 1");
-
+        assertSequence("1", "50 + 1", "50+2%");
         click("5");
 
         assertFirstScreen("5");
-        //TODO
-//        assertSecondScreen("50 +");
+        assertSecondScreen("50 +");
     }
 
     @Test
@@ -270,6 +262,7 @@ public class CalculatorViewTest extends GuiTest {
         assertSequence("3", "sqrt(sqrt(81))", "81" + SQRT_BUTTON_LABEL + SQRT_BUTTON_LABEL);
         assertSequence("3", "5 + sqrt(sqrt(81))", "5+81" + SQRT_BUTTON_LABEL + SQRT_BUTTON_LABEL);
         assertSequence("3", "", "9" + SQRT_BUTTON_LABEL + "=");
+        assertSequence("1", "sqrt(9) +", "9" + SQRT_BUTTON_LABEL + "+1");
     }
 
     @Test
@@ -309,6 +302,9 @@ public class CalculatorViewTest extends GuiTest {
 
         //100+10%=
         assertSequence("110", "100+10%=");
+
+        assertSequence("5", "10 +", "10+9" + SQRT_BUTTON_LABEL + "5");
+        assertSequence("5", "10 +", "10+10%5");
 
     }
 

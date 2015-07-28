@@ -37,10 +37,7 @@ public class CalculatorFormatter {
     private static final BigDecimal MIN = new BigDecimal("1E-" + (FIRST_DISPLAY_SIZE - 2));
     private static final int SCALE = 29;
 
-
-
     private BigDecimal currentScreenValue = BigDecimal.ZERO;
-
     private Clipboard clipboard = Clipboard.getSystemClipboard();
 
     private TextField firstScreen;
@@ -53,6 +50,7 @@ public class CalculatorFormatter {
     private boolean isResult = false;
     private boolean isNext = false;
     private boolean isSqrtResult = false;
+    private boolean isPercentResult = false;
 
     private CalculatorFormatter(TextField firstScreen, TextField secondScreen, Label memoryScreen) {
         this.firstScreen = firstScreen;
@@ -154,9 +152,6 @@ public class CalculatorFormatter {
         setSecondScreenText(text);
     }
 
-    private void replaceLastSign(String sign) {
-        setSecondScreenText(secondScreen.getText().substring(0, secondScreen.getText().length() - 1) + sign);
-    }
 
     public static CalculatorFormatter getInstance(TextField firstScreen, TextField secondScreen, Label memoryScreen) {
         return new CalculatorFormatter(firstScreen, secondScreen, memoryScreen);
@@ -167,12 +162,23 @@ public class CalculatorFormatter {
             return;
         }
         if (firstScreen.getText().equals("0") || isWeakNumber) {
+            if(isSqrtResult || isPercentResult) {
+                replaceLast("");
+            }
             currentScreenValue = BigDecimal.ZERO;
             setFirstScreenText(Integer.toString(digit));
             isWeakNumber = false;
-        } else {
+        } else{
             appendFirstScreenText(Integer.toString(digit));
         }
+    }
+
+    private void replaceLast(String newString){
+        setSecondScreenText(secondScreen.getText().substring(0, secondScreen.getText().lastIndexOf(" ")) + newString);
+    }
+
+    private void replaceLastSign(String sign){
+        replaceLast(" "+sign);
     }
 
     public void pressEqualButton() {
@@ -180,6 +186,7 @@ public class CalculatorFormatter {
             controller.setOperation(Operation.NOOP);
             setSecondScreenText(DEFAULT_SECOND_SCREEN_TEXT);
             isSqrtResult = false;
+            isPercentResult = false;
             return;
         }
 
@@ -192,12 +199,10 @@ public class CalculatorFormatter {
                     result = controller.getResultAfterEqual(currentScreenValue);
                 }
                 setFirstScreenText(result);
-                return;
+            }else{
+                setFirstScreenText(controller.getResult(new BigDecimal(firstScreen.getText())));
+                setSecondScreenText(DEFAULT_SECOND_SCREEN_TEXT);
             }
-
-            setFirstScreenText(controller.getResult(new BigDecimal(firstScreen.getText())));
-            setSecondScreenText(DEFAULT_SECOND_SCREEN_TEXT);
-
         } catch (DivideByZeroException e) {
             setFirstScreenText(DIVIDE_BY_ZERO_MESSAGE);
         } catch (NumberOverflowException e) {
@@ -241,7 +246,11 @@ public class CalculatorFormatter {
                         }
                     } else {
                         controller.setOperation(new BigDecimal(firstScreen.getText()), operation);
-                        setSecondScreenText(firstScreen.getText() + " " + operation.getSign());
+                        if(isSqrtResult){
+                            appendSecondScreenText(" " + operation.getSign());
+                        }else{
+                            setSecondScreenText(firstScreen.getText() + " " + operation.getSign());
+                        }
                     }
                     isNext = true;
                     isWeakNumber = true;
@@ -326,6 +335,7 @@ public class CalculatorFormatter {
             }
         }
         isWeakNumber = true;
+        isPercentResult = true;
     }
 
     private void pressReverseButton() {
@@ -371,6 +381,7 @@ public class CalculatorFormatter {
         isWeakNumber = false;
         isSqrtResult = false;
         isNext = false;
+        isPercentResult = false;
     }
 
     private void memoryIndication(boolean value) {
