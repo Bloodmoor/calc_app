@@ -57,10 +57,10 @@ public class Calculator {
      *
      * @return reesult of operation.
      * @throws NumberOverflowException - occurs when resulting number overflows maximal scale.
-     * @throws DivideByZeroException - if divide by zero was performed
+     * @throws DivideByZeroException   - if divide by zero was performed
      */
     private BigDecimal performOperation() throws NumberOverflowException, DivideByZeroException, NoOperationException {
-        if(operation == Operation.NOOP){
+        if (operation == Operation.NOOP) {
             throw new NoOperationException("You should set operation before getting result");
         }
         BigDecimal result = BigDecimal.ZERO;
@@ -76,12 +76,6 @@ public class Calculator {
                 break;
             case MULTIPLY:
                 result = performMultiply();
-                break;
-            case INVERT:
-                result = performInvert();
-                break;
-            case SQRT:
-                result = performSqrt();
                 break;
             case REVERSE:
                 result = performReverse();
@@ -105,8 +99,9 @@ public class Calculator {
 
     /**
      * Sets a left operand and operation.
+     *
      * @param leftOperand - left operand.
-     * @param operation - operation to be performed.
+     * @param operation   - operation to be performed.
      */
     public void setOperation(BigDecimal leftOperand, Operation operation) {
         nextOperation = false;
@@ -118,9 +113,10 @@ public class Calculator {
      * Returns a result of operation.
      * Should be called for one-operand operations.
      * Example: sqrt(3)
+     *
      * @return result of one-operand operation.
      * @throws NumberOverflowException - occurs when resulting number overflows maximal scale.
-     * @throws DivideByZeroException - if divide by zero was performed
+     * @throws DivideByZeroException   - if divide by zero was performed
      */
     public BigDecimal getResult() throws NumberOverflowException, DivideByZeroException, NoOperationException {
         leftOperand = performOperation();
@@ -131,10 +127,11 @@ public class Calculator {
      * Returns a result of operation.
      * Should be called for two-operand operations
      * Example 3+5
+     *
      * @param rightOperand - right operand
      * @return result of two-operand operation
      * @throws NumberOverflowException - occurs when resulting number overflows maximal scale.
-     * @throws DivideByZeroException - if divide by zero was performed
+     * @throws DivideByZeroException   - if divide by zero was performed
      */
     public BigDecimal getResult(BigDecimal rightOperand) throws NumberOverflowException, DivideByZeroException, NoOperationException {
         if (!nextOperation) {
@@ -149,14 +146,15 @@ public class Calculator {
      * Returns a result of next operation, should be called
      * for sequences of operations.
      * Example: 3+5*
-     *          (result)
-     *          6-
-     *          (result)
-     *          8
+     * (result)
+     * 6-
+     * (result)
+     * 8
+     *
      * @param rightOperand - next right operand
      * @return result of operation
      * @throws NumberOverflowException - occurs when resulting number overflows maximal scale.
-     * @throws DivideByZeroException - if divide by zero was performed
+     * @throws DivideByZeroException   - if divide by zero was performed
      */
     public BigDecimal getResultOnGo(BigDecimal rightOperand) throws NumberOverflowException, DivideByZeroException, NoOperationException {
         nextOperation = false;
@@ -167,6 +165,7 @@ public class Calculator {
 
     /**
      * Performs an add operation for stored operands.
+     *
      * @return sum of operands
      */
     private BigDecimal performPlus() {
@@ -175,6 +174,7 @@ public class Calculator {
 
     /**
      * Performs a subtract operation for stored operands.
+     *
      * @return difference of operands
      */
     private BigDecimal performMinus() {
@@ -183,6 +183,7 @@ public class Calculator {
 
     /**
      * Performs a divide operation for stored operands.
+     *
      * @return result ov division
      * @throws DivideByZeroException - when dividing by zero
      */
@@ -195,6 +196,7 @@ public class Calculator {
 
     /**
      * Performs a multiply operation for stored operands.
+     *
      * @return result of multiplying
      */
     private BigDecimal performMultiply() {
@@ -202,31 +204,8 @@ public class Calculator {
     }
 
     /**
-     * Inverts left operand, same as (-1)*leftOperand
-     * @return result of inverting
-     */
-    private BigDecimal performInvert() {
-        return leftOperand.multiply(NEGATIVE_ONE);
-    }
-
-    /**
-     * Extracts the square root of left operand
-     * @return square root of left operand
-     * @throws IllegalArgumentException - if left operand is negative
-     * number or to big for calculating square root
-     */
-    private BigDecimal performSqrt() {
-        if (Double.isInfinite(leftOperand.doubleValue())) {
-            throw new IllegalArgumentException("To big value");
-        }
-        if (leftOperand.compareTo(BigDecimal.ZERO) < 0) {
-            throw new IllegalArgumentException("Expected: non-negative, actual: " + leftOperand);
-        }
-        return BigDecimal.valueOf(Math.sqrt(leftOperand.doubleValue())).stripTrailingZeros();
-    }
-
-    /**
      * Returns a result of dividing one by the left operand.
+     *
      * @return result of dividing
      * @throws DivideByZeroException - if left operand is zero.
      */
@@ -238,6 +217,7 @@ public class Calculator {
 
     /**
      * Calculates the given percent from left operand
+     *
      * @param percent - percent to be calculated
      * @return percent from left operand
      */
@@ -264,6 +244,7 @@ public class Calculator {
 
     /**
      * Returns number from memory
+     *
      * @return number from memory
      */
     public BigDecimal memoryRecall() {
@@ -272,6 +253,7 @@ public class Calculator {
 
     /**
      * Store given number in memory.
+     *
      * @param value - number to store
      */
     public void memoryStore(BigDecimal value) {
@@ -280,6 +262,7 @@ public class Calculator {
 
     /**
      * Adds a given number to number, stored in memory.
+     *
      * @param value - number to add
      */
     public void memoryAdd(BigDecimal value) {
@@ -288,6 +271,7 @@ public class Calculator {
 
     /**
      * Subtracts a given number from number, stored in memory.
+     *
      * @param value - number to subtract
      */
     public void memorySubtract(BigDecimal value) {
@@ -303,6 +287,7 @@ public class Calculator {
 
     /**
      * Sets a given operation to calculator.
+     *
      * @param operation - operation to set.
      */
     public void setOperation(Operation operation) {
@@ -314,18 +299,45 @@ public class Calculator {
      * is the same operation after getting a result of
      * operation for another left operand.
      * Example: 3+5=
-     *          result is 8
-     *          1=
-     *          result is 6
+     * result is 8
+     * 1=
+     * result is 6
+     *
      * @param newLeftOperand - new left operand
      * @return result of operation
      * @throws NumberOverflowException - occurs when resulting number overflows maximal scale.
-     * @throws DivideByZeroException - if divide by zero was performed
+     * @throws DivideByZeroException   - if divide by zero was performed
      */
     public BigDecimal getResultAfterEqual(BigDecimal newLeftOperand) throws NumberOverflowException, DivideByZeroException, NoOperationException {
         this.leftOperand = newLeftOperand;
         this.leftOperand = performOperation();
         return this.leftOperand;
+    }
+
+    /**
+     * * Inverts given operand, same as (-1)*leftOperand
+     *
+     * @return result of inverting
+     */
+    public BigDecimal getInverted(BigDecimal value) {
+        return value.multiply(NEGATIVE_ONE);
+    }
+
+    /**
+     * Extracts the square root of left operand
+     *
+     * @return square root of left operand
+     * @throws IllegalArgumentException - if left operand is negative
+     *                                  number or to big for calculating square root
+     */
+    public BigDecimal getSqrt(BigDecimal value) {
+        if (Double.isInfinite(value.doubleValue())) {
+            throw new IllegalArgumentException("To big value");
+        }
+        if (value.compareTo(BigDecimal.ZERO) < 0) {
+            throw new IllegalArgumentException("Expected: non-negative, actual: " + value);
+        }
+        return BigDecimal.valueOf(Math.sqrt(value.doubleValue())).stripTrailingZeros();
     }
 }
 

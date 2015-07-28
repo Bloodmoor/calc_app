@@ -173,7 +173,7 @@ public class CalculatorFormatter {
     }
 
     public void pressEqualButton() {
-        if (isSqrtResult) {
+        if (isSqrtResult && !isNext) {
             controller.setOperation(Operation.NOOP);
             setSecondScreenText(DEFAULT_SECOND_SCREEN_TEXT);
             isSqrtResult = false;
@@ -246,11 +246,9 @@ public class CalculatorFormatter {
                     isSqrtResult = false;
                     break;
                 case INVERT:
-                    controller.setOperation(new BigDecimal(firstScreen.getText()), operation);
-                    setFirstScreenText(controller.getResult());
+                    setFirstScreenText(controller.getInverted(new BigDecimal(firstScreen.getText())));
                     break;
                 case SQRT:
-                    controller.setOperation(new BigDecimal(firstScreen.getText()), operation);
                     if (secondScreen.getText().equals("")) {
                         setSecondScreenText("sqrt(" + firstScreen.getText() + ")");
                     } else {
@@ -263,7 +261,7 @@ public class CalculatorFormatter {
                             appendSecondScreenText(" sqrt(" + firstScreen.getText() + ")");
                         }
                     }
-                    setFirstScreenText(controller.getResult());
+                    setFirstScreenText(controller.getSqrt(new BigDecimal(firstScreen.getText())));
                     isSqrtResult = true;
                     isWeakNumber = true;
                     break;
@@ -301,8 +299,10 @@ public class CalculatorFormatter {
             }
         } catch (NumberOverflowException e) {
             setFirstScreenText(OVERFLOW_MESSAGE);
+            isWeakNumber = true;
         } catch (DivideByZeroException e) {
             setFirstScreenText(DIVIDE_BY_ZERO_MESSAGE);
+            isWeakNumber = true;
         } catch (NoOperationException e) {
             e.printStackTrace();
         }

@@ -73,4 +73,12 @@ public class CalculatorController {
     public void memoryClear() {
         calculator.memoryClear();
     }
+
+    public BigDecimal getInverted(BigDecimal value) {
+        return calculator.getInverted(value);
+    }
+
+    public BigDecimal getSqrt(BigDecimal value) {
+        return calculator.getSqrt(value);
+    }
 }
