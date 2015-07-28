@@ -2,6 +2,7 @@ package com.implemica.zavizionov.calculator;
 
 
 import com.implemica.zavizionov.calculator.exception.DivideByZeroException;
+import com.implemica.zavizionov.calculator.exception.NoOperationException;
 import com.implemica.zavizionov.calculator.exception.NumberOverflowException;
 
 import java.math.BigDecimal;
@@ -58,7 +59,10 @@ public class Calculator {
      * @throws NumberOverflowException - occurs when resulting number overflows maximal scale.
      * @throws DivideByZeroException - if divide by zero was performed
      */
-    private BigDecimal performOperation() throws NumberOverflowException, DivideByZeroException {
+    private BigDecimal performOperation() throws NumberOverflowException, DivideByZeroException, NoOperationException {
+        if(operation == Operation.NOOP){
+            throw new NoOperationException("You should set operation before getting result");
+        }
         BigDecimal result = BigDecimal.ZERO;
         switch (operation) {
             case PLUS:
@@ -118,7 +122,7 @@ public class Calculator {
      * @throws NumberOverflowException - occurs when resulting number overflows maximal scale.
      * @throws DivideByZeroException - if divide by zero was performed
      */
-    public BigDecimal getResult() throws NumberOverflowException, DivideByZeroException {
+    public BigDecimal getResult() throws NumberOverflowException, DivideByZeroException, NoOperationException {
         leftOperand = performOperation();
         return leftOperand;
     }
@@ -132,7 +136,7 @@ public class Calculator {
      * @throws NumberOverflowException - occurs when resulting number overflows maximal scale.
      * @throws DivideByZeroException - if divide by zero was performed
      */
-    public BigDecimal getResult(BigDecimal rightOperand) throws NumberOverflowException, DivideByZeroException {
+    public BigDecimal getResult(BigDecimal rightOperand) throws NumberOverflowException, DivideByZeroException, NoOperationException {
         if (!nextOperation) {
             this.rightOperand = rightOperand;
         }
@@ -154,7 +158,7 @@ public class Calculator {
      * @throws NumberOverflowException - occurs when resulting number overflows maximal scale.
      * @throws DivideByZeroException - if divide by zero was performed
      */
-    public BigDecimal getResultOnGo(BigDecimal rightOperand) throws NumberOverflowException, DivideByZeroException {
+    public BigDecimal getResultOnGo(BigDecimal rightOperand) throws NumberOverflowException, DivideByZeroException, NoOperationException {
         nextOperation = false;
         this.rightOperand = rightOperand;
         leftOperand = performOperation();
@@ -318,7 +322,7 @@ public class Calculator {
      * @throws NumberOverflowException - occurs when resulting number overflows maximal scale.
      * @throws DivideByZeroException - if divide by zero was performed
      */
-    public BigDecimal getResultAfterEqual(BigDecimal newLeftOperand) throws NumberOverflowException, DivideByZeroException {
+    public BigDecimal getResultAfterEqual(BigDecimal newLeftOperand) throws NumberOverflowException, DivideByZeroException, NoOperationException {
         this.leftOperand = newLeftOperand;
         this.leftOperand = performOperation();
         return this.leftOperand;
