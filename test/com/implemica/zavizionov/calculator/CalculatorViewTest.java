@@ -1,7 +1,6 @@
 package com.implemica.zavizionov.calculator;
 
 import javafx.scene.Parent;
-import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.input.KeyCode;
@@ -55,7 +54,6 @@ public class CalculatorViewTest extends GuiTest {
     }
 
     private void assertDigitButton(String buttonId) {
-        Button b = find(buttonId);
         if (buttonId.equals("0")) {
             assertSequence("10", "10");
         } else {
@@ -104,7 +102,6 @@ public class CalculatorViewTest extends GuiTest {
 
         formatter.pressClearButton();
 
-        //
         click("1");
         click("+");
 
@@ -279,7 +276,9 @@ public class CalculatorViewTest extends GuiTest {
     public void testOperatorCombinations() {
         //5 + 9 * 2 - 1 / 3 =
         assertSequence("27", "5 + 9 * 2 - 1 /", "5+9*2-1/");
+
         clickSequence("3=");
+
         assertFirstScreen("9");
         assertSecondScreen("");
 
@@ -307,6 +306,9 @@ public class CalculatorViewTest extends GuiTest {
 
         //3+5(+/-)=
         assertSequence("-2", "3+5" + INVERT_BUTTON_LABEL + "=");
+
+        //100+10%=
+        assertSequence("110", "100+10%=");
 
     }
 

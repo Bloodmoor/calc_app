@@ -29,12 +29,15 @@ public class CalculatorFormatter {
     private static final int FIRST_SCREEN_SMALL_FONT_SIZE = 13;
     private static final int FIRST_DISPLAY_SIZE = 16;
     private static final int SECOND_DISPLAY_SIZE = 30;
+    private static final int BIG_FONT_SYMBOLS_COUNT = 12;
+    private static final int MEDIUM_FONT_SYMBOLS_COUNT = 17;
 
     private static final BigDecimal DELTA = new BigDecimal("1E-" + (FIRST_DISPLAY_SIZE - 2));
     private static final BigDecimal MAX = new BigDecimal("1E" + (FIRST_DISPLAY_SIZE));
     private static final BigDecimal MIN = new BigDecimal("1E-" + (FIRST_DISPLAY_SIZE - 2));
     private static final int SCALE = 29;
-    private static final int BIG_FONT_SYMBOLS_COUNT = 12;
+
+
 
     private BigDecimal currentScreenValue = BigDecimal.ZERO;
 
@@ -63,7 +66,7 @@ public class CalculatorFormatter {
 
         if (firstScreen.getLength() <= BIG_FONT_SYMBOLS_COUNT) {
             firstScreen.setStyle("-fx-font-size: " + FIRST_SCREEN_BIG_FONT_SIZE + ";");
-        } else if (firstScreen.getLength() < 17) {
+        } else if (firstScreen.getLength() < MEDIUM_FONT_SYMBOLS_COUNT) {
             firstScreen.setStyle("-fx-font-size: " + FIRST_SCREEN_MEDIUM_FONT_SIZE + ";");
         } else {
             firstScreen.setStyle("-fx-font-size: " + FIRST_SCREEN_SMALL_FONT_SIZE + ";");
@@ -315,15 +318,13 @@ public class CalculatorFormatter {
         } else {
             BigDecimal result = controller.getPercent(new BigDecimal(firstScreen.getText()));
             setFirstScreenText(result);
-            if (isResult) {
+            if (isWeakNumber) {
                 int start = secondScreen.getText().lastIndexOf(" ");
                 secondScreen.replaceText(start, secondScreen.getLength(), " " + firstScreen.getText());
             } else {
                 appendSecondScreenText(" " + firstScreen.getText());
             }
-
         }
-        isResult = true;
         isWeakNumber = true;
     }
 
