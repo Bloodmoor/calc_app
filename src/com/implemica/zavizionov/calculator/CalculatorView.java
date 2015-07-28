@@ -36,13 +36,18 @@ public class CalculatorView extends Application {
     private static final double SCREENS_WIDTH = 189;
     private static final KeyCodeCombination COPY_COMBINATION = new KeyCodeCombination(KeyCode.C, KeyCombination.CONTROL_ANY);
     private static final KeyCodeCombination PASTE_COMBINATION = new KeyCodeCombination(KeyCode.V, KeyCombination.CONTROL_ANY);
+    private static final double WINDOW_HEIGHT = 318;
+    private static final double WINDOW_WIDTH = 215;
+    private static final double MEMORY_INDICATOR_SIZE = 25;
+    private static final Insets MENU_BAR_PADDING = new Insets(0, 0, 2, 0);
+
 
     BorderPane root;
     TextField secondScreen = new TextField();
     TextField firstScreen = new TextField();
     Label memoryScreen = new Label();
 
-    private CalculatorController controller;
+    private CalculatorFormatter controller;
 
     private Enum[][] grid = {
             {ButtonEnum.MC, ButtonEnum.MR, ButtonEnum.MS, ButtonEnum.MPLUS, ButtonEnum.MMINUS},
@@ -57,7 +62,7 @@ public class CalculatorView extends Application {
         return createRoot();
     }
 
-    CalculatorController getController() {
+    CalculatorFormatter getController() {
         return controller;
     }
 
@@ -71,7 +76,7 @@ public class CalculatorView extends Application {
         ZERO("0", "0", KeyCode.NUMPAD0), EQUAL("=", "equal", KeyCode.ENTER), DOT(",", KeyCode.DECIMAL),
         BACKSPACE("\u2190", "backspace", KeyCode.BACK_SPACE), PLUS("+", KeyCode.ADD), MINUS("-", KeyCode.SUBTRACT),
         DIVIDE("/", KeyCode.DIVIDE), MULTIPLY("*", KeyCode.MULTIPLY),
-        INVERT("\u00B1"), SQRT("\u221A"), PERCENT("%"), REVERSE("1/x"),
+        INVERT("\u00B1"), SQRT("\u221A"), PERCENT("%"), REVERSE("1/x", "reverse"),
         MC("MC"), MR("MR"), MS("MS"), MPLUS("M+"), MMINUS("M-"), CE("CE"), C("C", KeyCode.ESCAPE);
 
         /**
@@ -147,6 +152,10 @@ public class CalculatorView extends Application {
             this.id = id;
             this.keyCode = keyCode;
         }
+        ButtonEnum(String text, String id){
+            this.text = text;
+            this.id = id;
+        }
     }
 
     /**
@@ -167,8 +176,8 @@ public class CalculatorView extends Application {
         primaryStage.setResizable(false);
         primaryStage.setTitle(TITLE_TEXT);
         primaryStage.setScene(createScene());
-        primaryStage.setMaxHeight(318);
-        primaryStage.setMaxWidth(215);
+        primaryStage.setMaxHeight(WINDOW_HEIGHT);
+        primaryStage.setMaxWidth(WINDOW_WIDTH);
         primaryStage.getIcons().addAll(new Image("icon.png"));
         primaryStage.show();
     }
@@ -283,7 +292,7 @@ public class CalculatorView extends Application {
         secondScreen.setAlignment(Pos.BOTTOM_RIGHT);
         secondScreen.setPrefHeight(SECOND_SCREEN_HEIGHT);
         memoryScreen.setId("memoryScreen");
-        memoryScreen.setMaxSize(25, 25);
+        memoryScreen.setMaxSize(MEMORY_INDICATOR_SIZE, MEMORY_INDICATOR_SIZE);
         memoryScreen.setPadding(MEMORY_INDICATOR_PADDING);
         StackPane firstScreenWithMemory = new StackPane();
         firstScreenWithMemory.getChildren().add(firstScreen);
@@ -302,8 +311,7 @@ public class CalculatorView extends Application {
      */
     private MenuBar createMenu(){
         MenuBar menuBar = new MenuBar();
-        menuBar.setPadding(new Insets(0, 0, 2, 0));
-        menuBar.setStyle("-fx-border-color: #D4D0C8");
+        menuBar.setPadding(MENU_BAR_PADDING);
 
         Menu menuFile = new Menu(MENU_FILE_TEXT);
         MenuItem exit = new MenuItem(MENU_FILE_EXIT_TEXT);
@@ -313,8 +321,10 @@ public class CalculatorView extends Application {
                 System.exit(0);
             }
         });
+
         menuFile.getItems().addAll(exit);
         menuBar.getMenus().addAll(menuFile);
+
         return menuBar;
     }
 
@@ -334,7 +344,7 @@ public class CalculatorView extends Application {
         root.setTop(top);
         root.setCenter(createButtons());
 
-        controller = CalculatorController.getInstance(firstScreen, secondScreen, memoryScreen);
+        controller = CalculatorFormatter.getInstance(firstScreen, secondScreen, memoryScreen);
 
         return root;
     }
@@ -438,7 +448,6 @@ public class CalculatorView extends Application {
                 break;
             case REVERSE:
                 b = createOperationButton(Operation.REVERSE);
-                b.getStyleClass().add("reverseButton");
                 break;
             case MC:
                 b = createOperationButton(Operation.MC);

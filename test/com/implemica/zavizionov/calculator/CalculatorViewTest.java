@@ -35,7 +35,7 @@ public class CalculatorViewTest extends GuiTest {
     TextField firstScreen;
     TextField secondScreen;
     Label memoryScreen;
-    CalculatorController controller;
+    CalculatorFormatter controller;
 
     public Parent getRootNode() {
         CalculatorView view = new CalculatorView();

@@ -1,5 +1,7 @@
 package com.implemica.zavizionov.calculator;
 
+import com.implemica.zavizionov.calculator.exception.DivideByZeroException;
+import com.implemica.zavizionov.calculator.exception.NumberOverflowException;
 import org.junit.Test;
 
 import java.math.BigDecimal;
@@ -65,7 +67,7 @@ public class CalculatorTest {
      * Converts given string with number to BigDecimal.
      *
      * @param s
-     * @return BigDecomal object
+     * @return BigDecimal object
      */
     private BigDecimal asBD(String s) {
         return new BigDecimal(s);
@@ -79,6 +81,36 @@ public class CalculatorTest {
             calc.getResult(rightOperand);
             fail(String.format("Expected IllegalArgumentException for arguments:\nleftOperand  : %s\nrightOperand :%s", leftOperand, rightOperand));
         }catch(IllegalArgumentException e){
+            //correct for this arguments
+        }
+    }
+
+    private void assertDivideByZero(String leftOperand, Operation op) throws NumberOverflowException {
+        assertDivideByZero(asBD(leftOperand), op);
+    }
+
+    private void assertDivideByZero(BigDecimal leftOperand, Operation op) throws NumberOverflowException {
+        Calculator calc = new Calculator();
+        calc.setOperation(leftOperand, op);
+        try {
+            calc.getResult();
+            fail(String.format("Expected DivideByZeroException for arguments:\nleftOperand  : %s\nrightOperand :%s", leftOperand));
+        }catch(DivideByZeroException e){
+            //correct for this arguments
+        }
+    }
+
+    private void assertDivideByZero(String leftOperand, String rightOperand, Operation op) throws Exception{
+        assertDivideByZero(asBD(leftOperand), asBD(rightOperand), op);
+    }
+
+    private void assertDivideByZero(BigDecimal leftOperand, BigDecimal rightOperand, Operation op) throws Exception{
+        Calculator calc = new Calculator();
+        calc.setOperation(leftOperand, op);
+        try {
+            calc.getResult(rightOperand);
+            fail(String.format("Expected DivideByZeroException for arguments:\nleftOperand  : %s\nrightOperand :%s", leftOperand, rightOperand));
+        }catch(DivideByZeroException e){
             //correct for this arguments
         }
     }
@@ -99,7 +131,7 @@ public class CalculatorTest {
     }
 
     private void assertBadArguments(String leftOperand, Operation op) throws Exception {
-        assertBadArguments(asBD(leftOperand),  op);
+        assertBadArguments(asBD(leftOperand), op);
     }
 
 
@@ -134,10 +166,10 @@ public class CalculatorTest {
 
     @Test
     public void testDivideBadArguments() throws Exception {
-        assertBadArguments("5", "0", Operation.DIVIDE);
-        assertBadArguments("0", "0", Operation.DIVIDE);
-        assertBadArguments("-5", "0", Operation.DIVIDE);
-        assertBadArguments("0.000000000001", "0", Operation.DIVIDE);
+        assertDivideByZero("5", "0", Operation.DIVIDE);
+        assertDivideByZero("0", "0", Operation.DIVIDE);
+        assertDivideByZero("-5", "0", Operation.DIVIDE);
+        assertDivideByZero("0.000000000001", "0", Operation.DIVIDE);
     }
 
     @Test
@@ -186,8 +218,9 @@ public class CalculatorTest {
 
     @Test
     public void testReverseBadArguments() throws Exception {
-        assertBadArguments("0", Operation.REVERSE);
+        assertDivideByZero("0", Operation.REVERSE);
     }
+
 
     @Test
     public void testPercent() throws Exception {

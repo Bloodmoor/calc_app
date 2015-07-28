@@ -9,7 +9,7 @@ public class CalculatorControllerTest {
 
     @Test
     public void testGetInstance() throws Exception {
-//        CalculatorController instance = CalculatorController.getInstance(firstScreen);
+//        CalculatorFormatter instance = CalculatorFormatter.getInstance(firstScreen);
 //        assertNotNull(instance);
 //        assertEquals(firstScreen.getText(), "0");
     }
