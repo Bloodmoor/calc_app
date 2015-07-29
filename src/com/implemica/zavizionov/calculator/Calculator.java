@@ -24,7 +24,15 @@ public class Calculator {
      * that will need a bigger scale, will cause an exception.
      */
     private static final int MAX_SCALE = 10000;
+
+    /**
+     * BigDecimal value of (-1)
+     */
     private static final BigDecimal NEGATIVE_ONE = BigDecimal.valueOf(-1);
+
+    /**
+     * BigDecimal value of 100
+     */
     private static final BigDecimal HUNDRED = BigDecimal.valueOf(100);
 
     /**
@@ -58,6 +66,7 @@ public class Calculator {
      * @return reesult of operation.
      * @throws NumberOverflowException - occurs when resulting number overflows maximal scale.
      * @throws DivideByZeroException   - if divide by zero was performed
+     * @throws NoOperationException   - if no operation was set
      */
     private BigDecimal performOperation() throws NumberOverflowException, DivideByZeroException, NoOperationException {
         if (operation == Operation.NOOP) {
@@ -117,6 +126,7 @@ public class Calculator {
      * @return result of one-operand operation.
      * @throws NumberOverflowException - occurs when resulting number overflows maximal scale.
      * @throws DivideByZeroException   - if divide by zero was performed
+     * @throws NoOperationException   - if no operation was set
      */
     public BigDecimal getResult() throws NumberOverflowException, DivideByZeroException, NoOperationException {
         leftOperand = performOperation();
@@ -132,6 +142,7 @@ public class Calculator {
      * @return result of two-operand operation
      * @throws NumberOverflowException - occurs when resulting number overflows maximal scale.
      * @throws DivideByZeroException   - if divide by zero was performed
+     * @throws NoOperationException   - if no operation was set
      */
     public BigDecimal getResult(BigDecimal rightOperand) throws NumberOverflowException, DivideByZeroException, NoOperationException {
         if (!nextOperation) {
@@ -155,6 +166,7 @@ public class Calculator {
      * @return result of operation
      * @throws NumberOverflowException - occurs when resulting number overflows maximal scale.
      * @throws DivideByZeroException   - if divide by zero was performed
+     * @throws NoOperationException   - if no operation was set
      */
     public BigDecimal getResultOnGo(BigDecimal rightOperand) throws NumberOverflowException, DivideByZeroException, NoOperationException {
         nextOperation = false;
@@ -307,6 +319,7 @@ public class Calculator {
      * @return result of operation
      * @throws NumberOverflowException - occurs when resulting number overflows maximal scale.
      * @throws DivideByZeroException   - if divide by zero was performed
+     * @throws NoOperationException   - if no operation was set
      */
     public BigDecimal getResultAfterEqual(BigDecimal newLeftOperand) throws NumberOverflowException, DivideByZeroException, NoOperationException {
         this.leftOperand = newLeftOperand;

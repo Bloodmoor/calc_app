@@ -49,8 +49,7 @@ public class CalculatorViewTest extends GuiTest {
     @Before
     public void initialize() {
         formatter.pressClearButton();
-        formatter.pressClearMemoryButton();
-        sleep(100);
+        formatter.pressOperationButton(Operation.MC);
     }
 
     private void assertDigitButton(String buttonId) {
@@ -438,7 +437,7 @@ public class CalculatorViewTest extends GuiTest {
         assertMemoryScreen("M");
 
         formatter.pressClearButton();
-        formatter.pressClearMemoryButton();
+        click("MC");
 
         //in expression
         click("5");
@@ -463,7 +462,7 @@ public class CalculatorViewTest extends GuiTest {
         assertMemoryScreen("M");
 
         formatter.pressClearButton();
-        formatter.pressClearMemoryButton();
+        click("MC");
 
         //for result
         click("5");

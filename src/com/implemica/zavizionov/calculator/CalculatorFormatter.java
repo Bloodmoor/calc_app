@@ -3,7 +3,6 @@ package com.implemica.zavizionov.calculator;
 import com.implemica.zavizionov.calculator.exception.DivideByZeroException;
 import com.implemica.zavizionov.calculator.exception.NoOperationException;
 import com.implemica.zavizionov.calculator.exception.NumberOverflowException;
-
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.input.Clipboard;
@@ -38,16 +37,13 @@ public class CalculatorFormatter {
     private static final int SCALE = 29;
 
     private static final String SCIENTIFIC_DECIMAL_PATTERN = "0E0";
-
+    private static final String EXPONENT_SIGN = "e";
+    private final CalculatorController controller = CalculatorController.getInstance();
     private BigDecimal currentScreenValue = BigDecimal.ZERO;
     private Clipboard clipboard = Clipboard.getSystemClipboard();
-
     private TextField firstScreen;
     private TextField secondScreen;
     private Label memoryScreen;
-
-    private final CalculatorController controller = CalculatorController.getInstance();
-
     private boolean isWeakNumber = false;
     private boolean isResult = false;
     private boolean isSequence = false;
@@ -152,7 +148,7 @@ public class CalculatorFormatter {
 
         //switching to lowercase e;
         if (result.contains("E-")) {
-            return result.replace("E", "e");
+            return result.replace("E", EXPONENT_SIGN);
         } else {
             return result.replace("E", "e+");
         }
@@ -453,7 +449,7 @@ public class CalculatorFormatter {
         }
     }
 
-    void pressClearMemoryButton() {
+    private void pressClearMemoryButton() {
         memoryIndication(false);
         controller.memoryClear();
     }
@@ -475,7 +471,7 @@ public class CalculatorFormatter {
 
     public void getClipboard() {
         String clip = clipboard.getString();
-        String text = clip.contains("e") ? clip.substring(0, clip.lastIndexOf("e")) : clip;
+        String text = clip.contains(EXPONENT_SIGN) ? clip.substring(0, clip.lastIndexOf(EXPONENT_SIGN)) : clip;
         BigDecimal number = new BigDecimal(text);
         setFirstScreenText(number);
     }
