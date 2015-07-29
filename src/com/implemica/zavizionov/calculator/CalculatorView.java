@@ -1,8 +1,6 @@
 package com.implemica.zavizionov.calculator;
 
 import javafx.application.Application;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Parent;
@@ -10,9 +8,6 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.input.KeyCode;
-import javafx.scene.input.KeyCodeCombination;
-import javafx.scene.input.KeyCombination;
-import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.StackPane;
@@ -34,8 +29,6 @@ public class CalculatorView extends Application {
     private static final double FIRST_SCREEN_HEIGHT = 35;
     private static final double SECOND_SCREEN_HEIGHT = 12;
     private static final double SCREENS_WIDTH = 189;
-    private static final KeyCodeCombination COPY_COMBINATION = new KeyCodeCombination(KeyCode.C, KeyCombination.CONTROL_ANY);
-    private static final KeyCodeCombination PASTE_COMBINATION = new KeyCodeCombination(KeyCode.V, KeyCombination.CONTROL_ANY);
     private static final double WINDOW_HEIGHT = 318;
     private static final double WINDOW_WIDTH = 215;
     private static final double MEMORY_INDICATOR_SIZE = 25;
@@ -199,75 +192,72 @@ public class CalculatorView extends Application {
      * @param root - given parent node
      */
     void addKeyEvents(Parent root){
-        root.setOnKeyPressed(new EventHandler<KeyEvent>() {
-            @Override
-            public void handle(KeyEvent event) {
-                switch (event.getCode()) {
-                    case NUMPAD0:
-                        controller.pressDigitButton(0);
-                        break;
-                    case NUMPAD1:
-                        controller.pressDigitButton(1);
-                        break;
-                    case NUMPAD2:
-                        controller.pressDigitButton(2);
-                        break;
-                    case NUMPAD3:
-                        controller.pressDigitButton(3);
-                        break;
-                    case NUMPAD4:
-                        controller.pressDigitButton(4);
-                        break;
-                    case NUMPAD5:
-                        controller.pressDigitButton(5);
-                        break;
-                    case NUMPAD6:
-                        controller.pressDigitButton(6);
-                        break;
-                    case NUMPAD7:
-                        controller.pressDigitButton(7);
-                        break;
-                    case NUMPAD8:
-                        controller.pressDigitButton(8);
-                        break;
-                    case NUMPAD9:
-                        controller.pressDigitButton(9);
-                        break;
-                    case MULTIPLY:
-                        controller.pressOperationButton(Operation.MULTIPLY);
-                        break;
-                    case ADD:
-                        controller.pressOperationButton(Operation.PLUS);
-                        break;
-                    case SUBTRACT:
-                        controller.pressOperationButton(Operation.MINUS);
-                        break;
-                    case DECIMAL:
-                        controller.pressDotButton();
-                        break;
-                    case DIVIDE:
-                        controller.pressOperationButton(Operation.DIVIDE);
-                        break;
-                    case BACK_SPACE:
-                        controller.pressBackSpaceButton();
-                        break;
-                    case ENTER:
-                        controller.pressEqualButton();
-                        break;
-                    case ESCAPE:
-                        controller.pressClearButton();
-                        break;
-                    case C:
-                        if(event.isControlDown()){
-                            controller.setClipboard();
-                        }
-                        break;
-                    case V:
-                        if(event.isControlDown()){
-                            controller.getClipboard();
-                        }
-                        break;
-                }
+        root.setOnKeyPressed(event -> {
+            switch (event.getCode()) {
+                case NUMPAD0:
+                    controller.pressDigitButton(0);
+                    break;
+                case NUMPAD1:
+                    controller.pressDigitButton(1);
+                    break;
+                case NUMPAD2:
+                    controller.pressDigitButton(2);
+                    break;
+                case NUMPAD3:
+                    controller.pressDigitButton(3);
+                    break;
+                case NUMPAD4:
+                    controller.pressDigitButton(4);
+                    break;
+                case NUMPAD5:
+                    controller.pressDigitButton(5);
+                    break;
+                case NUMPAD6:
+                    controller.pressDigitButton(6);
+                    break;
+                case NUMPAD7:
+                    controller.pressDigitButton(7);
+                    break;
+                case NUMPAD8:
+                    controller.pressDigitButton(8);
+                    break;
+                case NUMPAD9:
+                    controller.pressDigitButton(9);
+                    break;
+                case MULTIPLY:
+                    controller.pressOperationButton(Operation.MULTIPLY);
+                    break;
+                case ADD:
+                    controller.pressOperationButton(Operation.PLUS);
+                    break;
+                case SUBTRACT:
+                    controller.pressOperationButton(Operation.MINUS);
+                    break;
+                case DECIMAL:
+                    controller.pressDotButton();
+                    break;
+                case DIVIDE:
+                    controller.pressOperationButton(Operation.DIVIDE);
+                    break;
+                case BACK_SPACE:
+                    controller.pressBackSpaceButton();
+                    break;
+                case ENTER:
+                    controller.pressEqualButton();
+                    break;
+                case ESCAPE:
+                    controller.pressClearButton();
+                    break;
+                case C:
+                    if(event.isControlDown()){
+                        controller.setClipboard();
+                    }
+                    break;
+                case V:
+                    if(event.isControlDown()){
+                        controller.getClipboard();
+                    }
+                    break;
             }
         });
     }
@@ -315,12 +305,7 @@ public class CalculatorView extends Application {
 
         Menu menuFile = new Menu(MENU_FILE_TEXT);
         MenuItem exit = new MenuItem(MENU_FILE_EXIT_TEXT);
-        exit.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent e) {
-                System.exit(0);
-            }
-        });
+        exit.setOnAction(e -> System.exit(0));
 
         menuFile.getItems().addAll(exit);
         menuBar.getMenus().addAll(menuFile);
@@ -486,12 +471,7 @@ public class CalculatorView extends Application {
      */
     private Button createClearButton() {
         Button button = new Button();
-        button.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent e) {
-                controller.pressClearButton();
-            }
-        });
+        button.setOnAction(e -> controller.pressClearButton());
         return button;
     }
 
@@ -501,12 +481,7 @@ public class CalculatorView extends Application {
      */
     private Button createClearEntryButton() {
         Button button = new Button("=");
-        button.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent e) {
-                controller.pressClearEntryButton();
-            }
-        });
+        button.setOnAction(e -> controller.pressClearEntryButton());
         return button;
     }
 
@@ -517,12 +492,7 @@ public class CalculatorView extends Application {
      */
     private Button createOperationButton(final Operation operation) {
         Button button = new Button("");
-        button.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent e) {
-                controller.pressOperationButton(operation);
-            }
-        });
+        button.setOnAction(e -> controller.pressOperationButton(operation));
         return button;
     }
 
@@ -533,12 +503,7 @@ public class CalculatorView extends Application {
     private Button createBackSpaceButton() {
         Button button = new Button("=");
 
-        button.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent e) {
-                controller.pressBackSpaceButton();
-            }
-        });
+        button.setOnAction(e -> controller.pressBackSpaceButton());
 
         return button;
     }
@@ -549,12 +514,7 @@ public class CalculatorView extends Application {
      */
     private Button createDotButton() {
         Button button = new Button("=");
-        button.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent e) {
-                controller.pressDotButton();
-            }
-        });
+        button.setOnAction(e -> controller.pressDotButton());
         return button;
     }
 
@@ -564,12 +524,7 @@ public class CalculatorView extends Application {
      */
     private Button createEqualButton() {
         Button button = new Button("=");
-        button.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent e) {
-                controller.pressEqualButton();
-            }
-        });
+        button.setOnAction(e -> controller.pressEqualButton());
         button.getStyleClass().add("equalButton");
         return button;
     }
@@ -581,12 +536,7 @@ public class CalculatorView extends Application {
      */
     private Button createDigitButton(final int digit) {
         Button button = new Button();
-        button.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent e) {
-                controller.pressDigitButton(digit);
-            }
-        });
+        button.setOnAction(e -> controller.pressDigitButton(digit));
         button.getStyleClass().add("digitButton");
         return button;
     }
