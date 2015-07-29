@@ -1,7 +1,9 @@
 package com.implemica.zavizionov.calculator.exception;
 
 /**
- * Created by Suff on 28.07.2015.
+ * Occurs when trying to get result of operation
+ * when operation is not set.
+ * @author Zavizionov Andrii
  */
 public class NoOperationException extends Throwable {
     public NoOperationException(String message) {

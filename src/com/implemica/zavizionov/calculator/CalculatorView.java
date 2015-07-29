@@ -35,14 +35,14 @@ public class CalculatorView extends Application {
     private static final Insets MENU_BAR_PADDING = new Insets(0, 0, 2, 0);
 
 
-    BorderPane root;
-    TextField secondScreen = new TextField();
-    TextField firstScreen = new TextField();
-    Label memoryScreen = new Label();
 
-    private CalculatorFormatter controller;
+    private TextField secondScreen;
+    private TextField firstScreen;
+    private Label memoryScreen;
 
-    private Enum[][] grid = {
+    private CalculatorFormatter formatter;
+
+    private final Enum[][] grid = {
             {ButtonEnum.MC, ButtonEnum.MR, ButtonEnum.MS, ButtonEnum.MPLUS, ButtonEnum.MMINUS},
             {ButtonEnum.BACKSPACE, ButtonEnum.CE, ButtonEnum.C, ButtonEnum.INVERT, ButtonEnum.SQRT},
             {ButtonEnum.SEVEN, ButtonEnum.EIGHT, ButtonEnum.NINE, ButtonEnum.DIVIDE, ButtonEnum.PERCENT},
@@ -55,8 +55,20 @@ public class CalculatorView extends Application {
         return createRoot();
     }
 
-    CalculatorFormatter getController() {
-        return controller;
+    CalculatorFormatter getFormatter() {
+        return formatter;
+    }
+
+    public TextField getFirstScreen() {
+        return firstScreen;
+    }
+
+    public TextField getSecondScreen() {
+        return secondScreen;
+    }
+
+    public Label getMemoryScreen() {
+        return memoryScreen;
     }
 
     /**
@@ -75,7 +87,7 @@ public class CalculatorView extends Application {
         /**
          * Text of the button.
          */
-        private String text;
+        private final String text;
 
         /**
          * Id of the button.
@@ -180,8 +192,7 @@ public class CalculatorView extends Application {
      * @return scene.
      */
     private Scene createScene() {
-        root = createRoot();
-        Scene scene = new Scene(root);
+        Scene scene = new Scene(createRoot());
         scene.getStylesheets().add("style.css");
         scene.getRoot().requestFocus();
         return scene;
@@ -191,71 +202,71 @@ public class CalculatorView extends Application {
      * Add key events to the given parent node.
      * @param root - given parent node
      */
-    void addKeyEvents(Parent root){
+    private void addKeyEvents(Parent root){
         root.setOnKeyPressed(event -> {
             switch (event.getCode()) {
                 case NUMPAD0:
-                    controller.pressDigitButton(0);
+                    formatter.pressDigitButton(0);
                     break;
                 case NUMPAD1:
-                    controller.pressDigitButton(1);
+                    formatter.pressDigitButton(1);
                     break;
                 case NUMPAD2:
-                    controller.pressDigitButton(2);
+                    formatter.pressDigitButton(2);
                     break;
                 case NUMPAD3:
-                    controller.pressDigitButton(3);
+                    formatter.pressDigitButton(3);
                     break;
                 case NUMPAD4:
-                    controller.pressDigitButton(4);
+                    formatter.pressDigitButton(4);
                     break;
                 case NUMPAD5:
-                    controller.pressDigitButton(5);
+                    formatter.pressDigitButton(5);
                     break;
                 case NUMPAD6:
-                    controller.pressDigitButton(6);
+                    formatter.pressDigitButton(6);
                     break;
                 case NUMPAD7:
-                    controller.pressDigitButton(7);
+                    formatter.pressDigitButton(7);
                     break;
                 case NUMPAD8:
-                    controller.pressDigitButton(8);
+                    formatter.pressDigitButton(8);
                     break;
                 case NUMPAD9:
-                    controller.pressDigitButton(9);
+                    formatter.pressDigitButton(9);
                     break;
                 case MULTIPLY:
-                    controller.pressOperationButton(Operation.MULTIPLY);
+                    formatter.pressOperationButton(Operation.MULTIPLY);
                     break;
                 case ADD:
-                    controller.pressOperationButton(Operation.PLUS);
+                    formatter.pressOperationButton(Operation.PLUS);
                     break;
                 case SUBTRACT:
-                    controller.pressOperationButton(Operation.MINUS);
+                    formatter.pressOperationButton(Operation.MINUS);
                     break;
                 case DECIMAL:
-                    controller.pressDotButton();
+                    formatter.pressDotButton();
                     break;
                 case DIVIDE:
-                    controller.pressOperationButton(Operation.DIVIDE);
+                    formatter.pressOperationButton(Operation.DIVIDE);
                     break;
                 case BACK_SPACE:
-                    controller.pressBackSpaceButton();
+                    formatter.pressBackSpaceButton();
                     break;
                 case ENTER:
-                    controller.pressEqualButton();
+                    formatter.pressEqualButton();
                     break;
                 case ESCAPE:
-                    controller.pressClearButton();
+                    formatter.pressClearButton();
                     break;
                 case C:
                     if(event.isControlDown()){
-                        controller.setClipboard();
+                        formatter.setClipboard();
                     }
                     break;
                 case V:
                     if(event.isControlDown()){
-                        controller.getClipboard();
+                        formatter.getClipboard();
                     }
                     break;
             }
@@ -267,6 +278,10 @@ public class CalculatorView extends Application {
      * @return calculator screens in VBox.
      */
     private VBox createScreens(){
+        firstScreen = new TextField();
+        secondScreen = new TextField();
+        memoryScreen = new Label();
+
         firstScreen.setEditable(false);
         firstScreen.setDisable(true);
         firstScreen.setId("firstScreen");
@@ -329,7 +344,7 @@ public class CalculatorView extends Application {
         root.setTop(top);
         root.setCenter(createButtons());
 
-        controller = CalculatorFormatter.getInstance(firstScreen, secondScreen, memoryScreen);
+        formatter = CalculatorFormatter.getInstance(firstScreen, secondScreen, memoryScreen);
 
         return root;
     }
@@ -471,7 +486,7 @@ public class CalculatorView extends Application {
      */
     private Button createClearButton() {
         Button button = new Button();
-        button.setOnAction(e -> controller.pressClearButton());
+        button.setOnAction(e -> formatter.pressClearButton());
         return button;
     }
 
@@ -481,7 +496,7 @@ public class CalculatorView extends Application {
      */
     private Button createClearEntryButton() {
         Button button = new Button("=");
-        button.setOnAction(e -> controller.pressClearEntryButton());
+        button.setOnAction(e -> formatter.pressClearEntryButton());
         return button;
     }
 
@@ -492,7 +507,7 @@ public class CalculatorView extends Application {
      */
     private Button createOperationButton(final Operation operation) {
         Button button = new Button("");
-        button.setOnAction(e -> controller.pressOperationButton(operation));
+        button.setOnAction(e -> formatter.pressOperationButton(operation));
         return button;
     }
 
@@ -503,7 +518,7 @@ public class CalculatorView extends Application {
     private Button createBackSpaceButton() {
         Button button = new Button("=");
 
-        button.setOnAction(e -> controller.pressBackSpaceButton());
+        button.setOnAction(e -> formatter.pressBackSpaceButton());
 
         return button;
     }
@@ -514,7 +529,7 @@ public class CalculatorView extends Application {
      */
     private Button createDotButton() {
         Button button = new Button("=");
-        button.setOnAction(e -> controller.pressDotButton());
+        button.setOnAction(e -> formatter.pressDotButton());
         return button;
     }
 
@@ -524,7 +539,7 @@ public class CalculatorView extends Application {
      */
     private Button createEqualButton() {
         Button button = new Button("=");
-        button.setOnAction(e -> controller.pressEqualButton());
+        button.setOnAction(e -> formatter.pressEqualButton());
         button.getStyleClass().add("equalButton");
         return button;
     }
@@ -536,7 +551,7 @@ public class CalculatorView extends Application {
      */
     private Button createDigitButton(final int digit) {
         Button button = new Button();
-        button.setOnAction(e -> controller.pressDigitButton(digit));
+        button.setOnAction(e -> formatter.pressDigitButton(digit));
         button.getStyleClass().add("digitButton");
         return button;
     }

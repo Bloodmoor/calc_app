@@ -30,19 +30,19 @@ public class CalculatorViewTest extends GuiTest {
     private static final long DELAY = 100;
     private static final String DOT_BUTTON_ID = ",";
 
-    Parent root;
-    TextField firstScreen;
-    TextField secondScreen;
-    Label memoryScreen;
-    CalculatorFormatter formatter;
+    private Parent root;
+    private TextField firstScreen;
+    private TextField secondScreen;
+    private Label memoryScreen;
+    private CalculatorFormatter formatter;
 
     public Parent getRootNode() {
         CalculatorView view = new CalculatorView();
         root = view.getRoot();
-        firstScreen = view.firstScreen;
-        secondScreen = view.secondScreen;
-        memoryScreen = view.memoryScreen;
-        formatter = view.getController();
+        firstScreen = view.getFirstScreen();
+        secondScreen = view.getSecondScreen();
+        memoryScreen = view.getMemoryScreen();
+        formatter = view.getFormatter();
         return root;
     }
 

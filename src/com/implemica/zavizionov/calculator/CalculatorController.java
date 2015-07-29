@@ -12,7 +12,7 @@ import java.math.BigDecimal;
  */
 public class CalculatorController {
 
-    Calculator calculator = new Calculator();
+    private final Calculator calculator = new Calculator();
 
     private CalculatorController(){
 

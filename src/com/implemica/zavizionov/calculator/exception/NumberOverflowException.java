@@ -1,7 +1,8 @@
 package com.implemica.zavizionov.calculator.exception;
 
 /**
- * Created by Suff on 28.07.2015.
+ * Occurs when resulting number overflows the max scale.
+ * @author Zavizionov Andrii
  */
 public class NumberOverflowException extends Exception{
     public NumberOverflowException(String message){

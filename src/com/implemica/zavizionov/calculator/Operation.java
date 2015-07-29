@@ -12,7 +12,7 @@ public enum Operation {
     INVERT, SQRT, PERCENT, REVERSE, MC,
     MR, MS, MPLUS, MMINUS;
 
-    String sign;
+    private final String sign;
 
     /**
      * Returns a sign of operation.

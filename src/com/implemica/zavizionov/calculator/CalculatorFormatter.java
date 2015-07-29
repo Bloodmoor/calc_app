@@ -18,48 +18,187 @@ import java.util.Map;
 /**
  * Class responds for CalculatorView behavior logic
  * and representation of results on its screens.
+ *
  * @author Zavizionov Andrii
  */
 public class CalculatorFormatter {
 
+    /**
+     * Default first screen text,
+     * displays on start and after clear operation is performed.
+     */
     private static final String DEFAULT_FIRST_SCREEN_TEXT = "0";
+
+    /**
+     * Default second screen text,
+     * displays on start and after clear operation is performed.
+     */
     private static final String DEFAULT_SECOND_SCREEN_TEXT = "";
+
+    /**
+     * Text of memory indicator.
+     */
     private static final String MEMORY_INDICATOR = "M";
+
+    /**
+     * Symbol that tells if second screen text can't
+     * fit the screen size and is trimmed.
+     */
     private static final String SCREEN_OVERFLOW_SYMBOL = "‹‹";
+
+    /**
+     * Message to be shown when resulting number overflows
+     * max number scale.
+     */
     private static final String OVERFLOW_MESSAGE = "\u041F\u0435\u0440\u0435\u043F\u043E\u043B\u043D\u0435\u043D\u0438\u0435";
+
+    /**
+     * Message to be shown when divide by zero operation is performed.
+     */
     private static final String DIVIDE_BY_ZERO_MESSAGE = "\u0414\u0435\u043B\u0435\u043D\u0438\u0435 \u043D\u0430 \u043D\u043E\u043B\u044C \u043D\u0435\u0432\u043E\u0437\u043C\u043E\u0436\u043D\u043E";
+
+    /**
+     * First screen big font size.
+     */
     private static final int FIRST_SCREEN_BIG_FONT_SIZE = 22;
+
+    /**
+     * First screen medium font size.
+     */
     private static final int FIRST_SCREEN_MEDIUM_FONT_SIZE = 18;
+
+    /**
+     * First screen small font size.
+     */
     private static final int FIRST_SCREEN_SMALL_FONT_SIZE = 12;
+
+    /**
+     * Count of digits, that first screen can fit.
+     */
     private static final int FIRST_DISPLAY_SIZE = 16;
+
+    /**
+     * Count of symbols, that second screen can fit.
+     */
     private static final int SECOND_DISPLAY_SIZE = 30;
+
+    /**
+     * Count of symbols of big size that first screen can fit.
+     */
     private static final int BIG_FONT_SYMBOLS_COUNT = 12;
+
+    /**
+     * Count of symbols of medium size that first screen can fit.
+     */
     private static final int MEDIUM_FONT_SYMBOLS_COUNT = 17;
 
+    /**
+     * Min difference with nearest integer for number not to be rounded.
+     */
     private static final BigDecimal DELTA = new BigDecimal("1E-" + (FIRST_DISPLAY_SIZE - 2));
+
+    /**
+     * Max number value, that first screen can fit with plain representation.
+     */
     private static final BigDecimal MAX = new BigDecimal("1E" + (FIRST_DISPLAY_SIZE));
+
+    /**
+     * Min number value, that first screen can fit with plain representation.
+     */
     private static final BigDecimal MIN = new BigDecimal("1E-" + (FIRST_DISPLAY_SIZE - 2));
+
+    /**
+     * Marginal scale for switching between scientific and plain number representations.
+     */
     private static final int SCALE = 29;
 
-    private static final String SCIENTIFIC_DECIMAL_PATTERN = "0E0";
-    private static final String EXPONENT_SIGN = "e";
-    private final CalculatorController controller = CalculatorController.getInstance();
-    private BigDecimal currentScreenValue = BigDecimal.ZERO;
-    private Clipboard clipboard = Clipboard.getSystemClipboard();
-    private TextField firstScreen;
-    private TextField secondScreen;
-    private Label memoryScreen;
-    private boolean isWeakNumber = false;
-    private boolean isResult = false;
-    private boolean isSequence = false;
-    private boolean isSqrtResult = false;
-    private boolean isPercentResult = false;
     /**
-     * Screen can be locked after some error.
+     * Pattern for scientific number representation formatting.
+     */
+    private static final String SCIENTIFIC_DECIMAL_PATTERN = "0E0";
+
+    /**
+     * Exponent sign
+     */
+    private static final String EXPONENT_SIGN = "e";
+
+    /**
+     * Instance of calculator controller.
+     */
+    private final CalculatorController controller = CalculatorController.getInstance();
+
+    /**
+     * BigDecimal that stores value, which representation is
+     * currently shown on the screen.
+     */
+    private BigDecimal currentScreenValue = BigDecimal.ZERO;
+
+    /**
+     * Clipboard instance.
+     */
+    private final Clipboard clipboard = Clipboard.getSystemClipboard();
+
+    /**
+     * First screen reference.
+     */
+    private final TextField firstScreen;
+
+    /**
+     * Second screen reference.
+     */
+    private final TextField secondScreen;
+
+    /**
+     * Memory screen reference.
+     */
+    private final Label memoryScreen;
+
+    /**
+     * Tells if the number currently shown on the first screen
+     * must be replaced with any performed input instead of appending.
+     */
+    private boolean isWeakNumber = false;
+
+    /**
+     * Tells if the number currently shown on the first screen
+     * is a result of some operation. In this case calculator
+     * behaviour should be slightly different.
+     */
+    private boolean isResult = false;
+
+    /**
+     * Tells if some uncompleted sequence of operations
+     * is happening.
+     */
+    private boolean isSequence = false;
+
+    /**
+     * Tells if the current result of calculators work
+     * is a result of square root operation. In this case calculator
+     * behaviour should be slightly different.
+     */
+    private boolean isSqrtResult = false;
+
+    /**
+     * Tells if the current result of calculators work
+     * is a result of percent operation. In this case calculator
+     * behaviour should be slightly different.
+     */
+    private boolean isPercentResult = false;
+
+    /**
+     * Shows if calculators screens are currently locked.
+     * Screens can be locked after some error.
      * It can be unlocked only after clear operation is performed.
      */
     private boolean isLocked = false;
 
+    /**
+     * Constructor. Class instances can't be created directly.
+     * @param firstScreen - reference to first calculator screen from view.
+     * @param secondScreen- reference to second calculator screen from view.
+     * @param memoryScreen- reference to calculator memory screen from view.
+     */
     private CalculatorFormatter(TextField firstScreen, TextField secondScreen, Label memoryScreen) {
         this.firstScreen = firstScreen;
         this.secondScreen = secondScreen;
@@ -68,10 +207,21 @@ public class CalculatorFormatter {
         setSecondScreenText(DEFAULT_SECOND_SCREEN_TEXT);
     }
 
+    /**
+     * Creates an instance of CalculatorFormatter with given parameters.
+     * @param firstScreen - reference to first calculator screen from view.
+     * @param secondScreen- reference to second calculator screen from view.
+     * @param memoryScreen- reference to calculator memory screen from view.
+     * @return instance of CalculatorController
+     */
     public static CalculatorFormatter getInstance(TextField firstScreen, TextField secondScreen, Label memoryScreen) {
         return new CalculatorFormatter(firstScreen, secondScreen, memoryScreen);
     }
 
+    /**
+     * Returns a current screen value.
+     * @return number, currently shown on the screen
+     */
     private BigDecimal getCurrentScreenValue() {
         if (currentScreenValue.equals(BigDecimal.ZERO)) {
             return new BigDecimal(firstScreen.getText());
@@ -80,6 +230,10 @@ public class CalculatorFormatter {
         }
     }
 
+    /**
+     * Ensures that text on the first screen will fit it.
+     * Switches size of text if needed.
+     */
     private void ensureSize() {
 
         if (firstScreen.getLength() <= BIG_FONT_SYMBOLS_COUNT) {
@@ -91,6 +245,11 @@ public class CalculatorFormatter {
         }
     }
 
+    /**
+     * Check if given number is integer.
+     * @param value - given number
+     * @return true if number is integer, false instead.
+     */
     private boolean isInteger(BigDecimal value) {
         if (value.scale() <= 0) {
             return true;
@@ -100,6 +259,11 @@ public class CalculatorFormatter {
 
     }
 
+    /**
+     * Rounds given number to integer if it's needed.
+     * @param value - number to be rounded
+     * @return rounded variant of number if rounding is needed, given number instead.
+     */
     private BigDecimal getRounded(BigDecimal value) {
         if (isInteger(value)) {
             return value;
@@ -114,6 +278,10 @@ public class CalculatorFormatter {
         return value;
     }
 
+    /**
+     * Sets first screen text.
+     * @param text - text to set.
+     */
     private void setFirstScreenText(String text) {
         if (isLocked) {
             return;
@@ -122,6 +290,10 @@ public class CalculatorFormatter {
         ensureSize();
     }
 
+    /**
+     * Sets given number as first screen text.
+     * @param value - give number.
+     */
     private void setFirstScreenText(BigDecimal value) {
         currentScreenValue = value;
         if (value.toPlainString().replace(".", "").length() <= FIRST_DISPLAY_SIZE) {
@@ -131,6 +303,13 @@ public class CalculatorFormatter {
         }
     }
 
+    /**
+     * Formats given number to fit the requirements. Returns
+     * its string representation in scientific or plain
+     * representation depending on the number.
+     * @param value - given number.
+     * @return string representation of number.
+     */
     private String format(BigDecimal value) {
         String result;
         DecimalFormat f = new DecimalFormat(SCIENTIFIC_DECIMAL_PATTERN);
@@ -159,6 +338,10 @@ public class CalculatorFormatter {
         }
     }
 
+    /**
+     * Appends given text to first screen text.
+     * @param text - text to append.
+     */
     private void appendFirstScreenText(String text) {
         if (isLocked) {
             return;
@@ -167,6 +350,10 @@ public class CalculatorFormatter {
         ensureSize();
     }
 
+    /**
+     * Sets second screen text
+     * @param text - text to set.
+     */
     private void setSecondScreenText(String text) {
         if (text.length() > SECOND_DISPLAY_SIZE) {
             text = SCREEN_OVERFLOW_SYMBOL + text.substring(text.length() - SECOND_DISPLAY_SIZE);
@@ -174,11 +361,38 @@ public class CalculatorFormatter {
         secondScreen.setText(text);
     }
 
+    /**
+     * Appends text to second screen text.
+     * @param text - text to append.
+     */
     private void appendSecondScreenText(String text) {
         text = secondScreen.getText() + text;
         setSecondScreenText(text);
     }
 
+    /**
+     * Replaces last element on the second string with
+     * given element string.
+     * @param newString - string of element to place.
+     */
+    private void replaceLast(String newString) {
+        setSecondScreenText(secondScreen.getText().substring(0, secondScreen.getText().lastIndexOf(" ")) + newString);
+    }
+
+    /**
+     * Replaces last sign on the second string
+     * with given sign string.
+     * @param sign - sign to set.
+     */
+    private void replaceLastSign(String sign) {
+        replaceLast(" " + sign);
+    }
+
+    /**
+     * Describes behavior of calculator after
+     * pressing digit buttons.
+     * @param digit - digit of pressed button.
+     */
     public void pressDigitButton(int digit) {
         if (firstScreen.getLength() == FIRST_DISPLAY_SIZE && !isWeakNumber) {
             return;
@@ -195,14 +409,11 @@ public class CalculatorFormatter {
         }
     }
 
-    private void replaceLast(String newString) {
-        setSecondScreenText(secondScreen.getText().substring(0, secondScreen.getText().lastIndexOf(" ")) + newString);
-    }
 
-    private void replaceLastSign(String sign) {
-        replaceLast(" " + sign);
-    }
-
+    /**
+     * Describes behavior of calculator after
+     * pressing equal button.
+     */
     public void pressEqualButton() {
         if (isLocked) {
             return;
@@ -247,6 +458,10 @@ public class CalculatorFormatter {
 
     }
 
+    /**
+     * Describes behavior of calculator after
+     * pressing dot (decimal) button.
+     */
     public void pressDotButton() {
 
         if (!firstScreen.getText().contains(".")) {
@@ -260,6 +475,12 @@ public class CalculatorFormatter {
         }
     }
 
+    /**
+     * Describes behavior of calculator after
+     * pressing operation button.
+     *
+     * @param operation - operation of pressed button.
+     */
     public void pressOperationButton(Operation operation) {
         if (isLocked) {
             return;
@@ -285,7 +506,7 @@ public class CalculatorFormatter {
                     pressReverseButton();
                     break;
                 case MC:
-                    pressClearMemoryButton();
+                    pressMemoryClearButton();
                     break;
                 case MR:
                     pressMemoryRecallButton();
@@ -310,10 +531,18 @@ public class CalculatorFormatter {
         }
     }
 
+    /**
+     * Describes behavior of calculator after
+     * pressing invert button.
+     */
     private void pressInvertButton() {
         setFirstScreenText(controller.getInverted(getCurrentScreenValue()));
     }
 
+    /**
+     * Describes behavior of calculator after
+     * pressing memory minus button.
+     */
     private void pressMemoryMinusButton() {
         if (!firstScreen.getText().equals(DEFAULT_FIRST_SCREEN_TEXT)) {
             memoryIndication(true);
@@ -321,6 +550,10 @@ public class CalculatorFormatter {
         }
     }
 
+    /**
+     * Describes behavior of calculator after
+     * pressing memory plus button.
+     */
     private void pressMemoryPlusButton() {
         if (!firstScreen.getText().equals(DEFAULT_FIRST_SCREEN_TEXT)) {
             memoryIndication(true);
@@ -328,6 +561,10 @@ public class CalculatorFormatter {
         }
     }
 
+    /**
+     * Describes behavior of calculator after
+     * pressing memory store button.
+     */
     private void pressMemoryStoreButton() {
         if (!firstScreen.getText().equals(DEFAULT_FIRST_SCREEN_TEXT)) {
             memoryIndication(true);
@@ -335,11 +572,19 @@ public class CalculatorFormatter {
         }
     }
 
+    /**
+     * Describes behavior of calculator after
+     * pressing memory recall button.
+     */
     private void pressMemoryRecallButton() {
         setFirstScreenText(controller.memoryRecall());
         isWeakNumber = true;
     }
 
+    /**
+     * Describes behavior of calculator after
+     * pressing square root operation button.
+     */
     private void pressSqrtButton() {
         if (secondScreen.getText().isEmpty()) {
             setSecondScreenText("sqrt(" + firstScreen.getText() + ")");
@@ -361,6 +606,11 @@ public class CalculatorFormatter {
         isWeakNumber = true;
     }
 
+    /**
+     * Describes behavior of calculator after
+     * pressing operation button, which operation uses two operands.
+     * @param operation - operation of pressed button.
+     */
     private void pressTwoOperandOperationButton(Operation operation) throws NumberOverflowException, DivideByZeroException, NoOperationException {
         if (isSequence) {
             if (isWeakNumber) {
@@ -387,6 +637,10 @@ public class CalculatorFormatter {
         isSqrtResult = false;
     }
 
+    /**
+     * Describes behavior of calculator after
+     * pressing percent operation button.
+     */
     private void pressPercentButton() {
         if (!isSequence) {
             setFirstScreenText(DEFAULT_FIRST_SCREEN_TEXT);
@@ -406,6 +660,10 @@ public class CalculatorFormatter {
         isPercentResult = true;
     }
 
+    /**
+     * Describes behavior of calculator after
+     * pressing reverse operation button.
+     */
     private void pressReverseButton() throws NumberOverflowException, DivideByZeroException, NoOperationException {
         controller.setOperation(getCurrentScreenValue(), Operation.REVERSE);
 
@@ -428,10 +686,18 @@ public class CalculatorFormatter {
         isWeakNumber = true;
     }
 
+    /**
+     * Describes behavior of calculator after
+     * pressing clear entry button.
+     */
     public void pressClearEntryButton() {
         setFirstScreenText(DEFAULT_FIRST_SCREEN_TEXT);
     }
 
+    /**
+     * Describes behavior of calculator after
+     * pressing clear button.
+     */
     public void pressClearButton() {
         isResult = false;
         isWeakNumber = false;
@@ -446,6 +712,10 @@ public class CalculatorFormatter {
 
     }
 
+    /**
+     * Switches on and off memory indication.
+     * @param value - if true indication is switching on, off otherwise
+     */
     private void memoryIndication(boolean value) {
         if (value) {
             memoryScreen.setText(MEMORY_INDICATOR);
@@ -454,11 +724,19 @@ public class CalculatorFormatter {
         }
     }
 
-    private void pressClearMemoryButton() {
+    /**
+     * Describes behavior of calculator after
+     * pressing memory clear button.
+     */
+    private void pressMemoryClearButton() {
         memoryIndication(false);
         controller.memoryClear();
     }
 
+    /**
+     * Describes behavior of calculator after
+     * pressing backspace button.
+     */
     public void pressBackSpaceButton() {
         if (firstScreen.getLength() < 2) {
             setFirstScreenText(DEFAULT_FIRST_SCREEN_TEXT);
@@ -468,12 +746,20 @@ public class CalculatorFormatter {
 
     }
 
+    /**
+     * Describes behavior of calculator after
+     * pressing copy-to-clipboard combination.
+     */
     public void setClipboard() {
         Map<DataFormat, Object> map = new HashMap<>();
         map.put(DataFormat.PLAIN_TEXT, firstScreen.getText());
         clipboard.setContent(map);
     }
 
+    /**
+     * Describes behavior of calculator after
+     * pressing past-from-clipboard combination.
+     */
     public void getClipboard() {
         String clip = clipboard.getString();
         String text = clip.contains(EXPONENT_SIGN) ? clip.substring(0, clip.lastIndexOf(EXPONENT_SIGN)) : clip;

@@ -63,7 +63,7 @@ public class Calculator {
     /**
      * Performs stored operation on stored operands.
      *
-     * @return reesult of operation.
+     * @return result of operation.
      * @throws NumberOverflowException - occurs when resulting number overflows maximal scale.
      * @throws DivideByZeroException   - if divide by zero was performed
      * @throws NoOperationException   - if no operation was set
