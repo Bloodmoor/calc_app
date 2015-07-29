@@ -7,7 +7,8 @@ import com.implemica.zavizionov.calculator.exception.NumberOverflowException;
 import java.math.BigDecimal;
 
 /**
- * Created by Suff on 28.07.2015.
+ * Controller for Calculator and CalculatorFormatter classes.
+ * @author Zavizionov Andrii
  */
 public class CalculatorController {
 
@@ -21,9 +22,6 @@ public class CalculatorController {
         return new CalculatorController();
     }
 
-    public void setOperation(Operation operation) {
-        calculator.setOperation(operation);
-    }
 
     public BigDecimal getResultAfterEqual(BigDecimal newLeftOperand) throws NumberOverflowException, DivideByZeroException, NoOperationException {
         return calculator.getResultAfterEqual(newLeftOperand);

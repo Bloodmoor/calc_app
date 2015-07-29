@@ -15,6 +15,11 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 
+/**
+ * Class responds for CalculatorView behavior logic
+ * and representation of results on its screens.
+ * @author Zavizionov Andrii
+ */
 public class CalculatorFormatter {
 
     private static final String DEFAULT_FIRST_SCREEN_TEXT = "0";

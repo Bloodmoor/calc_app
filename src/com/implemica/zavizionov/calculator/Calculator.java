@@ -298,15 +298,6 @@ public class Calculator {
     }
 
     /**
-     * Sets a given operation to calculator.
-     *
-     * @param operation - operation to set.
-     */
-    public void setOperation(Operation operation) {
-        this.operation = operation;
-    }
-
-    /**
      * Method should be used for reusing a right operand
      * is the same operation after getting a result of
      * operation for another left operand.
