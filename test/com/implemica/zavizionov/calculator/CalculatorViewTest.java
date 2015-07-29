@@ -30,7 +30,6 @@ public class CalculatorViewTest extends GuiTest {
     private static final long DELAY = 100;
     private static final String DOT_BUTTON_ID = ",";
 
-    private Parent root;
     private TextField firstScreen;
     private TextField secondScreen;
     private Label memoryScreen;
@@ -38,7 +37,7 @@ public class CalculatorViewTest extends GuiTest {
 
     public Parent getRootNode() {
         CalculatorView view = new CalculatorView();
-        root = view.getRoot();
+        Parent root = view.getRoot();
         firstScreen = view.getFirstScreen();
         secondScreen = view.getSecondScreen();
         memoryScreen = view.getMemoryScreen();
@@ -63,8 +62,15 @@ public class CalculatorViewTest extends GuiTest {
 
     private void clickSequence(String sequence) {
         for (char c : sequence.toCharArray()) {
-            if(c == '.') c = DOT_BUTTON_ID.charAt(0);
+            if (c == '.') c = DOT_BUTTON_ID.charAt(0);
             click(Character.toString(c));
+        }
+    }
+
+    private void clickSequence(String[] sequence) {
+        for (String s : sequence) {
+            if (s.equals(".")) s = DOT_BUTTON_ID;
+            click(s);
         }
     }
 
@@ -83,6 +89,14 @@ public class CalculatorViewTest extends GuiTest {
         assertFirstScreen(expectedFirstScreen);
     }
 
+    private void assertSequence(String expectedFirstScreen, String expectedSecondScreen, String[] buttonSequence) {
+        formatter.pressClearButton();
+        clickSequence(buttonSequence);
+
+        assertFirstScreen(expectedFirstScreen);
+        assertSecondScreen(expectedSecondScreen);
+    }
+
     @Test
     public void testDigitButtons() {
         for (int i = 0; i < 9; i++) {
@@ -92,37 +106,8 @@ public class CalculatorViewTest extends GuiTest {
 
     @Test
     public void testClearEntryButton() {
-        //firstScreen clearing
-        firstScreen.setText("123");
-        secondScreen.setText("123");
-        click("CE");
-        assertFirstScreen("0");
-        assertSecondScreen("123");
-
-        formatter.pressClearButton();
-
-        click("1");
-        click("+");
-
-        assertFirstScreen("1");
-        assertSecondScreen("1 +");
-
-        click("5");
-
-        assertFirstScreen("5");
-        assertSecondScreen("1 +");
-
-        click("CE");
-
-        assertFirstScreen("0");
-        assertSecondScreen("1 +");
-
-        click("2");
-        click("=");
-
-        assertFirstScreen("3");
-        assertSecondScreen("");
-
+        assertSequence("0", "", new String[]{"CE"});
+        assertSequence("2", "1 +", new String[]{"1", "+", "3", "CE", "2"});
     }
 
     @Test
@@ -130,29 +115,9 @@ public class CalculatorViewTest extends GuiTest {
         //firstScreen clearing
         firstScreen.setText("Some text");
         secondScreen.setText("Some text");
-        click("C");
-        assertFirstScreen("0");
-        assertSecondScreen("");
+        assertSequence("0", "", "C");
 
-        formatter.pressClearButton();
-
-        //
-        click("1");
-        click("+");
-
-        assertFirstScreen("1");
-        assertSecondScreen("1 +");
-
-        click("5");
-
-        assertFirstScreen("5");
-        assertSecondScreen("1 +");
-
-        click("C");
-
-        assertFirstScreen("0");
-        assertSecondScreen("");
-
+        assertSequence("0", "", "1+5C");
     }
 
     @Test
@@ -206,45 +171,13 @@ public class CalculatorViewTest extends GuiTest {
 
     @Test
     public void testReverse() {
-        //TODO refactor
         //1/5
-        click("5");
-        click("1/x");
-
-        assertFirstScreen("0.2");
-        assertSecondScreen("reciproc(5)");
-
-        formatter.pressClearButton();
-
-        //1+ 1/5
-        click("1");
-        click("+");
-        click("5");
-        click("1/x");
-
-        assertFirstScreen("0.2");
-        assertSecondScreen("1 + reciproc(5)");
-
-        formatter.pressClearButton();
-
-        //1/0
-        click("0");
-        click("1/x");
-
-        assertFirstScreen(DIVIDE_BY_ZERO_MESSAGE);
-        assertSecondScreen("reciproc(0)");
-
-        formatter.pressClearButton();
-
-        //1 + 1/0
-        //1/0
-        click("1");
-        click("+");
-        click("0");
-        click("1/x");
-
-        assertFirstScreen(DIVIDE_BY_ZERO_MESSAGE);
-        assertSecondScreen("1 + reciproc(0)");
+        assertSequence("0.2", "reciproc(5)", new String[]{"5", "1/x"});
+        assertSequence("5", "reciproc(reciproc(5))", new String[]{"5", "1/x", "1/x"});
+        assertSequence("0.2", "1 + reciproc(5)", new String[]{"1", "+", "5", "1/x"});
+        assertSequence("5", "1 + reciproc(reciproc(5))", new String[]{"1", "+", "5", "1/x", "1/x"});
+        assertSequence(DIVIDE_BY_ZERO_MESSAGE, "reciproc(0)", new String[]{"0", "1/x"});
+        assertSequence(DIVIDE_BY_ZERO_MESSAGE, "1 + reciproc(0)", new String[]{"1", "+", "0", "1/x"});
     }
 
     @Test
@@ -303,22 +236,11 @@ public class CalculatorViewTest extends GuiTest {
     @Test
     public void testBackSpace() {
         //one symbol
-        click("1");
+        assertSequence("0", "", "1" + BACKSPACE_BUTTON_LABEL);
 
-        assertFirstScreen("1");
-
-        click(BACKSPACE_BUTTON_LABEL);
-
-        assertFirstScreen("0");
-
-        formatter.pressClearButton();
 
         //many symbols
-        click("1");
-        click("2");
-        click("3");
-
-        assertFirstScreen("123");
+        assertSequence("123", "", "123");
 
         click(BACKSPACE_BUTTON_LABEL);
 
@@ -332,28 +254,21 @@ public class CalculatorViewTest extends GuiTest {
 
         assertFirstScreen("15");
 
-        click(BACKSPACE_BUTTON_LABEL);
-        click(BACKSPACE_BUTTON_LABEL);
+        clickSequence(BACKSPACE_BUTTON_LABEL + BACKSPACE_BUTTON_LABEL);
 
         assertFirstScreen("0");
 
         formatter.pressClearButton();
 
         //for second operand
-        click("1");
-        click("2");
-        click("+");
-
-        assertFirstScreen("12");
-        assertSecondScreen("12 +");
+        assertSequence("12", "12 +", "12+");
 
         click(BACKSPACE_BUTTON_LABEL);
 
         assertFirstScreen("1");
         assertSecondScreen("12 +");
 
-        click("3");
-        click("4");
+        clickSequence("34");
 
         assertFirstScreen("34");
         assertSecondScreen("12 +");
@@ -417,11 +332,7 @@ public class CalculatorViewTest extends GuiTest {
     //@Ignore
     public void testMemoryStoreAndRecall() {
         // for single number
-        click("5");
-        click("MS");
-
-        assertFirstScreen("5");
-        assertSecondScreen("");
+        assertSequence("5", "", new String[]{"5", "MS"});
         assertMemoryScreen("M");
 
         click("C");
@@ -440,13 +351,7 @@ public class CalculatorViewTest extends GuiTest {
         click("MC");
 
         //in expression
-        click("5");
-        click("+");
-        click("8");
-        click("MS");
-
-        assertFirstScreen("8");
-        assertSecondScreen("5 +");
+        assertSequence("8", "5 +", new String[]{"5", "+", "8", "MS"});
         assertMemoryScreen("M");
 
         click("C");
@@ -465,14 +370,7 @@ public class CalculatorViewTest extends GuiTest {
         click("MC");
 
         //for result
-        click("5");
-        click("+");
-        click("8");
-        click("=");
-        click("MS");
-
-        assertFirstScreen("13");
-        assertSecondScreen("");
+        assertSequence("13", "", new String[]{"5", "+", "8", "=","MS"});
         assertMemoryScreen("M");
 
         click("C");
@@ -491,25 +389,17 @@ public class CalculatorViewTest extends GuiTest {
     @Test
     //@Ignore
     public void testMemoryPlus() {
-        click("5");
-        click("M+");
+        assertSequence("5", "", new String[]{"5", "M+"});
+        assertMemoryScreen("M");
+
+        clickSequence(new String[]{"C", "MR"});
 
         assertFirstScreen("5");
         assertSecondScreen("");
         assertMemoryScreen("M");
 
-        click("C");
-        click("MR");
+        clickSequence(new String[]{"C", "3", "M+", "C", "MR"});
 
-        assertFirstScreen("5");
-        assertSecondScreen("");
-        assertMemoryScreen("M");
-
-        click("C");
-        click("3");
-        click("M+");
-        click("C");
-        click("MR");
 
         assertFirstScreen("8");
         assertSecondScreen("");
@@ -532,25 +422,16 @@ public class CalculatorViewTest extends GuiTest {
     @Test
     //@Ignore
     public void testMemoryMinus() {
-        click("5");
-        click("M-");
-
-        assertFirstScreen("5");
-        assertSecondScreen("");
+        assertSequence("5", "", new String[]{"5", "M-"});
         assertMemoryScreen("M");
 
-        click("C");
-        click("MR");
+        clickSequence(new String[]{"C", "MR"});
 
         assertFirstScreen("-5");
         assertSecondScreen("");
         assertMemoryScreen("M");
 
-        click("C");
-        click("3");
-        click("M-");
-        click("C");
-        click("MR");
+        clickSequence(new String[]{"C", "3", "M-", "C", "MR"});
 
         assertFirstScreen("-8");
         assertSecondScreen("");
@@ -573,11 +454,7 @@ public class CalculatorViewTest extends GuiTest {
     @Test
     //@Ignore
     public void testMemoryClear() {
-        click("5");
-        click("MS");
-
-        assertFirstScreen("5");
-        assertSecondScreen("");
+        assertSequence("5", "", new String[]{"5", "MS"});
         assertMemoryScreen("M");
 
         click("C");
@@ -592,9 +469,7 @@ public class CalculatorViewTest extends GuiTest {
         assertSecondScreen("");
         assertMemoryScreen("M");
 
-        click("MC");
-        click("C");
-        click("MR");
+        clickSequence(new String[]{"MC", "C", "MR"});
 
         assertFirstScreen("0");
         assertSecondScreen("");
@@ -603,23 +478,26 @@ public class CalculatorViewTest extends GuiTest {
 
     @Test
     public void testInputAfterResult() {
-        assertSequence("58", "55+3=");
-        click("3");
+        assertSequence("0.", "", "5+8=.");
 
+        assertSequence("58", "55+3=");
+
+        click("3");
         assertFirstScreen("3");
         assertSecondScreen("");
 
         click("=");
-
         assertFirstScreen("6");
         assertSecondScreen("");
 
         //after sqrt
         assertSequence("1", "50 + 1", "50+2%");
-        click("5");
 
+        click("5");
         assertFirstScreen("5");
         assertSecondScreen("50 +");
+
+
     }
 
     @Test
@@ -628,9 +506,7 @@ public class CalculatorViewTest extends GuiTest {
         for (int i = 0; i < 16; i++) {
             click("9");
         }
-        click("+");
-        click("1");
-        click("=");
+        clickSequence("+1=");
 
         assertSequence("1e+16", "", "9999999999999999+1=");
 
@@ -650,6 +526,7 @@ public class CalculatorViewTest extends GuiTest {
         assertSecondScreen("");
 
         formatter.pressClearButton();
+
 
         assertSequence("7.506098705197973e-6", "", "1/365==");
         assertSequence("9.999999998e+19", "", "9999999999*=");

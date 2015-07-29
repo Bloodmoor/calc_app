@@ -11,9 +11,8 @@ import javafx.scene.input.DataFormat;
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
-import java.util.HashMap;
+import java.util.Collections;
 import java.util.Locale;
-import java.util.Map;
 
 /**
  * Class responds for CalculatorView behavior logic
@@ -55,7 +54,7 @@ public class CalculatorFormatter {
     /**
      * Message to be shown when divide by zero operation is performed.
      */
-    private static final String DIVIDE_BY_ZERO_MESSAGE = "\u0414\u0435\u043B\u0435\u043D\u0438\u0435 \u043D\u0430 \u043D\u043E\u043B\u044C \u043D\u0435\u0432\u043E\u0437\u043C\u043E\u0436\u043D\u043E";
+    private static final String DIVIDE_BY_ZERO_MESSAGE = "Привет\u0414\u0435\u043B\u0435\u043D\u0438\u0435 \u043D\u0430 \u043D\u043E\u043B\u044C \u043D\u0435\u0432\u043E\u0437\u043C\u043E\u0436\u043D\u043E";
 
     /**
      * First screen big font size.
@@ -98,7 +97,7 @@ public class CalculatorFormatter {
     private static final BigDecimal DELTA = new BigDecimal("1E-" + (FIRST_DISPLAY_SIZE - 2));
 
     /**
-     * Max number value, that first screen can fit with plain representation.
+     * Max number, that first screen can fit with plain representation.
      */
     private static final BigDecimal MAX = new BigDecimal("1E" + (FIRST_DISPLAY_SIZE));
 
@@ -108,7 +107,7 @@ public class CalculatorFormatter {
     private static final BigDecimal MIN = new BigDecimal("1E-" + (FIRST_DISPLAY_SIZE - 2));
 
     /**
-     * Marginal scale for switching between scientific and plain number representations.
+     * Scale for switching between scientific and plain number representations.
      */
     private static final int SCALE = 29;
 
@@ -174,10 +173,10 @@ public class CalculatorFormatter {
 
     /**
      * Tells if the current result of calculators work
-     * is a result of square root operation. In this case calculator
-     * behaviour should be slightly different.
+     * is a result of square root operation or reverse operation.
+     * In this case calculator behaviour should be slightly different.
      */
-    private boolean isSqrtResult = false;
+    private boolean isSqrtOrReverseResult = false;
 
     /**
      * Tells if the current result of calculators work
@@ -192,6 +191,7 @@ public class CalculatorFormatter {
      * It can be unlocked only after clear operation is performed.
      */
     private boolean isLocked = false;
+
 
     /**
      * Constructor. Class instances can't be created directly.
@@ -397,8 +397,9 @@ public class CalculatorFormatter {
         if (firstScreen.getLength() == FIRST_DISPLAY_SIZE && !isWeakNumber) {
             return;
         }
-        if (firstScreen.getText().equals("0") || isWeakNumber) {
-            if (isSqrtResult || isPercentResult) {
+
+        if (firstScreen.getText().equals(DEFAULT_FIRST_SCREEN_TEXT) || isWeakNumber) {
+            if (isSqrtOrReverseResult || isPercentResult) {
                 replaceLast("");
             }
             currentScreenValue = BigDecimal.ZERO;
@@ -419,11 +420,10 @@ public class CalculatorFormatter {
             return;
         }
         //for single sqrt result
-        if (isSqrtResult && !isSequence) {
+        if (isSqrtOrReverseResult && !isSequence) {
             controller.clear();
             setSecondScreenText(DEFAULT_SECOND_SCREEN_TEXT);
-            isSqrtResult = false;
-            //isPercentResult = false;
+            isSqrtOrReverseResult = false;
             return;
         }
 
@@ -454,8 +454,6 @@ public class CalculatorFormatter {
             //if it happens, something is done wrong
             e.printStackTrace();
         }
-
-
     }
 
     /**
@@ -590,8 +588,8 @@ public class CalculatorFormatter {
             setSecondScreenText("sqrt(" + firstScreen.getText() + ")");
         } else {
 
-            if (isSqrtResult) {
-                int start = secondScreen.getText().lastIndexOf("s");
+            if (isSqrtOrReverseResult) {
+                int start = secondScreen.getText().lastIndexOf("sqrt");
                 String oldText = secondScreen.getText().substring(start, secondScreen.getLength());
                 String newText = "sqrt(" + oldText + ")";
                 secondScreen.replaceText(start, secondScreen.getLength(), newText);
@@ -602,7 +600,7 @@ public class CalculatorFormatter {
         }
         setFirstScreenText(controller.getSqrt(getCurrentScreenValue()));
 
-        isSqrtResult = true;
+        isSqrtOrReverseResult = true;
         isWeakNumber = true;
     }
 
@@ -624,7 +622,7 @@ public class CalculatorFormatter {
         } else {
             controller.setOperation(getCurrentScreenValue(), operation);
 
-            if (isSqrtResult) {
+            if (isSqrtOrReverseResult) {
                 appendSecondScreenText(" " + operation.getSign());
             } else {
                 setSecondScreenText(firstScreen.getText() + " " + operation.getSign());
@@ -634,7 +632,7 @@ public class CalculatorFormatter {
         isSequence = true;
         isWeakNumber = true;
         isResult = false;
-        isSqrtResult = false;
+        isSqrtOrReverseResult = false;
     }
 
     /**
@@ -670,12 +668,15 @@ public class CalculatorFormatter {
         String secondScreenText = "reciproc(" + firstScreen.getText() + ")";
 
 
-        if (!isSequence) {
+
+        if (secondScreen.getText().isEmpty()) {
             setSecondScreenText(secondScreenText);
         } else {
-            if (isResult) {
-                int start = secondScreen.getText().lastIndexOf(" ");
-                secondScreen.replaceText(start, secondScreen.getLength(), " " + secondScreenText);
+            if (isSqrtOrReverseResult) {
+                int start = secondScreen.getText().lastIndexOf("reciproc");
+                String oldText = secondScreen.getText().substring(start, secondScreen.getLength());
+                String newText = "reciproc(" + oldText + ")";
+                secondScreen.replaceText(start, secondScreen.getLength(), newText);
             } else {
                 appendSecondScreenText(" " + secondScreenText);
             }
@@ -684,6 +685,7 @@ public class CalculatorFormatter {
 
         isResult = true;
         isWeakNumber = true;
+        isSqrtOrReverseResult = true;
     }
 
     /**
@@ -701,7 +703,7 @@ public class CalculatorFormatter {
     public void pressClearButton() {
         isResult = false;
         isWeakNumber = false;
-        isSqrtResult = false;
+        isSqrtOrReverseResult = false;
         isSequence = false;
         isPercentResult = false;
         isLocked = false;
@@ -751,9 +753,7 @@ public class CalculatorFormatter {
      * pressing copy-to-clipboard combination.
      */
     public void setClipboard() {
-        Map<DataFormat, Object> map = new HashMap<>();
-        map.put(DataFormat.PLAIN_TEXT, firstScreen.getText());
-        clipboard.setContent(map);
+        clipboard.setContent(Collections.singletonMap(DataFormat.PLAIN_TEXT, firstScreen.getText()));
     }
 
     /**

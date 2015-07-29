@@ -7,6 +7,7 @@ import org.junit.Test;
 
 import java.math.BigDecimal;
 
+import static junit.framework.Assert.assertTrue;
 import static junit.framework.Assert.fail;
 
 /**
@@ -22,8 +23,18 @@ public class CalculatorTest {
 
     private void assertOperation(BigDecimal leftOperand, Operation op, BigDecimal expectedResult) throws Exception, NoOperationException {
         Calculator calc = new Calculator();
-        calc.setOperation(leftOperand, op);
-        assertEqualsBD(expectedResult, calc.getResult());
+        switch (op) {
+            case SQRT:
+                assertEqualsBD(expectedResult, calc.getSqrt(leftOperand));
+                break;
+            case INVERT:
+                assertEqualsBD(expectedResult, calc.getInverted(leftOperand));
+                break;
+            case PERCENT:
+                assertEqualsBD(expectedResult, calc.getPercent(leftOperand));
+                break;
+        }
+
     }
 
     /**
@@ -75,13 +86,13 @@ public class CalculatorTest {
     }
 
 
-    private void assertBadArguments(BigDecimal leftOperand, BigDecimal rightOperand, Operation op) throws Exception, NoOperationException {
+    private void assertBadArguments(BigDecimal leftOperand, BigDecimal rightOperand, Operation op) throws NoOperationException, NumberOverflowException, DivideByZeroException {
         Calculator calc = new Calculator();
         calc.setOperation(leftOperand, op);
         try {
             calc.getResult(rightOperand);
             fail(String.format("Expected IllegalArgumentException for arguments:\nleftOperand  : %s\nrightOperand :%s", leftOperand, rightOperand));
-        }catch(IllegalArgumentException e){
+        } catch (IllegalArgumentException e) {
             //correct for this arguments
         }
     }
@@ -96,7 +107,7 @@ public class CalculatorTest {
         try {
             calc.getResult();
             fail(String.format("Expected DivideByZeroException for arguments:\nleftOperand  : %s\nrightOperand :%s", leftOperand));
-        }catch(DivideByZeroException e){
+        } catch (DivideByZeroException e) {
             //correct for this arguments
         }
     }
@@ -111,28 +122,19 @@ public class CalculatorTest {
         try {
             calc.getResult(rightOperand);
             fail(String.format("Expected DivideByZeroException for arguments:\nleftOperand  : %s\nrightOperand :%s", leftOperand, rightOperand));
-        }catch(DivideByZeroException e){
+        } catch (DivideByZeroException e) {
             //correct for this arguments
         }
     }
 
-    private void assertBadArguments(BigDecimal leftOperand, Operation op) throws Exception, NoOperationException {
+    private void assertSqrtBadArguments(String leftOperand) throws NoOperationException, NumberOverflowException, DivideByZeroException {
         Calculator calc = new Calculator();
-        calc.setOperation(leftOperand, op);
         try {
-            calc.getResult();
+            calc.getSqrt(asBD(leftOperand));
             fail(String.format("Expected IllegalArgumentException for arguments:\nleftOperand  : %s", leftOperand));
-        }catch(IllegalArgumentException e){
+        } catch (IllegalArgumentException e) {
             //correct for this arguments
         }
-    }
-
-    private void assertBadArguments(String leftOperand, String rightOperand, Operation op) throws Exception, NoOperationException {
-        assertBadArguments(asBD(leftOperand), asBD(rightOperand), op);
-    }
-
-    private void assertBadArguments(String leftOperand, Operation op) throws Exception, NoOperationException {
-        assertBadArguments(asBD(leftOperand), op);
     }
 
 
@@ -188,13 +190,13 @@ public class CalculatorTest {
         assertOperation(15.13, Operation.INVERT, -15.13);
         assertOperation("0.000000000000001", Operation.INVERT, "-0.000000000000001");
         assertOperation("10000000000", Operation.INVERT, "-10000000000");
-        assertOperation("99999999999999999999", "0.1", Operation.INVERT, "-99999999999999999999");
+        assertOperation("99999999999999999999", Operation.INVERT, "-99999999999999999999");
     }
 
     @Test
-    public void testSqrt() throws Exception, NoOperationException {
-        assertOperation(100, Operation.SQRT, 10);
-        assertOperation(9, Operation.SQRT, 3);
+    public void testSqrt() throws NoOperationException, Exception {
+        assertOperation("100", Operation.SQRT, "10");
+        assertOperation("9", Operation.SQRT, "3");
         assertOperation("0.01", Operation.SQRT, "0.1");
         assertOperation("0.00000001", Operation.SQRT, "0.0001");
         assertOperation("999999999999", Operation.SQRT, "999999.9999995");
@@ -203,9 +205,15 @@ public class CalculatorTest {
     }
 
     @Test
-    public void testSqrtBadArguments() throws Exception, NoOperationException {
-        assertBadArguments("-1", Operation.SQRT);
-        assertBadArguments("-123456789", Operation.SQRT);
+    public void testSqrtBadArguments() throws NoOperationException, NumberOverflowException, DivideByZeroException {
+        assertSqrtBadArguments("-1");
+        assertSqrtBadArguments("-123456789");
+        assertSqrtBadArguments(new BigDecimal(Double.toString(Double.MAX_VALUE))
+                .add(BigDecimal.valueOf(Double.MAX_VALUE))
+                .toString());
+        assertSqrtBadArguments(new BigDecimal(Double.toString(Double.MIN_VALUE))
+                .subtract(BigDecimal.valueOf(Double.MAX_VALUE))
+                .toString());
     }
 
     @Test
@@ -228,9 +236,9 @@ public class CalculatorTest {
         Calculator calc = new Calculator();
         calc.setOperation(asBD(200), Operation.PLUS);
         assertEqualsBD(asBD(40), calc.getPercent(asBD(20)));
-        assertEqualsBD(asBD(-40) ,calc.getPercent(asBD(-20)));
-        assertEqualsBD(asBD(400) ,calc.getPercent(asBD(200)));
-        assertEqualsBD(asBD(1) ,calc.getPercent(asBD(0.5)));
+        assertEqualsBD(asBD(-40), calc.getPercent(asBD(-20)));
+        assertEqualsBD(asBD(400), calc.getPercent(asBD(200)));
+        assertEqualsBD(asBD(1), calc.getPercent(asBD(0.5)));
         assertEqualsBD(asBD("0.00001"), calc.getPercent(asBD("0.000005")));
     }
 
@@ -280,7 +288,7 @@ public class CalculatorTest {
     }
 
     @Test
-    public void testMemoryDefault() throws Exception{
+    public void testMemoryDefault() throws Exception {
         Calculator calc = new Calculator();
 
         assertEqualsBD(asBD("0"), calc.memoryRecall());
@@ -307,11 +315,32 @@ public class CalculatorTest {
     @Test
     public void testNoOperationException() throws NumberOverflowException, DivideByZeroException {
         Calculator calc = new Calculator();
-        try{
+        try {
             calc.getResult();
             fail();
-        }catch (NoOperationException e){
+        } catch (NoOperationException e) {
             //correct for this state of calculator
+        }
+    }
+
+    @Test
+    public void testClear() {
+        Calculator calc = new Calculator();
+        calc.setOperation(asBD("5"), Operation.MULTIPLY);
+        calc.clear();
+        assertTrue(Operation.NOOP.equals(calc.getOperation()));
+    }
+
+    @Test
+    public void testNumberOverflowException() throws DivideByZeroException, NoOperationException {
+        Calculator calc = new Calculator();
+
+        try {
+            calc.setOperation(new BigDecimal("1E10000"), Operation.MULTIPLY);
+            BigDecimal result = calc.getResult(new BigDecimal("1E1"));
+            fail("NumberOverflowException expected for resulting value: " + result);
+        }catch(NumberOverflowException e){
+            //correct for this value
         }
     }
 }

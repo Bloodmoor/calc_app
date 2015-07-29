@@ -89,16 +89,6 @@ public class Calculator {
             case REVERSE:
                 result = performReverse();
                 break;
-            case MC:
-                break;
-            case MR:
-                break;
-            case MS:
-                break;
-            case MPLUS:
-                break;
-            case MMINUS:
-                break;
         }
         if (Math.abs(result.scale()) > MAX_SCALE) {
             throw new NumberOverflowException("Overflow");
@@ -162,7 +152,7 @@ public class Calculator {
      * (result)
      * 8
      *
-     * @param rightOperand - next right operand
+     * @param rightOperand next right operand
      * @return result of operation
      * @throws NumberOverflowException - occurs when resulting number overflows maximal scale.
      * @throws DivideByZeroException   - if divide by zero was performed
