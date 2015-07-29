@@ -45,7 +45,6 @@ public class CalculatorController {
         return calculator.getResultOnGo(rightOperand);
     }
 
-
     public BigDecimal memoryRecall() {
         return calculator.memoryRecall();
     }
@@ -80,5 +79,10 @@ public class CalculatorController {
 
     public BigDecimal getSqrt(BigDecimal value) {
         return calculator.getSqrt(value);
+    }
+
+
+    public Operation getOperation() {
+        return calculator.getOperation();
     }
 }

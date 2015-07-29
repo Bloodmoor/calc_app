@@ -26,7 +26,7 @@ public class CalculatorFormatter {
     private static final String DIVIDE_BY_ZERO_MESSAGE = "\u0414\u0435\u043B\u0435\u043D\u0438\u0435 \u043D\u0430 \u043D\u043E\u043B\u044C \u043D\u0435\u0432\u043E\u0437\u043C\u043E\u0436\u043D\u043E";
     private static final int FIRST_SCREEN_BIG_FONT_SIZE = 22;
     private static final int FIRST_SCREEN_MEDIUM_FONT_SIZE = 18;
-    private static final int FIRST_SCREEN_SMALL_FONT_SIZE = 13;
+    private static final int FIRST_SCREEN_SMALL_FONT_SIZE = 12;
     private static final int FIRST_DISPLAY_SIZE = 16;
     private static final int SECOND_DISPLAY_SIZE = 30;
     private static final int BIG_FONT_SYMBOLS_COUNT = 12;
@@ -36,6 +36,8 @@ public class CalculatorFormatter {
     private static final BigDecimal MAX = new BigDecimal("1E" + (FIRST_DISPLAY_SIZE));
     private static final BigDecimal MIN = new BigDecimal("1E-" + (FIRST_DISPLAY_SIZE - 2));
     private static final int SCALE = 29;
+
+    private static final String SCIENTIFIC_DECIMAL_PATTERN = "0E0";
 
     private BigDecimal currentScreenValue = BigDecimal.ZERO;
     private Clipboard clipboard = Clipboard.getSystemClipboard();
@@ -48,9 +50,14 @@ public class CalculatorFormatter {
 
     private boolean isWeakNumber = false;
     private boolean isResult = false;
-    private boolean isNext = false;
+    private boolean isSequence = false;
     private boolean isSqrtResult = false;
     private boolean isPercentResult = false;
+    /**
+     * Screen can be locked after some error.
+     * It can be unlocked only after clear operation is performed.
+     */
+    private boolean isLocked = false;
 
     private CalculatorFormatter(TextField firstScreen, TextField secondScreen, Label memoryScreen) {
         this.firstScreen = firstScreen;
@@ -58,6 +65,18 @@ public class CalculatorFormatter {
         this.memoryScreen = memoryScreen;
         setFirstScreenText(DEFAULT_FIRST_SCREEN_TEXT);
         setSecondScreenText(DEFAULT_SECOND_SCREEN_TEXT);
+    }
+
+    public static CalculatorFormatter getInstance(TextField firstScreen, TextField secondScreen, Label memoryScreen) {
+        return new CalculatorFormatter(firstScreen, secondScreen, memoryScreen);
+    }
+
+    private BigDecimal getCurrentScreenValue() {
+        if (currentScreenValue.equals(BigDecimal.ZERO)) {
+            return new BigDecimal(firstScreen.getText());
+        } else {
+            return currentScreenValue;
+        }
     }
 
     private void ensureSize() {
@@ -95,6 +114,9 @@ public class CalculatorFormatter {
     }
 
     private void setFirstScreenText(String text) {
+        if (isLocked) {
+            return;
+        }
         firstScreen.setText(text);
         ensureSize();
     }
@@ -110,24 +132,25 @@ public class CalculatorFormatter {
 
     private String format(BigDecimal value) {
         String result;
-        DecimalFormat f = new DecimalFormat("0E0");
+        DecimalFormat f = new DecimalFormat(SCIENTIFIC_DECIMAL_PATTERN);
         f.setDecimalFormatSymbols(DecimalFormatSymbols.getInstance(Locale.ROOT));
         f.setGroupingUsed(false);
+
         if (value.compareTo(MAX) >= 0) {
             f.setMaximumIntegerDigits(1);
             f.setMaximumFractionDigits(FIRST_DISPLAY_SIZE - 1);
-            result = f.format(value);
         } else if (value.compareTo(MIN) < 0 || value.scale() > SCALE) {
             f.setMaximumIntegerDigits(1);
             f.setMaximumFractionDigits(FIRST_DISPLAY_SIZE - 1);
-            result = f.format(value);
         } else {
             f.applyPattern("0");
             int countOfIntDigits = value.toPlainString().lastIndexOf(".");
             f.setMaximumFractionDigits(FIRST_DISPLAY_SIZE - countOfIntDigits);
-            result = f.format(value);
         }
 
+        result = f.format(value);
+
+        //switching to lowercase e;
         if (result.contains("E-")) {
             return result.replace("E", "e");
         } else {
@@ -136,6 +159,9 @@ public class CalculatorFormatter {
     }
 
     private void appendFirstScreenText(String text) {
+        if (isLocked) {
+            return;
+        }
         firstScreen.appendText(text);
         ensureSize();
     }
@@ -152,75 +178,80 @@ public class CalculatorFormatter {
         setSecondScreenText(text);
     }
 
-
-    public static CalculatorFormatter getInstance(TextField firstScreen, TextField secondScreen, Label memoryScreen) {
-        return new CalculatorFormatter(firstScreen, secondScreen, memoryScreen);
-    }
-
     public void pressDigitButton(int digit) {
         if (firstScreen.getLength() == FIRST_DISPLAY_SIZE && !isWeakNumber) {
             return;
         }
         if (firstScreen.getText().equals("0") || isWeakNumber) {
-            if(isSqrtResult || isPercentResult) {
+            if (isSqrtResult || isPercentResult) {
                 replaceLast("");
             }
             currentScreenValue = BigDecimal.ZERO;
             setFirstScreenText(Integer.toString(digit));
             isWeakNumber = false;
-        } else{
+        } else {
             appendFirstScreenText(Integer.toString(digit));
         }
     }
 
-    private void replaceLast(String newString){
+    private void replaceLast(String newString) {
         setSecondScreenText(secondScreen.getText().substring(0, secondScreen.getText().lastIndexOf(" ")) + newString);
     }
 
-    private void replaceLastSign(String sign){
-        replaceLast(" "+sign);
+    private void replaceLastSign(String sign) {
+        replaceLast(" " + sign);
     }
 
     public void pressEqualButton() {
-        if (isSqrtResult && !isNext) {
-            controller.setOperation(Operation.NOOP);
+        if (isLocked) {
+            return;
+        }
+        //for single sqrt result
+        if (isSqrtResult && !isSequence) {
+            controller.clear();
             setSecondScreenText(DEFAULT_SECOND_SCREEN_TEXT);
             isSqrtResult = false;
-            isPercentResult = false;
+            //isPercentResult = false;
+            return;
+        }
+
+        if (controller.getOperation().equals(Operation.NOOP)) {
             return;
         }
 
         try {
+
             if (isResult) {
-                BigDecimal result;
-                if (currentScreenValue.equals(BigDecimal.ZERO)) {
-                    result = controller.getResultAfterEqual(new BigDecimal(firstScreen.getText()));
-                } else {
-                    result = controller.getResultAfterEqual(currentScreenValue);
-                }
-                setFirstScreenText(result);
-            }else{
-                setFirstScreenText(controller.getResult(new BigDecimal(firstScreen.getText())));
+                setFirstScreenText(controller.getResultAfterEqual(getCurrentScreenValue()));
+            } else {
+                setFirstScreenText(controller.getResult(getCurrentScreenValue()));
                 setSecondScreenText(DEFAULT_SECOND_SCREEN_TEXT);
             }
+
+            isResult = true;
+            isSequence = false;
+            isWeakNumber = true;
+
         } catch (DivideByZeroException e) {
             setFirstScreenText(DIVIDE_BY_ZERO_MESSAGE);
+            isLocked = true;
         } catch (NumberOverflowException e) {
             setFirstScreenText(OVERFLOW_MESSAGE);
+            isLocked = true;
         } catch (NoOperationException e) {
             //if it happens, something is done wrong
             e.printStackTrace();
         }
 
-        isResult = true;
-        isNext = false;
-        isWeakNumber = true;
+
     }
 
     public void pressDotButton() {
+
         if (!firstScreen.getText().contains(".")) {
             appendFirstScreenText(".");
         }
+
         if (isWeakNumber || isResult) {
             isWeakNumber = false;
             isResult = false;
@@ -229,53 +260,22 @@ public class CalculatorFormatter {
     }
 
     public void pressOperationButton(Operation operation) {
+        if (isLocked) {
+            return;
+        }
         try {
             switch (operation) {
                 case PLUS:
                 case MINUS:
                 case DIVIDE:
                 case MULTIPLY:
-                    if (isNext) {
-                        if (isWeakNumber) {
-                            replaceLastSign(operation.getSign());
-                            controller.setOperation(new BigDecimal(firstScreen.getText()), operation);
-                        } else {
-                            appendSecondScreenText(" " + firstScreen.getText() + " " + operation.getSign());
-                            setFirstScreenText(controller.getResultOnGo(new BigDecimal(firstScreen.getText())));
-                            controller.setOperation(new BigDecimal(firstScreen.getText()), operation);
-                        }
-                    } else {
-                        controller.setOperation(new BigDecimal(firstScreen.getText()), operation);
-                        if(isSqrtResult){
-                            appendSecondScreenText(" " + operation.getSign());
-                        }else{
-                            setSecondScreenText(firstScreen.getText() + " " + operation.getSign());
-                        }
-                    }
-                    isNext = true;
-                    isWeakNumber = true;
-                    isResult = false;
-                    isSqrtResult = false;
+                    pressTwoOperandOperationButton(operation);
                     break;
                 case INVERT:
-                    setFirstScreenText(controller.getInverted(new BigDecimal(firstScreen.getText())));
+                    pressInvertButton();
                     break;
                 case SQRT:
-                    if (secondScreen.getText().equals("")) {
-                        setSecondScreenText("sqrt(" + firstScreen.getText() + ")");
-                    } else {
-                        if (isSqrtResult) {
-                            int start = secondScreen.getText().lastIndexOf("s");
-                            String oldText = secondScreen.getText().substring(start, secondScreen.getLength());
-                            String newText = "sqrt(" + oldText + ")";
-                            secondScreen.replaceText(start, secondScreen.getLength(), newText);
-                        } else {
-                            appendSecondScreenText(" sqrt(" + firstScreen.getText() + ")");
-                        }
-                    }
-                    setFirstScreenText(controller.getSqrt(new BigDecimal(firstScreen.getText())));
-                    isSqrtResult = true;
-                    isWeakNumber = true;
+                    pressSqrtButton();
                     break;
                 case PERCENT:
                     pressPercentButton();
@@ -287,72 +287,131 @@ public class CalculatorFormatter {
                     pressClearMemoryButton();
                     break;
                 case MR:
-                    setFirstScreenText(controller.memoryRecall());
-                    isWeakNumber = true;
+                    pressMemoryRecallButton();
                     break;
                 case MS:
-                    if (!firstScreen.getText().equals(DEFAULT_FIRST_SCREEN_TEXT)) {
-                        memoryIndication(true);
-                        controller.memoryStore(new BigDecimal(firstScreen.getText()));
-                    }
+                    pressMemoryStoreButton();
                     break;
                 case MPLUS:
-                    if (!firstScreen.getText().equals(DEFAULT_FIRST_SCREEN_TEXT)) {
-                        memoryIndication(true);
-                        controller.memoryAdd(new BigDecimal(firstScreen.getText()));
-                    }
+                    pressMemoryPlusButton();
                     break;
                 case MMINUS:
-                    if (!firstScreen.getText().equals(DEFAULT_FIRST_SCREEN_TEXT)) {
-                        memoryIndication(true);
-                        controller.memorySubtract(new BigDecimal(firstScreen.getText()));
-                    }
+                    pressMemoryMinusButton();
                     break;
             }
-        } catch (NumberOverflowException e) {
-            setFirstScreenText(OVERFLOW_MESSAGE);
-            isWeakNumber = true;
         } catch (DivideByZeroException e) {
             setFirstScreenText(DIVIDE_BY_ZERO_MESSAGE);
-            isWeakNumber = true;
+        } catch (NumberOverflowException e) {
+            setFirstScreenText(OVERFLOW_MESSAGE);
         } catch (NoOperationException e) {
+            //if it happens, smthng is done wrong
             e.printStackTrace();
         }
     }
 
+    private void pressInvertButton() {
+        setFirstScreenText(controller.getInverted(getCurrentScreenValue()));
+    }
+
+    private void pressMemoryMinusButton() {
+        if (!firstScreen.getText().equals(DEFAULT_FIRST_SCREEN_TEXT)) {
+            memoryIndication(true);
+            controller.memorySubtract(getCurrentScreenValue());
+        }
+    }
+
+    private void pressMemoryPlusButton() {
+        if (!firstScreen.getText().equals(DEFAULT_FIRST_SCREEN_TEXT)) {
+            memoryIndication(true);
+            controller.memoryAdd(getCurrentScreenValue());
+        }
+    }
+
+    private void pressMemoryStoreButton() {
+        if (!firstScreen.getText().equals(DEFAULT_FIRST_SCREEN_TEXT)) {
+            memoryIndication(true);
+            controller.memoryStore(getCurrentScreenValue());
+        }
+    }
+
+    private void pressMemoryRecallButton() {
+        setFirstScreenText(controller.memoryRecall());
+        isWeakNumber = true;
+    }
+
+    private void pressSqrtButton() {
+        if (secondScreen.getText().isEmpty()) {
+            setSecondScreenText("sqrt(" + firstScreen.getText() + ")");
+        } else {
+
+            if (isSqrtResult) {
+                int start = secondScreen.getText().lastIndexOf("s");
+                String oldText = secondScreen.getText().substring(start, secondScreen.getLength());
+                String newText = "sqrt(" + oldText + ")";
+                secondScreen.replaceText(start, secondScreen.getLength(), newText);
+            } else {
+                appendSecondScreenText(" sqrt(" + firstScreen.getText() + ")");
+            }
+
+        }
+        setFirstScreenText(controller.getSqrt(getCurrentScreenValue()));
+
+        isSqrtResult = true;
+        isWeakNumber = true;
+    }
+
+    private void pressTwoOperandOperationButton(Operation operation) throws NumberOverflowException, DivideByZeroException, NoOperationException {
+        if (isSequence) {
+            if (isWeakNumber) {
+                replaceLastSign(operation.getSign());
+                controller.setOperation(getCurrentScreenValue(), operation);
+            } else {
+                appendSecondScreenText(" " + firstScreen.getText() + " " + operation.getSign());
+                setFirstScreenText(controller.getResultOnGo(getCurrentScreenValue()));
+                controller.setOperation(getCurrentScreenValue(), operation);
+            }
+        } else {
+            controller.setOperation(getCurrentScreenValue(), operation);
+
+            if (isSqrtResult) {
+                appendSecondScreenText(" " + operation.getSign());
+            } else {
+                setSecondScreenText(firstScreen.getText() + " " + operation.getSign());
+            }
+
+        }
+        isSequence = true;
+        isWeakNumber = true;
+        isResult = false;
+        isSqrtResult = false;
+    }
+
     private void pressPercentButton() {
-        if (secondScreen.getText().equals("")) {
+        if (!isSequence) {
             setFirstScreenText(DEFAULT_FIRST_SCREEN_TEXT);
             setSecondScreenText("0");
         } else {
-            BigDecimal result = controller.getPercent(new BigDecimal(firstScreen.getText()));
-            setFirstScreenText(result);
+            setFirstScreenText(controller.getPercent(getCurrentScreenValue()));
+
             if (isWeakNumber) {
                 int start = secondScreen.getText().lastIndexOf(" ");
                 secondScreen.replaceText(start, secondScreen.getLength(), " " + firstScreen.getText());
             } else {
                 appendSecondScreenText(" " + firstScreen.getText());
             }
+
         }
         isWeakNumber = true;
         isPercentResult = true;
     }
 
-    private void pressReverseButton() {
-        controller.setOperation(new BigDecimal(firstScreen.getText()), Operation.REVERSE);
-        String secondScreenText = "reciproc(" + firstScreen.getText() + ")";
-        BigDecimal result = null;
-        try {
-            result = controller.getResult();
-        } catch (DivideByZeroException e) {
-            setFirstScreenText(DIVIDE_BY_ZERO_MESSAGE);
-        } catch (NumberOverflowException e) {
-            setFirstScreenText(OVERFLOW_MESSAGE);
-        } catch (NoOperationException e) {
-            e.printStackTrace();
-        }
+    private void pressReverseButton() throws NumberOverflowException, DivideByZeroException, NoOperationException {
+        controller.setOperation(getCurrentScreenValue(), Operation.REVERSE);
 
-        if (secondScreen.getText().equals("")) {
+        String secondScreenText = "reciproc(" + firstScreen.getText() + ")";
+
+
+        if (!isSequence) {
             setSecondScreenText(secondScreenText);
         } else {
             if (isResult) {
@@ -362,9 +421,8 @@ public class CalculatorFormatter {
                 appendSecondScreenText(" " + secondScreenText);
             }
         }
-        if (result != null) {
-            setFirstScreenText(result);
-        }
+        setFirstScreenText(controller.getResult());
+
         isResult = true;
         isWeakNumber = true;
     }
@@ -374,14 +432,17 @@ public class CalculatorFormatter {
     }
 
     public void pressClearButton() {
-        controller.clear();
-        setFirstScreenText(DEFAULT_FIRST_SCREEN_TEXT);
-        setSecondScreenText(DEFAULT_SECOND_SCREEN_TEXT);
         isResult = false;
         isWeakNumber = false;
         isSqrtResult = false;
-        isNext = false;
+        isSequence = false;
         isPercentResult = false;
+        isLocked = false;
+
+        controller.clear();
+        setFirstScreenText(DEFAULT_FIRST_SCREEN_TEXT);
+        setSecondScreenText(DEFAULT_SECOND_SCREEN_TEXT);
+
     }
 
     private void memoryIndication(boolean value) {

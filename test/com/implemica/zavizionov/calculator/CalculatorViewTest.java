@@ -26,7 +26,7 @@ public class CalculatorViewTest extends GuiTest {
     private static final String SCREEN_OVERFLOW_SYMBOL = "\u2039\u2039";
     private static final int FIRST_SCREEN_BIG_FONT_SIZE = 22;
     private static final int FIRST_SCREEN_MEDIUM_FONT_SIZE = 18;
-    private static final int FIRST_SCREEN_SMALL_FONT_SIZE = 13;
+    private static final int FIRST_SCREEN_SMALL_FONT_SIZE = 12;
     private static final long DELAY = 100;
     private static final String DOT_BUTTON_ID = ",";
 
@@ -196,13 +196,6 @@ public class CalculatorViewTest extends GuiTest {
         assertSequence("1", "50 + 1", "50+2%");
         assertSequence("40", "200 + 40", "200+10%%");
         assertSequence("0", "0", "20%");
-
-        //input after result
-        assertSequence("1", "50 + 1", "50+2%");
-        click("5");
-
-        assertFirstScreen("5");
-        assertSecondScreen("50 +");
     }
 
     @Test
@@ -385,6 +378,7 @@ public class CalculatorViewTest extends GuiTest {
     }
 
     @Test
+    //@Ignore
     public void testFirstScreenOverflow() {
         assertSequence("9999999999999999", "9999999999999999");
         String text = firstScreen.getText();
@@ -399,6 +393,7 @@ public class CalculatorViewTest extends GuiTest {
     }
 
     @Test
+    //@Ignore
     public void testSecondScreenOverflow() {
         assertSequence("1.00000001e+16", SCREEN_OVERFLOW_SYMBOL + "9999999999999 + 99999999 + 1 +", "9999999999999999+99999999+1+");
     }
@@ -420,6 +415,7 @@ public class CalculatorViewTest extends GuiTest {
     }
 
     @Test
+    //@Ignore
     public void testMemoryStoreAndRecall() {
         // for single number
         click("5");
@@ -494,6 +490,7 @@ public class CalculatorViewTest extends GuiTest {
     }
 
     @Test
+    //@Ignore
     public void testMemoryPlus() {
         click("5");
         click("M+");
@@ -534,6 +531,7 @@ public class CalculatorViewTest extends GuiTest {
     }
 
     @Test
+    //@Ignore
     public void testMemoryMinus() {
         click("5");
         click("M-");
@@ -574,6 +572,7 @@ public class CalculatorViewTest extends GuiTest {
     }
 
     @Test
+    //@Ignore
     public void testMemoryClear() {
         click("5");
         click("MS");
@@ -615,9 +614,17 @@ public class CalculatorViewTest extends GuiTest {
 
         assertFirstScreen("6");
         assertSecondScreen("");
+
+        //after sqrt
+        assertSequence("1", "50 + 1", "50+2%");
+        click("5");
+
+        assertFirstScreen("5");
+        assertSecondScreen("50 +");
     }
 
     @Test
+    //@Ignore
     public void testScienceRepresentation() {
         for (int i = 0; i < 16; i++) {
             click("9");
@@ -652,6 +659,7 @@ public class CalculatorViewTest extends GuiTest {
     }
 
     @Test
+    //@Ignore
     public void testTextSizing() {
         clickSequence("999999999999");
 
@@ -676,12 +684,14 @@ public class CalculatorViewTest extends GuiTest {
     }
 
     @Test
+    //@Ignore
     public void testRounding() {
         assertSequence("3", "3" + SQRT_BUTTON_LABEL + "*=");
         assertSequence("7", "7" + SQRT_BUTTON_LABEL + "*=");
     }
 
     @Test
+    //@Ignore
     public void testKeyboardKeys() throws Exception {
         for (CalculatorView.ButtonEnum b : CalculatorView.ButtonEnum.values()) {
             KeyCode keyCode = null;
@@ -799,11 +809,13 @@ public class CalculatorViewTest extends GuiTest {
     }
 
     @Test
+    //@Ignore
     public void testNumberOverflow() {
         assertSequence(OVERFLOW_MESSAGE, "1*0.0000000001==========*=========*=========*0.1=");
     }
 
     @Test
+    //@Ignore
     public void testClipboard() throws InterruptedException, IOException, UnsupportedFlavorException {
         String clip;
         Toolkit toolkit = Toolkit.getDefaultToolkit();
