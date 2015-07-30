@@ -40,7 +40,7 @@ public class CalculatorFormatter {
     private static final String MEMORY_INDICATOR = "M";
 
     /**
-     * Symbol that tells if second screen text can't
+     * Symbol that is used when second screen text can't
      * fit the screen size and is trimmed.
      */
     private static final String SCREEN_OVERFLOW_SYMBOL = "‹‹";
@@ -126,6 +126,10 @@ public class CalculatorFormatter {
      */
     private static final String SCIENTIFIC_DECIMAL_PATTERN = "0E0";
 
+    /**
+     * Pattern for plain number representation formatting.
+     * Plain is representation like 513 or 1.65.
+     */
     private static final String PLAIN_DECIMAL_PATTERN = "0";
 
     /**
@@ -137,6 +141,26 @@ public class CalculatorFormatter {
      * Formats numbers to plain representation.
      */
     private static final DecimalFormat PLAIN_FORMATTER = new DecimalFormat(PLAIN_DECIMAL_PATTERN);
+
+    /**
+     * Decimal dot symbol.
+     */
+    private static final String DOT_SYMBOL = ".";
+
+    /**
+     * Zero with decimal dot.
+     */
+    private static final String ZERO_WITH_DOT = "0.";
+
+    /**
+     * Square root function name.
+     */
+    private static final String SQRT_TEXT = "sqrt";
+
+    /**
+     * Reverse function name.
+     */
+    private static final String REVERSE_TEXT = "reciproc";
 
 
     /**
@@ -180,6 +204,10 @@ public class CalculatorFormatter {
      */
     private static final String POSITIVE_EXPONENT = EXPONENT_SIGN + "+";
 
+    /**
+     * Space symbol between elements of second screen.
+     */
+    private static final String SPACE_SYMBOL = " ";
 
     /**
      * Instance of calculator controller.
@@ -363,7 +391,7 @@ public class CalculatorFormatter {
      */
     private void setFirstScreenText(BigDecimal value) {
         currentScreenValue = value;
-        if (value.toPlainString().replace(".", "").length() <= FIRST_DISPLAY_SIZE) {
+        if (value.toPlainString().replace(DOT_SYMBOL, "").length() <= FIRST_DISPLAY_SIZE) {
             setFirstScreenText(value.toPlainString());
         } else {
             setFirstScreenText(format(getRounded(value)));
@@ -384,7 +412,7 @@ public class CalculatorFormatter {
         if (value.compareTo(MAX) >= 0 || value.compareTo(MIN) < 0 || value.scale() > MAX_SCALE) {
             result = SCIENTIFIC_FORMATTER.format(value);
         } else {
-            int countOfIntDigits = value.toPlainString().lastIndexOf(".");
+            int countOfIntDigits = value.toPlainString().lastIndexOf(DOT_SYMBOL);
             PLAIN_FORMATTER.setMaximumFractionDigits(FIRST_DISPLAY_SIZE - countOfIntDigits);
             result = PLAIN_FORMATTER.format(value);
         }
@@ -439,7 +467,10 @@ public class CalculatorFormatter {
      * @param newString - string of element to place.
      */
     private void replaceLast(String newString) {
-        setSecondScreenText(secondScreen.getText().substring(0, secondScreen.getText().lastIndexOf(" ")) + newString);
+        String text = secondScreen.getText();
+        int lastSpace = text.lastIndexOf(SPACE_SYMBOL);
+        int lastIndex = lastSpace != -1 ? lastSpace+1:0;
+        setSecondScreenText(text.substring(0, lastIndex) + newString);
     }
 
     /**
@@ -449,7 +480,36 @@ public class CalculatorFormatter {
      * @param sign - sign to set.
      */
     private void replaceLastSign(String sign) {
-        replaceLast(" " + sign);
+        replaceLast(SPACE_SYMBOL + sign);
+    }
+
+    /**
+     * Surrounds given text with given function: function(text).
+     * @param function - function name.
+     * @param text - text.
+     * @return text, surrounded with function.
+     */
+    private static String surroundWithFunction(String function, String text) {
+        return function + "(" + text + ")";
+    }
+
+    /**
+     * Surrounds last element of second screen with function.
+     * Example: 3 + function(5)
+     * @param function - function name.
+     */
+    private void surroundLastWithFunction(String function){
+        replaceLast(surroundWithFunction(function, getLast()));
+    }
+
+    /**
+     * Returns last element text from second screen.
+     * @return last second screen element.
+     */
+    private String getLast() {
+        String text = secondScreen.getText();
+        int start = text.lastIndexOf(SPACE_SYMBOL);
+        return text.substring(start + 1, text.length());
     }
 
     /**
@@ -527,14 +587,14 @@ public class CalculatorFormatter {
      */
     public void pressDotButton() {
 
-        if (!firstScreen.getText().contains(".")) {
-            appendFirstScreenText(".");
+        if (!firstScreen.getText().contains(DOT_SYMBOL)) {
+            appendFirstScreenText(DOT_SYMBOL);
         }
 
         if (isWeakNumber || isResult) {
             isWeakNumber = false;
             isResult = false;
-            setFirstScreenText("0.");
+            setFirstScreenText(ZERO_WITH_DOT);
         }
     }
 
@@ -551,8 +611,14 @@ public class CalculatorFormatter {
         try {
             switch (operation) {
                 case PLUS:
+                    pressTwoOperandOperationButton(operation);
+                    break;
                 case MINUS:
+                    pressTwoOperandOperationButton(operation);
+                    break;
                 case DIVIDE:
+                    pressTwoOperandOperationButton(operation);
+                    break;
                 case MULTIPLY:
                     pressTwoOperandOperationButton(operation);
                     break;
@@ -649,17 +715,16 @@ public class CalculatorFormatter {
      * pressing square root operation button.
      */
     private void pressSqrtButton() {
-        if (secondScreen.getText().isEmpty()) {
-            setSecondScreenText("sqrt(" + firstScreen.getText() + ")");
+        String text = secondScreen.getText();
+        String value = firstScreen.getText();
+        if (text.isEmpty()) {
+            setSecondScreenText(surroundWithFunction(SQRT_TEXT, value));
         } else {
 
             if (isSqrtOrReverseResult) {
-                int start = secondScreen.getText().lastIndexOf("sqrt");
-                String oldText = secondScreen.getText().substring(start, secondScreen.getLength());
-                String newText = "sqrt(" + oldText + ")";
-                secondScreen.replaceText(start, secondScreen.getLength(), newText);
+                surroundLastWithFunction(SQRT_TEXT);
             } else {
-                appendSecondScreenText(" sqrt(" + firstScreen.getText() + ")");
+                appendSecondScreenText(SPACE_SYMBOL + surroundWithFunction(SQRT_TEXT, value));
             }
 
         }
@@ -669,6 +734,7 @@ public class CalculatorFormatter {
         isWeakNumber = true;
     }
 
+
     /**
      * Describes behavior of calculator after
      * pressing operation button, which operation uses two operands.
@@ -676,12 +742,13 @@ public class CalculatorFormatter {
      * @param operation - operation of pressed button.
      */
     private void pressTwoOperandOperationButton(Operation operation) throws NumberOverflowException, DivideByZeroException, NoOperationException {
+        String text = firstScreen.getText();
         if (isSequence) {
             if (isWeakNumber) {
                 replaceLastSign(operation.getSign());
                 controller.setOperation(getCurrentScreenValue(), operation);
             } else {
-                appendSecondScreenText(" " + firstScreen.getText() + " " + operation.getSign());
+                appendSecondScreenText(SPACE_SYMBOL + text + SPACE_SYMBOL + operation.getSign());
                 setFirstScreenText(controller.getResultOnGo(getCurrentScreenValue()));
                 controller.setOperation(getCurrentScreenValue(), operation);
             }
@@ -689,9 +756,9 @@ public class CalculatorFormatter {
             controller.setOperation(getCurrentScreenValue(), operation);
 
             if (isSqrtOrReverseResult) {
-                appendSecondScreenText(" " + operation.getSign());
+                appendSecondScreenText(SPACE_SYMBOL + operation.getSign());
             } else {
-                setSecondScreenText(firstScreen.getText() + " " + operation.getSign());
+                setSecondScreenText(text + SPACE_SYMBOL + operation.getSign());
             }
 
         }
@@ -706,17 +773,19 @@ public class CalculatorFormatter {
      * pressing percent operation button.
      */
     private void pressPercentButton() {
+        String text = secondScreen.getText();
+        String value;
         if (!isSequence) {
             setFirstScreenText(DEFAULT_FIRST_SCREEN_TEXT);
             setSecondScreenText("0");
         } else {
             setFirstScreenText(controller.getPercent(getCurrentScreenValue()));
-
+            value = firstScreen.getText();
             if (isWeakNumber) {
-                int start = secondScreen.getText().lastIndexOf(" ");
-                secondScreen.replaceText(start, secondScreen.getLength(), " " + firstScreen.getText());
+                int start = text.lastIndexOf(SPACE_SYMBOL);
+                secondScreen.replaceText(start, text.length(), SPACE_SYMBOL + value);
             } else {
-                appendSecondScreenText(" " + firstScreen.getText());
+                appendSecondScreenText(SPACE_SYMBOL + value);
             }
 
         }
@@ -730,21 +799,19 @@ public class CalculatorFormatter {
      */
     private void pressReverseButton() throws NumberOverflowException, DivideByZeroException, NoOperationException {
         controller.setOperation(getCurrentScreenValue(), Operation.REVERSE);
+        String text = secondScreen.getText();
+        String value = firstScreen.getText();
 
-        String secondScreenText = "reciproc(" + firstScreen.getText() + ")";
-
-
-        if (secondScreen.getText().isEmpty()) {
-            setSecondScreenText(secondScreenText);
+        if (text.isEmpty()) {
+            setSecondScreenText(surroundWithFunction(REVERSE_TEXT, value));
         } else {
+
             if (isSqrtOrReverseResult) {
-                int start = secondScreen.getText().lastIndexOf("reciproc");
-                String oldText = secondScreen.getText().substring(start, secondScreen.getLength());
-                String newText = "reciproc(" + oldText + ")";
-                secondScreen.replaceText(start, secondScreen.getLength(), newText);
+                surroundLastWithFunction(REVERSE_TEXT);
             } else {
-                appendSecondScreenText(" " + secondScreenText);
+                appendSecondScreenText(SPACE_SYMBOL + surroundWithFunction(REVERSE_TEXT, value));
             }
+
         }
         setFirstScreenText(controller.getResult());
 
