@@ -75,19 +75,19 @@ public class Calculator {
         BigDecimal result = BigDecimal.ZERO;
         switch (operation) {
             case PLUS:
-                result = performPlus();
+                result = plus();
                 break;
             case MINUS:
-                result = performMinus();
+                result = minus();
                 break;
             case DIVIDE:
-                result = performDivide();
+                result = divide();
                 break;
             case MULTIPLY:
-                result = performMultiply();
+                result = multiply();
                 break;
             case REVERSE:
-                result = performReverse();
+                result = reverse();
                 break;
         }
         if (Math.abs(result.scale()) > MAX_SCALE) {
@@ -170,7 +170,7 @@ public class Calculator {
      *
      * @return sum of operands
      */
-    private BigDecimal performPlus() {
+    private BigDecimal plus() {
         return leftOperand.add(rightOperand);
     }
 
@@ -179,7 +179,7 @@ public class Calculator {
      *
      * @return difference of operands
      */
-    private BigDecimal performMinus() {
+    private BigDecimal minus() {
         return leftOperand.subtract(rightOperand);
     }
 
@@ -189,7 +189,7 @@ public class Calculator {
      * @return result ov division
      * @throws DivideByZeroException - when dividing by zero
      */
-    private BigDecimal performDivide() throws DivideByZeroException {
+    private BigDecimal divide() throws DivideByZeroException {
         if (rightOperand.compareTo(BigDecimal.ZERO) == 0) {
             throw new DivideByZeroException("Can't divide by zero. Right operand expected : non-zero, actual: " + rightOperand);
         }
@@ -201,7 +201,7 @@ public class Calculator {
      *
      * @return result of multiplying
      */
-    private BigDecimal performMultiply() {
+    private BigDecimal multiply() {
         return leftOperand.multiply(rightOperand);
     }
 
@@ -211,7 +211,7 @@ public class Calculator {
      * @return result of dividing
      * @throws DivideByZeroException - if left operand is zero.
      */
-    private BigDecimal performReverse() throws DivideByZeroException {
+    private BigDecimal reverse() throws DivideByZeroException {
         if (leftOperand.compareTo(BigDecimal.ZERO) == 0)
             throw new DivideByZeroException("Can't divide by zero. Left operand expected : non-zero, actual: " + rightOperand);
         return BigDecimal.ONE.divide(leftOperand, DIVIDE_SCALE, BigDecimal.ROUND_HALF_UP).stripTrailingZeros();

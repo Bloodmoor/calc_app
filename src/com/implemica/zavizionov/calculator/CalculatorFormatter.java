@@ -49,12 +49,12 @@ public class CalculatorFormatter {
      * Message to be shown when resulting number overflows
      * max number scale.
      */
-    private static final String OVERFLOW_MESSAGE = "\u041F\u0435\u0440\u0435\u043F\u043E\u043B\u043D\u0435\u043D\u0438\u0435";
+    private static final String OVERFLOW_MESSAGE = "Переполнение";
 
     /**
      * Message to be shown when divide by zero operation is performed.
      */
-    private static final String DIVIDE_BY_ZERO_MESSAGE = "Привет\u0414\u0435\u043B\u0435\u043D\u0438\u0435 \u043D\u0430 \u043D\u043E\u043B\u044C \u043D\u0435\u0432\u043E\u0437\u043C\u043E\u0436\u043D\u043E";
+    private static final String DIVIDE_BY_ZERO_MESSAGE = "Деление на ноль невозможно";
 
     /**
      * First screen big font size.
@@ -98,28 +98,88 @@ public class CalculatorFormatter {
 
     /**
      * Max number, that first screen can fit with plain representation.
+     * It will be scientific otherwise.
+     * Plain is representation like 56.568 or 5862.  Scientific is like 5e+13.
      */
     private static final BigDecimal MAX = new BigDecimal("1E" + (FIRST_DISPLAY_SIZE));
 
     /**
-     * Min number value, that first screen can fit with plain representation.
+     * Min absolute number value, that first screen can fit with plain representation.
+     * It will be scientific otherwise.
+     * Plain is representation like 56.568 or 5862. Scientific is like 5e+13.
      */
     private static final BigDecimal MIN = new BigDecimal("1E-" + (FIRST_DISPLAY_SIZE - 2));
 
     /**
-     * Scale for switching between scientific and plain number representations.
+     * Max integer digits for scientific representation of number.
      */
-    private static final int SCALE = 29;
+    private static final int MAXIMUM_INTEGER_DIGITS_FOR_SCIENCE_NUM = 1;
+
+    /**
+     * Max fraction digits, that display can fit.
+     */
+    private static final int MAXIMUM_FRACTION_DIGITS = FIRST_DISPLAY_SIZE - 1;
 
     /**
      * Pattern for scientific number representation formatting.
+     * Scientific is representation like 5e+13.
      */
     private static final String SCIENTIFIC_DECIMAL_PATTERN = "0E0";
+
+    private static final String PLAIN_DECIMAL_PATTERN = "0";
+
+    /**
+     * Formats numbers to scientific representation.
+     */
+    private static final DecimalFormat SCIENTIFIC_FORMATTER = new DecimalFormat(SCIENTIFIC_DECIMAL_PATTERN);
+
+    /**
+     * Formats numbers to plain representation.
+     */
+    private static final DecimalFormat PLAIN_FORMATTER = new DecimalFormat(PLAIN_DECIMAL_PATTERN);
+
+
+    /**
+     * Initializing of scientific decimal formatter.
+     */
+    static {
+        SCIENTIFIC_FORMATTER.setMaximumIntegerDigits(MAXIMUM_INTEGER_DIGITS_FOR_SCIENCE_NUM);
+        SCIENTIFIC_FORMATTER.setMaximumFractionDigits(MAXIMUM_FRACTION_DIGITS);
+        SCIENTIFIC_FORMATTER.setGroupingUsed(false);
+        SCIENTIFIC_FORMATTER.setDecimalFormatSymbols(DecimalFormatSymbols.getInstance(Locale.ROOT));
+        PLAIN_FORMATTER.setGroupingUsed(false);
+        PLAIN_FORMATTER.setDecimalFormatSymbols(DecimalFormatSymbols.getInstance(Locale.ROOT));
+    }
+
+    /**
+     * Scale for switching between scientific and plain number representations.
+     * If number absolute scale is bigger then this value, scientific representation will
+     * be used. Otherwise, valu will be represented with plain number.
+     * Plain is representation like 56.568 or 5862. Scientific is like 5e+13.
+     */
+    private static final int MAX_SCALE = 29;
+
 
     /**
      * Exponent sign
      */
     private static final String EXPONENT_SIGN = "e";
+
+    /**
+     * Big negative exponent sign E-.
+     */
+    private static final String BIG_NEGATIVE_EXPONENT = "E-";
+
+    /**
+     * Big exponent sign E.
+     */
+    private static final String BIG_EXPONENT = "E";
+
+    /**
+     * Positive exponent sign.
+     */
+    private static final String POSITIVE_EXPONENT = EXPONENT_SIGN + "+";
+
 
     /**
      * Instance of calculator controller.
@@ -195,7 +255,8 @@ public class CalculatorFormatter {
 
     /**
      * Constructor. Class instances can't be created directly.
-     * @param firstScreen - reference to first calculator screen from view.
+     *
+     * @param firstScreen   - reference to first calculator screen from view.
      * @param secondScreen- reference to second calculator screen from view.
      * @param memoryScreen- reference to calculator memory screen from view.
      */
@@ -209,7 +270,8 @@ public class CalculatorFormatter {
 
     /**
      * Creates an instance of CalculatorFormatter with given parameters.
-     * @param firstScreen - reference to first calculator screen from view.
+     *
+     * @param firstScreen   - reference to first calculator screen from view.
      * @param secondScreen- reference to second calculator screen from view.
      * @param memoryScreen- reference to calculator memory screen from view.
      * @return instance of CalculatorController
@@ -220,6 +282,7 @@ public class CalculatorFormatter {
 
     /**
      * Returns a current screen value.
+     *
      * @return number, currently shown on the screen
      */
     private BigDecimal getCurrentScreenValue() {
@@ -247,10 +310,11 @@ public class CalculatorFormatter {
 
     /**
      * Check if given number is integer.
+     *
      * @param value - given number
      * @return true if number is integer, false instead.
      */
-    private boolean isInteger(BigDecimal value) {
+    private static boolean isInteger(BigDecimal value) {
         if (value.scale() <= 0) {
             return true;
         }
@@ -261,10 +325,11 @@ public class CalculatorFormatter {
 
     /**
      * Rounds given number to integer if it's needed.
+     *
      * @param value - number to be rounded
      * @return rounded variant of number if rounding is needed, given number instead.
      */
-    private BigDecimal getRounded(BigDecimal value) {
+    private static BigDecimal getRounded(BigDecimal value) {
         if (isInteger(value)) {
             return value;
         }
@@ -280,6 +345,7 @@ public class CalculatorFormatter {
 
     /**
      * Sets first screen text.
+     *
      * @param text - text to set.
      */
     private void setFirstScreenText(String text) {
@@ -292,6 +358,7 @@ public class CalculatorFormatter {
 
     /**
      * Sets given number as first screen text.
+     *
      * @param value - give number.
      */
     private void setFirstScreenText(BigDecimal value) {
@@ -307,39 +374,32 @@ public class CalculatorFormatter {
      * Formats given number to fit the requirements. Returns
      * its string representation in scientific or plain
      * representation depending on the number.
+     *
      * @param value - given number.
      * @return string representation of number.
      */
-    private String format(BigDecimal value) {
+    private static String format(BigDecimal value) {
         String result;
-        DecimalFormat f = new DecimalFormat(SCIENTIFIC_DECIMAL_PATTERN);
-        f.setDecimalFormatSymbols(DecimalFormatSymbols.getInstance(Locale.ROOT));
-        f.setGroupingUsed(false);
 
-        if (value.compareTo(MAX) >= 0) {
-            f.setMaximumIntegerDigits(1);
-            f.setMaximumFractionDigits(FIRST_DISPLAY_SIZE - 1);
-        } else if (value.compareTo(MIN) < 0 || value.scale() > SCALE) {
-            f.setMaximumIntegerDigits(1);
-            f.setMaximumFractionDigits(FIRST_DISPLAY_SIZE - 1);
+        if (value.compareTo(MAX) >= 0 || value.compareTo(MIN) < 0 || value.scale() > MAX_SCALE) {
+            result = SCIENTIFIC_FORMATTER.format(value);
         } else {
-            f.applyPattern("0");
             int countOfIntDigits = value.toPlainString().lastIndexOf(".");
-            f.setMaximumFractionDigits(FIRST_DISPLAY_SIZE - countOfIntDigits);
+            PLAIN_FORMATTER.setMaximumFractionDigits(FIRST_DISPLAY_SIZE - countOfIntDigits);
+            result = PLAIN_FORMATTER.format(value);
         }
 
-        result = f.format(value);
-
         //switching to lowercase e;
-        if (result.contains("E-")) {
-            return result.replace("E", EXPONENT_SIGN);
+        if (result.contains(BIG_NEGATIVE_EXPONENT)) {
+            return result.replace(BIG_EXPONENT, EXPONENT_SIGN);
         } else {
-            return result.replace("E", "e+");
+            return result.replace(BIG_EXPONENT, POSITIVE_EXPONENT);
         }
     }
 
     /**
      * Appends given text to first screen text.
+     *
      * @param text - text to append.
      */
     private void appendFirstScreenText(String text) {
@@ -352,6 +412,7 @@ public class CalculatorFormatter {
 
     /**
      * Sets second screen text
+     *
      * @param text - text to set.
      */
     private void setSecondScreenText(String text) {
@@ -363,6 +424,7 @@ public class CalculatorFormatter {
 
     /**
      * Appends text to second screen text.
+     *
      * @param text - text to append.
      */
     private void appendSecondScreenText(String text) {
@@ -373,6 +435,7 @@ public class CalculatorFormatter {
     /**
      * Replaces last element on the second string with
      * given element string.
+     *
      * @param newString - string of element to place.
      */
     private void replaceLast(String newString) {
@@ -382,6 +445,7 @@ public class CalculatorFormatter {
     /**
      * Replaces last sign on the second string
      * with given sign string.
+     *
      * @param sign - sign to set.
      */
     private void replaceLastSign(String sign) {
@@ -391,6 +455,7 @@ public class CalculatorFormatter {
     /**
      * Describes behavior of calculator after
      * pressing digit buttons.
+     *
      * @param digit - digit of pressed button.
      */
     public void pressDigitButton(int digit) {
@@ -607,6 +672,7 @@ public class CalculatorFormatter {
     /**
      * Describes behavior of calculator after
      * pressing operation button, which operation uses two operands.
+     *
      * @param operation - operation of pressed button.
      */
     private void pressTwoOperandOperationButton(Operation operation) throws NumberOverflowException, DivideByZeroException, NoOperationException {
@@ -668,7 +734,6 @@ public class CalculatorFormatter {
         String secondScreenText = "reciproc(" + firstScreen.getText() + ")";
 
 
-
         if (secondScreen.getText().isEmpty()) {
             setSecondScreenText(secondScreenText);
         } else {
@@ -716,6 +781,7 @@ public class CalculatorFormatter {
 
     /**
      * Switches on and off memory indication.
+     *
      * @param value - if true indication is switching on, off otherwise
      */
     private void memoryIndication(boolean value) {

@@ -4,6 +4,7 @@ import javafx.scene.Parent;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.input.KeyCode;
+import javafx.scene.layout.BorderPane;
 import org.junit.Before;
 import org.junit.Test;
 import org.loadui.testfx.GuiTest;
@@ -37,11 +38,13 @@ public class CalculatorViewTest extends GuiTest {
 
     public Parent getRootNode() {
         CalculatorView view = new CalculatorView();
-        Parent root = view.getRoot();
+        BorderPane root = view.getRoot();
         firstScreen = view.getFirstScreen();
         secondScreen = view.getSecondScreen();
         memoryScreen = view.getMemoryScreen();
         formatter = view.getFormatter();
+        root.getStylesheets().removeAll();
+        root.getStylesheets().add("testStyle.css");
         return root;
     }
 

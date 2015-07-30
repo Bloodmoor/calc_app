@@ -26,15 +26,13 @@ public class CalculatorView extends Application {
     private static final Insets BUTTON_GRID_PADDING = new Insets(10, 10, 10, 10);
     private static final Insets SCREENS_PADDING = new Insets(5, 10, 0, 10);
     private static final Insets MEMORY_INDICATOR_PADDING = new Insets(0, 0, 0, 5);
+    private static final Insets MENU_BAR_PADDING = new Insets(0, 0, 2, 0);
     private static final double FIRST_SCREEN_HEIGHT = 35;
     private static final double SECOND_SCREEN_HEIGHT = 12;
     private static final double SCREENS_WIDTH = 189;
     private static final double WINDOW_HEIGHT = 318;
     private static final double WINDOW_WIDTH = 215;
     private static final double MEMORY_INDICATOR_SIZE = 25;
-    private static final Insets MENU_BAR_PADDING = new Insets(0, 0, 2, 0);
-
-
 
     private TextField secondScreen;
     private TextField firstScreen;
@@ -51,7 +49,7 @@ public class CalculatorView extends Application {
             {ButtonEnum.ZERO, null, ButtonEnum.DOT, ButtonEnum.PLUS, null}
     };
 
-    Parent getRoot() {
+    BorderPane getRoot() {
         return createRoot();
     }
 
@@ -193,7 +191,6 @@ public class CalculatorView extends Application {
      */
     private Scene createScene() {
         Scene scene = new Scene(createRoot());
-        scene.getStylesheets().add("style.css");
         scene.getRoot().requestFocus();
         return scene;
     }
@@ -334,6 +331,7 @@ public class CalculatorView extends Application {
      */
     private BorderPane createRoot() {
         BorderPane root = new BorderPane();
+        root.getStylesheets().add("style.css");
         root.setId("root");
         addKeyEvents(root);
 
