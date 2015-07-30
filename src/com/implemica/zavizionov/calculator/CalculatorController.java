@@ -83,4 +83,8 @@ public class CalculatorController {
     public Operation getOperation() {
         return calculator.getOperation();
     }
+
+    public BigDecimal getReversed(BigDecimal value) throws DivideByZeroException {
+        return calculator.getReversed(value);
+    }
 }

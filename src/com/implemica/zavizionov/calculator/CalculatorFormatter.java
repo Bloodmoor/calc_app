@@ -161,6 +161,7 @@ public class CalculatorFormatter {
      * Reverse function name.
      */
     private static final String REVERSE_TEXT = "reciproc";
+    private static final String MINUS_SYMBOL = "-";
 
 
     /**
@@ -171,6 +172,7 @@ public class CalculatorFormatter {
         SCIENTIFIC_FORMATTER.setMaximumFractionDigits(MAXIMUM_FRACTION_DIGITS);
         SCIENTIFIC_FORMATTER.setGroupingUsed(false);
         SCIENTIFIC_FORMATTER.setDecimalFormatSymbols(DecimalFormatSymbols.getInstance(Locale.ROOT));
+
         PLAIN_FORMATTER.setGroupingUsed(false);
         PLAIN_FORMATTER.setDecimalFormatSymbols(DecimalFormatSymbols.getInstance(Locale.ROOT));
     }
@@ -390,8 +392,9 @@ public class CalculatorFormatter {
      * @param value - give number.
      */
     private void setFirstScreenText(BigDecimal value) {
+        value = value.stripTrailingZeros();
         currentScreenValue = value;
-        if (value.toPlainString().replace(DOT_SYMBOL, "").length() <= FIRST_DISPLAY_SIZE) {
+        if (value.toPlainString().replace(DOT_SYMBOL, "").replace(MINUS_SYMBOL, "").length() <= FIRST_DISPLAY_SIZE) {
             setFirstScreenText(value.toPlainString());
         } else {
             setFirstScreenText(format(getRounded(value)));
@@ -469,7 +472,7 @@ public class CalculatorFormatter {
     private void replaceLast(String newString) {
         String text = secondScreen.getText();
         int lastSpace = text.lastIndexOf(SPACE_SYMBOL);
-        int lastIndex = lastSpace != -1 ? lastSpace+1:0;
+        int lastIndex = lastSpace == -1 ? 0 : lastSpace + 1;
         setSecondScreenText(text.substring(0, lastIndex) + newString);
     }
 
@@ -485,8 +488,9 @@ public class CalculatorFormatter {
 
     /**
      * Surrounds given text with given function: function(text).
+     *
      * @param function - function name.
-     * @param text - text.
+     * @param text     - text.
      * @return text, surrounded with function.
      */
     private static String surroundWithFunction(String function, String text) {
@@ -496,14 +500,16 @@ public class CalculatorFormatter {
     /**
      * Surrounds last element of second screen with function.
      * Example: 3 + function(5)
+     *
      * @param function - function name.
      */
-    private void surroundLastWithFunction(String function){
+    private void surroundLastWithFunction(String function) {
         replaceLast(surroundWithFunction(function, getLast()));
     }
 
     /**
      * Returns last element text from second screen.
+     *
      * @return last second screen element.
      */
     private String getLast() {
@@ -773,15 +779,14 @@ public class CalculatorFormatter {
      * pressing percent operation button.
      */
     private void pressPercentButton() {
-        String text = secondScreen.getText();
-        String value;
         if (!isSequence) {
             setFirstScreenText(DEFAULT_FIRST_SCREEN_TEXT);
             setSecondScreenText("0");
         } else {
             setFirstScreenText(controller.getPercent(getCurrentScreenValue()));
-            value = firstScreen.getText();
+            String value = firstScreen.getText();
             if (isWeakNumber) {
+                String text = secondScreen.getText();
                 int start = text.lastIndexOf(SPACE_SYMBOL);
                 secondScreen.replaceText(start, text.length(), SPACE_SYMBOL + value);
             } else {
@@ -798,7 +803,6 @@ public class CalculatorFormatter {
      * pressing reverse operation button.
      */
     private void pressReverseButton() throws NumberOverflowException, DivideByZeroException, NoOperationException {
-        controller.setOperation(getCurrentScreenValue(), Operation.REVERSE);
         String text = secondScreen.getText();
         String value = firstScreen.getText();
 
@@ -813,9 +817,9 @@ public class CalculatorFormatter {
             }
 
         }
-        setFirstScreenText(controller.getResult());
+        setFirstScreenText(controller.getReversed(getCurrentScreenValue()));
 
-        isResult = true;
+//        isResult = true;
         isWeakNumber = true;
         isSqrtOrReverseResult = true;
     }
@@ -839,6 +843,7 @@ public class CalculatorFormatter {
         isSequence = false;
         isPercentResult = false;
         isLocked = false;
+        currentScreenValue = BigDecimal.ZERO;
 
         controller.clear();
         setFirstScreenText(DEFAULT_FIRST_SCREEN_TEXT);

@@ -64,9 +64,28 @@ public class CalculatorViewTest extends GuiTest {
     }
 
     private void clickSequence(String sequence) {
-        for (char c : sequence.toCharArray()) {
-            if (c == '.') c = DOT_BUTTON_ID.charAt(0);
-            click(Character.toString(c));
+        for(int i = 0; i<sequence.length();i++){
+            String b = sequence.substring(i,i+1);
+
+            if (b.equals("(")){
+                int indexOfBrace = sequence.indexOf(')', i);
+                b = sequence.substring(i+1, indexOfBrace);
+
+                i = indexOfBrace;
+            }
+            if(b.equals("+/-")){
+                b = INVERT_BUTTON_LABEL;
+            }
+            if (b.equals(".")){
+                b = DOT_BUTTON_ID;
+            }
+            if (b.equals("<")){
+                b = BACKSPACE_BUTTON_LABEL;
+            }
+            if (b.equals("s")){
+                b = SQRT_BUTTON_LABEL;
+            }
+            click(b);
         }
     }
 
@@ -100,6 +119,13 @@ public class CalculatorViewTest extends GuiTest {
         assertSecondScreen(expectedSecondScreen);
     }
 
+    private void assertExpression(String expression){
+        formatter.pressClearButton();
+        String sequence = expression.substring(0, expression.lastIndexOf("=") + 1);
+        String expectedResult = expression.substring(expression.lastIndexOf("=") + 1, expression.length());
+        assertSequence(expectedResult, sequence);
+    }
+
     @Test
     public void testDigitButtons() {
         for (int i = 0; i < 9; i++) {
@@ -109,37 +135,161 @@ public class CalculatorViewTest extends GuiTest {
 
     @Test
     public void testClearEntryButton() {
-        assertSequence("0", "", new String[]{"CE"});
-        assertSequence("2", "1 +", new String[]{"1", "+", "3", "CE", "2"});
+        assertSequence("0", "", "5(CE)");
+        assertSequence("0", "", "9999999999999999(CE)");
+        assertSequence("0", "", "0.00000000000001(CE)");
+        assertSequence("0", "", "9999999999999999+1=1e+16CE");
+
+        assertSequence("0", "1 +", "1+3CE");
+        assertSequence("0", "1 +", "1+9999999999999999(CE)");
+        assertSequence("0", "1 +", "1+0.00000000000001(CE)");
+        assertSequence("0", "1 +", "1+9999999999999999+1+(CE)");
+
+        assertSequence("5", "1 +", "1+3CE5");
+        assertSequence("15", "1 +", "1+9999999999999999(CE)15");
+        assertSequence("0.5", "1 +", "1+0.00000000000001(CE)0.5");
+        assertSequence("1.5", "1 +", "1+9999999999999999+1+(CE)1.5");
+
     }
+
 
     @Test
     public void testClearButton() {
-        //firstScreen clearing
-        firstScreen.setText("Some text");
-        secondScreen.setText("Some text");
-        assertSequence("0", "", "C");
+        assertSequence("0", "", "5C");
+        assertSequence("0", "", "9999999999999999C");
+        assertSequence("0", "", "0.00000000000001C");
+        assertSequence("0", "", "9999999999999999+1=1e+16C");
 
-        assertSequence("0", "", "1+5C");
+        assertSequence("0", "", "1+3C");
+        assertSequence("0", "", "1+9999999999999999C");
+        assertSequence("0", "", "1+0.00000000000001C");
+        assertSequence("0", "", "1+9999999999999999+1+C");
+
+        assertSequence("5", "", "1+3C5");
+        assertSequence("15", "", "1+9999999999999999C15");
+        assertSequence("0.5", "", "1+0.00000000000001C0.5");
+        assertSequence("1.5", "", "1+9999999999999999+1+C1.5");
     }
 
     @Test
     public void testPlus() {
-        assertSequence("8", "3+5=");
-        assertSequence("3", "0+3=");
-        assertSequence("9", "3+==");
-        assertSequence("-13.5", "0.5-14=");
+        assertExpression("-1+1=0");
+        assertExpression("-1+2=1");
+        assertExpression("1+1(+/-)=0");
+        assertExpression("0+1(+/-)=-1");
+        assertExpression("1+2(+/-)=-1");
+
+        assertExpression("8+5(+/-)=3");
+        assertExpression("8+5(+/-)===-7");
+        assertExpression("3+5=8");
+        assertExpression("0+3=3");
+        assertExpression("3+==9");
+        assertExpression("+5=5");
+        assertExpression("+5(+/-)=-5");
+        assertExpression("+5=====25");
+
+        assertExpression("0+0=0");
+        assertExpression("1+0=1");
+        assertExpression("1+0(+/-)=1");
+
+        assertExpression("0.5+14=14.5");
+        assertExpression("12345.6789+98765.4321=111111.111");
+
+        assertExpression("0.00000000000001+0.00000000000001=0.00000000000002");
+        assertExpression("0.00000000000001+0.00000000000001(+/-)=0");
+        assertExpression("0.00000000000001+0.00000000000002(+/-)=-0.00000000000001");
+
+        assertExpression("9999999999999999+9999999999999999(+/-)=0");
+        assertExpression("9999999999999999+9999999999999998(+/-)=1");
+        assertExpression("9999999999999998+9999999999999999(+/-)=-1");
+        assertExpression("9999999999999999+9999999999999999=2e+16");
+        assertExpression("9999999999999999+1=1e+16");
+        assertExpression("9999999999999999+1=+1(+/-)=9999999999999999");
+
+        assertExpression("999.99999999999+0.00000000001=1000");
     }
 
     @Test
     public void testMinus() {
-        assertSequence("2", "5-3=");
-        assertSequence("-3", "0-3=");
-        assertSequence("-3", "3-==");
+        assertExpression("-1-1=-2");
+        assertExpression("1-2=-1");
+        assertExpression("0-1=-1");
+        assertExpression("1-1(+/-)=2");
+        assertExpression("0-1(+/-)=1");
+        assertExpression("-1-1(+/-)=0");
+        assertExpression("-1-2(+/-)=1");
+
+        assertExpression("8-5=3");
+        assertExpression("18-5==8");
+        assertExpression("8-5===-7");
+        assertExpression("0-3=-3");
+        assertExpression("3-==-3");
+        assertExpression("-5=-5");
+        assertExpression("-5(+/-)=5");
+        assertExpression("-5=====-25");
+        assertExpression("0-0=0");
+        assertExpression("1-0=1");
+        assertExpression("1-0(+/-)=1");
+
+        assertExpression("0.5-14=-13.5");
+        assertExpression("12345.6789-98765.4321=-86419.7532");
+
+        assertExpression("0.00000000000001-0.00000000000001=0");
+        assertExpression("0.00000000000001-0.00000000000001(+/-)=0.00000000000002");
+        assertExpression("0.00000000000001-0.00000000000002=-0.00000000000001");
+        assertExpression("-0.00000000000001-0.00000000000002(+/-)=0.00000000000001");
+
+        assertExpression("9999999999999999-9999999999999999=0");
+        assertExpression("9999999999999999-9999999999999998=1");
+        assertExpression("9999999999999998-9999999999999999=-1");
+        assertExpression("9999999999999999-9999999999999999(+/-)=2e+16");
+        assertExpression("9999999999999999-1(+/-)=1e+16");
+        assertExpression("9999999999999999-1(+/-)=-1=9999999999999999");
+
+        assertExpression("1000-0.00000000001=999.99999999999");
     }
 
     @Test
     public void testDivide() {
+        assertExpression("0/3=0");
+        assertExpression("0/1=0");
+        assertExpression("0/0.00000000000001=0");
+        assertExpression("0/9999999999999999=0");
+
+        assertExpression("1/1=1");
+        assertExpression("3/1=3");
+        assertExpression("0.00000000000001/1=0.00000000000001");
+        assertExpression("9999999999999999/1=9999999999999999");
+
+        assertExpression("0.00000000000002/2=0.00000000000001");
+        assertExpression("0.00000000000001/2=0.000000000000005");
+        assertExpression("0.00000000000001/10=0.000000000000001");
+        assertExpression("0.00000000000001/3=3.333333333333333e-15");
+        assertExpression("0.00000000000001/0.00000000000001=1");
+        assertExpression("0.00000000000001/0.00000000000002=0.5");
+        assertExpression("0.00000000000002/0.00000000000001=2");
+        assertExpression("0.00000000000001/9999999999999999=1e-30");
+
+        assertExpression("9999999999999999/2=5000000000000000");
+        assertExpression("9999999999999999/9=1111111111111111");
+        assertExpression("9999999999999999/7=1.428571428571428e+15");
+        assertExpression("9999999999999999/0.1=9.999999999999999e+16");
+        assertExpression("9999999999999999/0.00000000000001=9.999999999999999e+29");
+        assertExpression("9999999999999999/9999999999999999=1");
+        assertExpression("9999999999999999/8888888888888888=1.125");
+        assertExpression("-9999999999999999/8888888888888888=-1.125");
+
+        assertExpression("10/2=5");
+        assertExpression("-10/2=-5");
+        assertExpression("10/2(+/-)=-5");
+        //0.3333333333333333
+        assertExpression("1/3=3.333333333333333e-1");
+        assertExpression("10/2==2.5");
+        assertExpression("10/2===1.25");
+
+        assertExpression("10/5/2=1");
+        assertExpression("15/6/8/0.4=0.78125");
+
         assertSequence("2.5", "5/2=");
         assertSequence("0", "0/2=");
         assertSequence("0.2", "5/==");
@@ -149,17 +299,126 @@ public class CalculatorViewTest extends GuiTest {
     public void testDivideByZero() {
         assertSequence(DIVIDE_BY_ZERO_MESSAGE, "0/0=");
         assertSequence(DIVIDE_BY_ZERO_MESSAGE, "3/0=");
+        assertSequence(DIVIDE_BY_ZERO_MESSAGE, "9999999999999999/0=");
+        assertSequence(DIVIDE_BY_ZERO_MESSAGE, "0.00000000000001/0=");
+        assertSequence(DIVIDE_BY_ZERO_MESSAGE, "-3/0=");
+        assertSequence(DIVIDE_BY_ZERO_MESSAGE, "-9999999999999999/0=");
+        assertSequence(DIVIDE_BY_ZERO_MESSAGE, "-0.00000000000001/0=");
     }
 
     @Test
     public void testMultiply() {
-        assertSequence("15", "5*3=");
-        assertSequence("0", "5*0=");
-        assertSequence("125", "5*==");
+        assertExpression("0*0=0");
+        assertExpression("0*1=0");
+        assertExpression("0*1(+/-)=0");
+        assertExpression("*0=0");
+        assertExpression("*1=0");
+        assertExpression("*5=0");
+        assertExpression("*9999999999999999=0");
+        assertExpression("*0.00000000000001=0");
+        assertExpression("5*0=0");
+        assertExpression("-5*0=0");
+        assertExpression("5*0(+/-)=0");
+        assertExpression("9999999999999999*0=0");
+        assertExpression("0*9999999999999999=0");
+        assertExpression("0.00000000000001*0=0");
+        assertExpression("0*0.00000000000001=0");
+
+        assertExpression("1*1=1");
+        assertExpression("2*1=2");
+        assertExpression("-2*1=-2");
+        assertExpression("2.25*1=2.25");
+        assertExpression("-2.25*1=-2.25");
+        assertExpression("9999999999999999*1=9999999999999999");
+        assertExpression("-9999999999999999*1=-9999999999999999");
+        assertExpression("0.00000000000001*1=0.00000000000001");
+        assertExpression("-0.00000000000001*1=-0.00000000000001");
+        assertExpression("1*1(+/-)=-1");
+        assertExpression("2*1(+/-)=-2");
+        assertExpression("-2*1(+/-)=2");
+        assertExpression("2.25*1(+/-)=-2.25");
+        assertExpression("-2.25*1(+/-)=2.25");
+        assertExpression("9999999999999999*1(+/-)=-9999999999999999");
+        assertExpression("-9999999999999999*1(+/-)=9999999999999999");
+        assertExpression("0.00000000000001*1(+/-)=-0.00000000000001");
+        assertExpression("-0.00000000000001*1(+/-)=0.00000000000001");
+
+        assertExpression("1*2=2");
+        assertExpression("1*2(+/-)=-2");
+        assertExpression("1*2.25=2.25");
+        assertExpression("1*2.25(+/-)=-2.25");
+        assertExpression("1*9999999999999999=9999999999999999");
+        assertExpression("1*9999999999999999(+/-)=-9999999999999999");
+        assertExpression("1*0.00000000000001=0.00000000000001");
+        assertExpression("1*0.00000000000001(+/-)=-0.00000000000001");
+
+        assertExpression("12345679*9=111111111");
+        assertExpression("12345679*9(+/-)=-111111111");
+        assertExpression("20*0.5=10");
+        assertExpression("20*0.5(+/-)=-10");
+        assertExpression("3*0.3=0.9");
+        assertExpression("3*0.3(+/-)=-0.9");
+        assertExpression("9999999999999999*9999999999999999=9.999999999999998e+31");
+        assertExpression("9999999999999999*9999999999999999(+/-)=-9.999999999999998e+31");
+        assertExpression("0.00000000000001*0.00000000000001=1e-28");
+        assertExpression("0.00000000000001*0.00000000000001(+/-)=-1e-28");
+
+        assertExpression("5*=25");
+        assertExpression("5*==125");
+        assertExpression("3*=*=81");
+        assertExpression("0.1*=*10=0.1");
+        assertExpression("3*===81");
     }
 
     @Test
     public void testPercent() {
+        assertExpression("100+0%=100");
+        assertExpression("100+1%=101");
+        assertExpression("100+1(+/-)%=99");
+        assertExpression("100-1%=99");
+        assertExpression("100+0.1%=100.1");
+        assertExpression("100+100%=200");
+        assertExpression("100-100%=0");
+        assertExpression("100*2%=200");
+        assertExpression("100/20%=5");
+        assertExpression("100+500%=600");
+
+        assertExpression("-100+10%=-110");
+        assertExpression("-100*10%=1000");
+
+        assertExpression("0.1+100%=0.2");
+        assertExpression("0.1-100%=0");
+        assertExpression("0.1+20%=0.12");
+
+        assertExpression("9999999999999999+9999999999999999%=1.00000000000001e+30");
+        assertExpression("9999999999999999+0%=9999999999999999");
+        assertExpression("9999999999999999*9999999999999999%=9.999999999999997e+45");
+        assertExpression("9999999999999999-9999999999999999%=-9.999999999999898e+29");
+        assertExpression("9999999999999999+0.00000000000001%=1e+16");
+
+        assertExpression("0.00000000000001+1%=0.00000000000001");
+        assertExpression("0.00000000000001-1%=9.9e-15");
+        assertExpression("0.00000000000001-100%=0");
+        assertExpression("0.00000000000001+100%=0.00000000000002");
+        assertExpression("0.00000000000001+9999999999999999%=1");
+        assertExpression("0.00000000000001+9999999999999999%=1");
+        assertExpression("0.00000000000001+0.00000000000001%=1e-14");
+
+        assertExpression("0+1%=0");
+        assertExpression("0+10%=0");
+        assertExpression("0+9999999999999999%=0");
+        assertExpression("0+0.00000000000001%=0");
+
+        assertExpression("0%=0");
+        assertExpression("20%=0");
+        assertExpression("9999999999999999%=0");
+        assertExpression("0.00000000000001%=0");
+
+        assertExpression("100+10%%%=110");
+        assertExpression("200+10%%=240");
+        assertExpression("200+10%%%=280");
+
+        //for second screen assertion
         assertSequence("1", "50 + 1", "50+2%");
         assertSequence("40", "200 + 40", "200+10%%");
         assertSequence("0", "0", "20%");
@@ -167,20 +426,67 @@ public class CalculatorViewTest extends GuiTest {
 
     @Test
     public void testInvert() {
-        assertSequence("-5", "5" + INVERT_BUTTON_LABEL);
-        assertSequence("-5", "1 +", "1+5" + INVERT_BUTTON_LABEL);
-        assertSequence("0", "0" + INVERT_BUTTON_LABEL);
+        assertExpression("0(+/-)=0");
+        assertExpression("1(+/-)=-1");
+        assertExpression("-1(+/-)=1");
+        assertExpression("0.1(+/-)=-0.1");
+        assertExpression("-0.1(+/-)=0.1");
+        assertExpression("9999999999999999(+/-)=-9999999999999999");
+        assertExpression("-9999999999999999(+/-)=9999999999999999");
+        assertExpression("0.00000000000001(+/-)=-0.00000000000001");
+        assertExpression("-0.00000000000001(+/-)=0.00000000000001");
+        assertExpression("5(+/-)=-5");
+        assertExpression("-5(+/-)=5");
+
+        assertExpression("5+0(+/-)=5");
+        assertExpression("1+1(+/-)=0");
+        assertExpression("1-1(+/-)=2");
+        assertExpression("0.1+0.1(+/-)=0");
+        assertExpression("0.1-0.1(+/-)=0.2");
+        assertExpression("1+9999999999999999(+/-)=-9999999999999998");
+        assertExpression("1+-9999999999999999(+/-)=1e+16");
+        assertExpression("1+0.00000000000001(+/-)=0.99999999999999");
+        assertExpression("1-0.00000000000001(+/-)=1.00000000000001");
+        assertExpression("3+5(+/-)=-2");
+        assertExpression("3-5(+/-)=8");
+
+        assertExpression("3(+/-)(+/-)=3");
+        assertExpression("-2(+/-)(+/-)=-2");
+        assertExpression("3(+/-)(+/-)(+/-)=-3");
+        assertExpression("-2(+/-)(+/-)(+/-)=2");
     }
 
     @Test
     public void testReverse() {
-        //1/5
-        assertSequence("0.2", "reciproc(5)", new String[]{"5", "1/x"});
-        assertSequence("5", "reciproc(reciproc(5))", new String[]{"5", "1/x", "1/x"});
-        assertSequence("0.2", "1 + reciproc(5)", new String[]{"1", "+", "5", "1/x"});
-        assertSequence("5", "1 + reciproc(reciproc(5))", new String[]{"1", "+", "5", "1/x", "1/x"});
-        assertSequence(DIVIDE_BY_ZERO_MESSAGE, "reciproc(0)", new String[]{"0", "1/x"});
-        assertSequence(DIVIDE_BY_ZERO_MESSAGE, "1 + reciproc(0)", new String[]{"1", "+", "0", "1/x"});
+
+        assertExpression("0+1(1/x)=1");
+        assertExpression("0+1(+/-)(1/x)=-1");
+        assertExpression("0+2(1/x)=0.5");
+        assertExpression("0+2(+/-)(1/x)=-0.5");
+        assertExpression("0+0.1(1/x)=10");
+        assertExpression("0+0.1(+/-)(1/x)=-10");
+        assertExpression("1+2(1/x)=1.5");
+        assertExpression("5+10(1/x)(1/x)=15");
+        assertExpression("5+10(1/x)(1/x)(1/x)=5.1");
+
+        assertExpression("0+9999999999999999(1/x)=1e-16");
+        assertExpression("0+9999999999999999(+/-)(1/x)=-1e-16");
+        assertExpression("0+9999999999999999(1/x)(1/x)=9999999999999999");
+        assertExpression("0+0.00000000000001(1/x)=100000000000000");
+        assertExpression("0+0.00000000000001(+/-)(1/x)=-100000000000000");
+        assertExpression("0+0.00000000000001(1/x)(1/x)=0.00000000000001");
+
+
+
+        //for second screen
+        assertSequence("0.2", "reciproc(5)", "5(1/x)");
+        assertSequence("5", "reciproc(reciproc(5))", "5(1/x)(1/x)");
+        assertSequence("0.2", "1 + reciproc(5)", "1+5(1/x)");
+        assertSequence("5", "1 + reciproc(reciproc(5))", "1+5(1/x)(1/x)");
+
+        //for divide by zero
+        assertSequence(DIVIDE_BY_ZERO_MESSAGE, "reciproc(0)", "0(1/x)");
+        assertSequence(DIVIDE_BY_ZERO_MESSAGE, "1 + reciproc(0)", "1+0(1/x)");
     }
 
     @Test

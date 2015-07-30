@@ -86,9 +86,6 @@ public class Calculator {
             case MULTIPLY:
                 result = multiply();
                 break;
-            case REVERSE:
-                result = reverse();
-                break;
         }
         if (Math.abs(result.scale()) > MAX_SCALE) {
             throw new NumberOverflowException("Overflow");
@@ -206,18 +203,6 @@ public class Calculator {
     }
 
     /**
-     * Returns a result of dividing one by the left operand.
-     *
-     * @return result of dividing
-     * @throws DivideByZeroException - if left operand is zero.
-     */
-    private BigDecimal reverse() throws DivideByZeroException {
-        if (leftOperand.compareTo(BigDecimal.ZERO) == 0)
-            throw new DivideByZeroException("Can't divide by zero. Left operand expected : non-zero, actual: " + rightOperand);
-        return BigDecimal.ONE.divide(leftOperand, DIVIDE_SCALE, BigDecimal.ROUND_HALF_UP).stripTrailingZeros();
-    }
-
-    /**
      * Calculates the given percent from left operand
      *
      * @param percent - percent to be calculated
@@ -332,6 +317,19 @@ public class Calculator {
             throw new IllegalArgumentException("Expected: non-negative, actual: " + value);
         }
         return BigDecimal.valueOf(Math.sqrt(value.doubleValue())).stripTrailingZeros();
+    }
+
+    /**
+     * Returns a result of dividing one by the left operand.
+     *
+     * @param value number to be reversed
+     * @return result of dividing
+     * @throws DivideByZeroException - if left operand is zero.
+     */
+    public BigDecimal getReversed(BigDecimal value) throws DivideByZeroException {
+        if (value.compareTo(BigDecimal.ZERO) == 0)
+            throw new DivideByZeroException("Can't divide by zero. Left operand expected : non-zero, actual: " + rightOperand);
+        return BigDecimal.ONE.divide(value, DIVIDE_SCALE, BigDecimal.ROUND_HALF_UP).stripTrailingZeros();
     }
 }
 
