@@ -66,10 +66,10 @@ public class Calculator {
      * @throws NumberOverflowException - occurs when resulting number overflows maximal scale.
      * @throws DivideByZeroException   - if divide by zero was performed
      */
-    private BigDecimal performOperation() throws NumberOverflowException, DivideByZeroException{
+    private BigDecimal performOperation() throws NumberOverflowException, DivideByZeroException {
         if (operation == Operation.NOOP) {
             return BigDecimal.ZERO;
-    }
+        }
         BigDecimal result = BigDecimal.ZERO;
         switch (operation) {
             case PLUS:
@@ -127,7 +127,7 @@ public class Calculator {
      * @throws NumberOverflowException - occurs when resulting number overflows maximal scale.
      * @throws DivideByZeroException   - if divide by zero was performed
      */
-    public BigDecimal getResult(BigDecimal rightOperand) throws NumberOverflowException, DivideByZeroException{
+    public BigDecimal getResult(BigDecimal rightOperand) throws NumberOverflowException, DivideByZeroException {
         if (!nextOperation) {
             this.rightOperand = rightOperand;
         }

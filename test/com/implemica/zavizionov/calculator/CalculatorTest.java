@@ -11,17 +11,18 @@ import static junit.framework.Assert.fail;
 
 /**
  * Tests for calculator class
+ *
  * @author Zavivionov Andrii
  */
 public class CalculatorTest {
 
-    private void assertOperation(BigDecimal leftOperand, BigDecimal rightOperand, Operation op, BigDecimal expectedResult) throws Exception{
+    private void assertOperation(BigDecimal leftOperand, BigDecimal rightOperand, Operation op, BigDecimal expectedResult) throws Exception {
         Calculator calc = new Calculator();
         calc.setOperation(leftOperand, op);
         assertEqualsBD(expectedResult, calc.getResult(rightOperand));
     }
 
-    private void assertOperation(BigDecimal leftOperand, Operation op, BigDecimal expectedResult) throws Exception{
+    private void assertOperation(BigDecimal leftOperand, Operation op, BigDecimal expectedResult) throws Exception {
         Calculator calc = new Calculator();
         switch (op) {
             case SQRT:
@@ -41,7 +42,7 @@ public class CalculatorTest {
      * Asserts if two big decs are really equal.
      *
      * @param expectedResult expected result
-     * @param result actual result
+     * @param result         actual result
      */
     private void assertEqualsBD(BigDecimal expectedResult, BigDecimal result) {
         if (expectedResult.compareTo(result) != 0) {
@@ -49,19 +50,19 @@ public class CalculatorTest {
         }
     }
 
-    private void assertOperation(double leftOperand, double rightOperand, Operation op, double expectedResult) throws Exception{
+    private void assertOperation(double leftOperand, double rightOperand, Operation op, double expectedResult) throws Exception {
         assertOperation(asBD(leftOperand), asBD(rightOperand), op, asBD(expectedResult));
     }
 
-    private void assertOperation(String leftOperand, String rightOperand, Operation op, String expectedResult) throws Exception{
+    private void assertOperation(String leftOperand, String rightOperand, Operation op, String expectedResult) throws Exception {
         assertOperation(asBD(leftOperand), asBD(rightOperand), op, asBD(expectedResult));
     }
 
-    private void assertOperation(double leftOperand, Operation op, double expectedResult) throws Exception{
+    private void assertOperation(double leftOperand, Operation op, double expectedResult) throws Exception {
         assertOperation(asBD(leftOperand), op, asBD(expectedResult));
     }
 
-    private void assertOperation(String leftOperand, Operation op, String expectedResult) throws Exception{
+    private void assertOperation(String leftOperand, Operation op, String expectedResult) throws Exception {
         assertOperation(asBD(leftOperand), op, asBD(expectedResult));
     }
 
@@ -85,11 +86,11 @@ public class CalculatorTest {
         return new BigDecimal(s);
     }
 
-    private void assertDivideByZero(String leftOperand, Operation op) throws NumberOverflowException{
+    private void assertDivideByZero(String leftOperand, Operation op) throws NumberOverflowException {
         assertDivideByZero(asBD(leftOperand), op);
     }
 
-    private void assertDivideByZero(BigDecimal leftOperand, Operation op) throws NumberOverflowException{
+    private void assertDivideByZero(BigDecimal leftOperand, Operation op) throws NumberOverflowException {
         Calculator calc = new Calculator();
         calc.setOperation(leftOperand, op);
         try {
@@ -100,11 +101,11 @@ public class CalculatorTest {
         }
     }
 
-    private void assertDivideByZero(String leftOperand, String rightOperand, Operation op) throws Exception{
+    private void assertDivideByZero(String leftOperand, String rightOperand, Operation op) throws Exception {
         assertDivideByZero(asBD(leftOperand), asBD(rightOperand), op);
     }
 
-    private void assertDivideByZero(BigDecimal leftOperand, BigDecimal rightOperand, Operation op) throws Exception{
+    private void assertDivideByZero(BigDecimal leftOperand, BigDecimal rightOperand, Operation op) throws Exception {
         Calculator calc = new Calculator();
         calc.setOperation(leftOperand, op);
         try {
@@ -127,7 +128,7 @@ public class CalculatorTest {
 
 
     @Test
-    public void testPlus() throws Exception{
+    public void testPlus() throws Exception {
         assertOperation(10, 20, Operation.PLUS, 30);
         assertOperation(10, 15.1, Operation.PLUS, 25.1);
         assertOperation("0.000000000000001", "0.000000000000002", Operation.PLUS, "0.000000000000003");
@@ -138,7 +139,7 @@ public class CalculatorTest {
     }
 
     @Test
-    public void testMinus() throws Exception{
+    public void testMinus() throws Exception {
         assertOperation(10, 20, Operation.MINUS, -10);
         assertOperation(20, 15.1, Operation.MINUS, 4.9);
         assertOperation("0.000000000000001", "0.000000000000002", Operation.MINUS, "-0.000000000000001");
@@ -147,7 +148,7 @@ public class CalculatorTest {
     }
 
     @Test
-    public void testDivide() throws Exception{
+    public void testDivide() throws Exception {
         assertOperation("10", "20", Operation.DIVIDE, "0.5");
         assertOperation("1", "4", Operation.DIVIDE, "0.25");
         assertOperation("0.001", "-100", Operation.DIVIDE, "-0.00001");
@@ -156,7 +157,7 @@ public class CalculatorTest {
     }
 
     @Test
-    public void testDivideBadArguments() throws Exception{
+    public void testDivideBadArguments() throws Exception {
         assertDivideByZero("5", "0", Operation.DIVIDE);
         assertDivideByZero("0", "0", Operation.DIVIDE);
         assertDivideByZero("-5", "0", Operation.DIVIDE);
@@ -164,7 +165,7 @@ public class CalculatorTest {
     }
 
     @Test
-    public void testMultiply() throws Exception{
+    public void testMultiply() throws Exception {
         assertOperation(10, 20, Operation.MULTIPLY, 200);
         assertOperation(20, 15.13, Operation.MULTIPLY, 302.6);
         assertOperation("0.000000000000001", "-0.2", Operation.MULTIPLY, "-0.0000000000000002");
@@ -173,7 +174,7 @@ public class CalculatorTest {
     }
 
     @Test
-    public void testInvert() throws Exception{
+    public void testInvert() throws Exception {
         assertOperation(10, Operation.INVERT, -10);
         assertOperation(15.13, Operation.INVERT, -15.13);
         assertOperation("0.000000000000001", Operation.INVERT, "-0.000000000000001");
@@ -205,7 +206,7 @@ public class CalculatorTest {
     }
 
     @Test
-    public void testReverse() throws Exception{
+    public void testReverse() throws Exception {
         assertOperation("10", Operation.REVERSE, "0.1");
         assertOperation("4", Operation.REVERSE, "0.25");
         assertOperation("-4", Operation.REVERSE, "-0.25");
@@ -214,7 +215,7 @@ public class CalculatorTest {
     }
 
     @Test
-    public void testReverseBadArguments() throws Exception{
+    public void testReverseBadArguments() throws Exception {
         assertDivideByZero("0", Operation.REVERSE);
     }
 
@@ -292,7 +293,7 @@ public class CalculatorTest {
     }
 
     @Test
-    public void testResultAfterEquals() throws NumberOverflowException, DivideByZeroException{
+    public void testResultAfterEquals() throws NumberOverflowException, DivideByZeroException {
         Calculator calc = new Calculator();
         calc.setOperation(asBD("3"), Operation.MULTIPLY);
 
@@ -309,14 +310,14 @@ public class CalculatorTest {
     }
 
     @Test
-    public void testNumberOverflowException() throws DivideByZeroException{
+    public void testNumberOverflowException() throws DivideByZeroException {
         Calculator calc = new Calculator();
 
         try {
             calc.setOperation(new BigDecimal("1E10000"), Operation.MULTIPLY);
             BigDecimal result = calc.getResult(new BigDecimal("1E1"));
             fail("NumberOverflowException expected for resulting value: " + result);
-        }catch(NumberOverflowException e){
+        } catch (NumberOverflowException e) {
             //correct for this value
         }
     }

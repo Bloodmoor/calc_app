@@ -171,7 +171,6 @@ public class CalculatorFormatter {
     private static final String SMALL_FONT_STYLE = "-fx-font-size: " + FIRST_SCREEN_SMALL_FONT_SIZE + ";";
 
 
-
     /**
      * Initializing of scientific decimal formatter.
      */
@@ -511,9 +510,9 @@ public class CalculatorFormatter {
      * @param function - function name.
      */
     private void surroundLastWithFunction(String function) {
-        if (secondScreen.getText().contains(SPACE_SYMBOL)){
+        if (secondScreen.getText().contains(SPACE_SYMBOL)) {
             replaceLast(SPACE_SYMBOL + surroundWithFunction(function, getLast()));
-        }else{
+        } else {
             replaceLast(surroundWithFunction(function, getLast()));
         }
 
@@ -739,9 +738,9 @@ public class CalculatorFormatter {
             }
 
         }
-        try{
+        try {
             setFirstScreenText(controller.getSqrt(getCurrentScreenValue()));
-        }catch (IllegalArgumentException e){
+        } catch (IllegalArgumentException e) {
             setFirstScreenText(INVALID_INPUT_MESSAGE);
         }
 
@@ -757,7 +756,7 @@ public class CalculatorFormatter {
      *
      * @param operation - operation of pressed button.
      */
-    private void pressTwoOperandOperationButton(Operation operation) throws NumberOverflowException, DivideByZeroException{
+    private void pressTwoOperandOperationButton(Operation operation) throws NumberOverflowException, DivideByZeroException {
         String text = firstScreen.getText();
         if (isSequence) {
             if (isWeakNumber) {

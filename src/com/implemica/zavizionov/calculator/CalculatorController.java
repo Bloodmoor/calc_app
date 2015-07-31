@@ -7,13 +7,14 @@ import java.math.BigDecimal;
 
 /**
  * Controller for Calculator and CalculatorFormatter classes.
+ *
  * @author Zavizionov Andrii
  */
 public class CalculatorController {
 
     private final Calculator calculator = new Calculator();
 
-    private CalculatorController(){
+    private CalculatorController() {
 
     }
 
@@ -22,7 +23,7 @@ public class CalculatorController {
     }
 
 
-    public BigDecimal getResultAfterEqual(BigDecimal newLeftOperand) throws NumberOverflowException, DivideByZeroException{
+    public BigDecimal getResultAfterEqual(BigDecimal newLeftOperand) throws NumberOverflowException, DivideByZeroException {
         return calculator.getResultAfterEqual(newLeftOperand);
     }
 

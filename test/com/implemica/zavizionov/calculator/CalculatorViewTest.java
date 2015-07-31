@@ -22,6 +22,7 @@ import static org.junit.Assert.assertEquals;
 
 /**
  * Tests for calculators GUI and logic.
+ *
  * @author Zavivionov Andrii
  */
 public class CalculatorViewTest extends GuiTest {
@@ -97,9 +98,9 @@ public class CalculatorViewTest extends GuiTest {
             if (b.equals("s")) {
                 b = SQRT_BUTTON_LABEL;
             }
-            for(Node n:((GridPane)((BorderPane)GuiTest.getWindowByIndex(0).getScene().getRoot()).getCenter()).getChildren()){
-                javafx.scene.control.Button button = (javafx.scene.control.Button)n;
-                if (button.getText().equals(b)){
+            for (Node n : ((GridPane) ((BorderPane) GuiTest.getWindowByIndex(0).getScene().getRoot()).getCenter()).getChildren()) {
+                javafx.scene.control.Button button = (javafx.scene.control.Button) n;
+                if (button.getText().equals(b)) {
                     button.fire();
                 }
             }

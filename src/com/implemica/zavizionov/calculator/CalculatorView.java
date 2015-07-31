@@ -78,7 +78,7 @@ public class CalculatorView extends Application {
     enum ButtonEnum {
         ONE("1", KeyCode.NUMPAD1), TWO("2", KeyCode.NUMPAD2), THREE("3", KeyCode.NUMPAD3),
         FOUR("4", KeyCode.NUMPAD4), FIVE("5", KeyCode.NUMPAD5), SIX("6", KeyCode.NUMPAD6),
-        SEVEN("7", KeyCode.NUMPAD7), EIGHT("8" ,KeyCode.NUMPAD8), NINE("9", KeyCode.NUMPAD9),
+        SEVEN("7", KeyCode.NUMPAD7), EIGHT("8", KeyCode.NUMPAD8), NINE("9", KeyCode.NUMPAD9),
         ZERO("0", "0", KeyCode.NUMPAD0), EQUAL("=", "equal", KeyCode.ENTER), DOT(",", KeyCode.DECIMAL),
         BACKSPACE("\u2190", "backspace", KeyCode.BACK_SPACE), PLUS("+", KeyCode.ADD), MINUS("-", KeyCode.SUBTRACT),
         DIVIDE("/", KeyCode.DIVIDE), MULTIPLY("*", KeyCode.MULTIPLY),
@@ -102,6 +102,7 @@ public class CalculatorView extends Application {
 
         /**
          * Text field getter.
+         *
          * @return text of the button.
          */
         public String getText() {
@@ -110,19 +111,21 @@ public class CalculatorView extends Application {
 
         /**
          * Id field getter.
+         *
          * @return id of the button.
          */
-        public String getId(){
+        public String getId() {
             return id;
         }
 
         /**
          * Key code field getter.
+         *
          * @return key code of the button.
          * @throws Exception - if button has no key code.
          */
-        public KeyCode getKeyCode() throws Exception{
-            if(keyCode == null){
+        public KeyCode getKeyCode() throws Exception {
+            if (keyCode == null) {
                 throw new Exception("No key for this button");
             }
             return keyCode;
@@ -130,6 +133,7 @@ public class CalculatorView extends Application {
 
         /**
          * Creates button with given text and id same as text.
+         *
          * @param text - text of the button.
          */
         ButtonEnum(String text) {
@@ -139,26 +143,29 @@ public class CalculatorView extends Application {
 
         /**
          * Creates button with given text and key code.
-         * @param text - text of the button.
+         *
+         * @param text    - text of the button.
          * @param keyCode - key code of the button.
          */
-        ButtonEnum(String text, KeyCode keyCode){
+        ButtonEnum(String text, KeyCode keyCode) {
             this.text = text;
             this.keyCode = keyCode;
         }
 
         /**
          * Creates button with given text, id and key code.
-         * @param text - text of the button.
-         * @param id - id of the button.
+         *
+         * @param text    - text of the button.
+         * @param id      - id of the button.
          * @param keyCode - key code of the button.
          */
-        ButtonEnum(String text, String id, KeyCode keyCode){
+        ButtonEnum(String text, String id, KeyCode keyCode) {
             this.text = text;
             this.id = id;
             this.keyCode = keyCode;
         }
-        ButtonEnum(String text, String id){
+
+        ButtonEnum(String text, String id) {
             this.text = text;
             this.id = id;
         }
@@ -166,6 +173,7 @@ public class CalculatorView extends Application {
 
     /**
      * Application entry point.
+     *
      * @param args - command line arguments.
      */
     public static void main(String[] args) {
@@ -174,6 +182,7 @@ public class CalculatorView extends Application {
 
     /**
      * Starts JavaFX application.
+     *
      * @param primaryStage - primary stage.
      * @throws Exception
      */
@@ -190,6 +199,7 @@ public class CalculatorView extends Application {
 
     /**
      * Creates scene with calculator.
+     *
      * @return scene.
      */
     private Scene createScene() {
@@ -200,9 +210,10 @@ public class CalculatorView extends Application {
 
     /**
      * Add key events to the given parent node.
+     *
      * @param root - given parent node
      */
-    private void addKeyEvents(Parent root){
+    private void addKeyEvents(Parent root) {
         root.setOnKeyPressed(event -> {
             switch (event.getCode()) {
                 case NUMPAD0:
@@ -260,12 +271,12 @@ public class CalculatorView extends Application {
                     formatter.pressClearButton();
                     break;
                 case C:
-                    if(event.isControlDown()){
+                    if (event.isControlDown()) {
                         formatter.setClipboard();
                     }
                     break;
                 case V:
-                    if(event.isControlDown()){
+                    if (event.isControlDown()) {
                         formatter.getClipboard();
                     }
                     break;
@@ -275,9 +286,10 @@ public class CalculatorView extends Application {
 
     /**
      * Creates node with calculator screens.
+     *
      * @return calculator screens in VBox.
      */
-    private VBox createScreens(){
+    private VBox createScreens() {
         firstScreen = new TextField();
         secondScreen = new TextField();
         memoryScreen = new Label();
@@ -312,9 +324,10 @@ public class CalculatorView extends Application {
 
     /**
      * Creates menu bar for application.
+     *
      * @return menu bar.
      */
-    private MenuBar createMenu(){
+    private MenuBar createMenu() {
         MenuBar menuBar = new MenuBar();
         menuBar.setPadding(MENU_BAR_PADDING);
 
@@ -330,6 +343,7 @@ public class CalculatorView extends Application {
 
     /**
      * Creates root node for application scene.
+     *
      * @return root node.
      */
     private BorderPane createRoot() {
@@ -352,6 +366,7 @@ public class CalculatorView extends Application {
 
     /**
      * Creates buttons for calculator.
+     *
      * @return grid pane with buttons.
      */
     private GridPane createButtons() {
@@ -363,7 +378,7 @@ public class CalculatorView extends Application {
                 Button b = createButton(be);
                 if (be.equals(ButtonEnum.ZERO)) {
                     GridPane.setColumnSpan(b, 2);
-                    b.setPrefSize(BUTTON_WIDTH*2 + 5, BUTTON_HEIGHT);
+                    b.setPrefSize(BUTTON_WIDTH * 2 + 5, BUTTON_HEIGHT);
                 }
                 if (be.equals(ButtonEnum.EQUAL)) {
                     GridPane.setRowSpan(b, 2);
@@ -381,6 +396,7 @@ public class CalculatorView extends Application {
 
     /**
      * Creates a single button based on information from buttons enum.
+     *
      * @param buttonEnum - information about button.
      * @return new button
      */
@@ -483,6 +499,7 @@ public class CalculatorView extends Application {
 
     /**
      * Creates clear button (C).
+     *
      * @return clear button.
      */
     private Button createClearButton() {
@@ -493,6 +510,7 @@ public class CalculatorView extends Application {
 
     /**
      * Creates clear entry button (CE).
+     *
      * @return clear entry button.
      */
     private Button createClearEntryButton() {
@@ -503,6 +521,7 @@ public class CalculatorView extends Application {
 
     /**
      * Creates operation button, based on information from operation enum.
+     *
      * @param operation - information about operation.
      * @return operation button.
      */
@@ -514,6 +533,7 @@ public class CalculatorView extends Application {
 
     /**
      * Creates backspace button.
+     *
      * @return backspace button.
      */
     private Button createBackSpaceButton() {
@@ -526,6 +546,7 @@ public class CalculatorView extends Application {
 
     /**
      * Creates dot (decimal) button.
+     *
      * @return dot button.
      */
     private Button createDotButton() {
@@ -536,6 +557,7 @@ public class CalculatorView extends Application {
 
     /**
      * Creates equal button.
+     *
      * @return equal button.
      */
     private Button createEqualButton() {
@@ -547,6 +569,7 @@ public class CalculatorView extends Application {
 
     /**
      * Creates digit button with given digit.
+     *
      * @param digit - digit of button
      * @return digit button
      */

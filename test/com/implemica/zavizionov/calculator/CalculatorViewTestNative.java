@@ -81,7 +81,7 @@ public class CalculatorViewTestNative {
         System.out.printf("About to launch FX App\n");
         Thread t = new Thread("JavaFX Init Thread") {
             public void run() {
-                Application.launch(App.class, new String[0]);
+                Application.launch(App.class);
             }
         };
         t.setDaemon(true);
@@ -112,16 +112,16 @@ public class CalculatorViewTestNative {
     private void runLater(Runnable r) {
         int limit = 5000;
         final boolean[] waiting = {true};
-        Platform.runLater(new Runnable() {
-            @Override
-            public void run() {
-                r.run();
-                waiting[0] = false;
-            }
+        Platform.runLater(() -> {
+            r.run();
+            waiting[0] = false;
         });
         int count = 0;
-        while (waiting[0] && count < limit) {
-            try {
+        while (waiting[0]) {
+            if(count > limit){
+                throw new RuntimeException("Operation took too long");
+            }
+                try {
                 Thread.sleep(1);
             } catch (InterruptedException e) {
                 e.printStackTrace();
@@ -164,14 +164,6 @@ public class CalculatorViewTestNative {
             }
 
 
-        }
-    }
-
-
-    private void clickSequence(String[] sequence) {
-        for (String s : sequence) {
-            if (s.equals(".")) s = DOT_BUTTON_ID;
-            click(s);
         }
     }
 
@@ -225,7 +217,6 @@ public class CalculatorViewTestNative {
         assertSequence("1.5", "1 + 9999999999999999 + 1 +", "1+9999999999999999+1+(CE)1.5");
 
     }
-
 
     @Test
     public void testClearButton() {
@@ -281,6 +272,22 @@ public class CalculatorViewTestNative {
         assertExpression("9999999999999999+1=+1(+/-)=9999999999999999");
 
         assertExpression("999.99999999999+0.00000000001=1000");
+
+        assertExpression("9999999999999999+1=+=2e+16");
+        assertExpression("9999999999999999*9=+0.00000000000001(1/x)=9.009999999999999e+16");
+        assertExpression("9999999999999999+0.1=9999999999999999");
+        assertExpression("9999999999999999+0.1====9999999999999999");
+        assertExpression("9999999999999999+0.1=====10000000000000000");
+        assertExpression("9999999999999999+0.1==========1e+16");
+        assertExpression("9999999999999998+0.1=====9999999999999998");
+        assertExpression("9999999999999998+0.1======9999999999999999");
+        assertExpression("9999999999999999*=+=2e+32");
+        assertExpression("9999999999999999*=+=+9999999999999999=========2e+32");
+        assertExpression("9999999999999999*=+=+9999999999999999==========2.000000000000001e+32");
+
+        assertExpression("0.00000000000001/78+=2.564102564102564e-16");
+        assertExpression("0.00000000000001*0.00000000000001+0.00000000000005(1/x)=20000000000000");
+        assertExpression("0.00000000000001*0.01+=========0.000000000000001");
     }
 
     @Test
@@ -928,26 +935,20 @@ public class CalculatorViewTestNative {
     public void testTextSizing() throws InterruptedException {
         double fontSize[] = {0, 0, 0};
         clickSequence("999999999999");
-        runLater(() -> {
-            fontSize[0] = firstScreen.getFont().getSize();
-        });
+        runLater(() -> fontSize[0] = firstScreen.getFont().getSize());
 
         assertEquals(FIRST_SCREEN_BIG_FONT_SIZE, fontSize[0], 0.1);
 
         Thread.sleep(DELAY);
         click("9");
-        runLater(() -> {
-            fontSize[1] = firstScreen.getFont().getSize();
-        });
+        runLater(() -> fontSize[1] = firstScreen.getFont().getSize());
 
         assertEquals(FIRST_SCREEN_MEDIUM_FONT_SIZE, fontSize[1], 0.1);
 
         Thread.sleep(DELAY);
         click("(1/x)");
 
-        runLater(() -> {
-            fontSize[2] = firstScreen.getFont().getSize();
-        });
+        runLater(() -> fontSize[2] = firstScreen.getFont().getSize());
 
         assertEquals(FIRST_SCREEN_SMALL_FONT_SIZE, fontSize[2], 0.1);
     }
@@ -976,7 +977,7 @@ public class CalculatorViewTestNative {
     //@Ignore
     public void testKeyboardKeys() throws Exception {
         for (CalculatorView.ButtonEnum b : CalculatorView.ButtonEnum.values()) {
-            KeyCode keyCode = null;
+            KeyCode keyCode;
             try {
                 keyCode = b.getKeyCode();
             } catch (Exception e) {
