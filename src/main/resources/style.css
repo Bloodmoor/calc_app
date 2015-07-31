@@ -3,6 +3,28 @@
     src: url('Monaco.ttf');
 }
 
+/*@font-face {*/
+    /*font-family: 'TNR';*/
+    /*src: url('TIMCYR.TTF');*/
+/*}*/
+
+/*.menu-bar{*/
+    /*-fx-font-family: TIMCYR;*/
+/*}*/
+
+/*.context-menu*/
+/*{*/
+    /*-fx-font-family: TIMCYR;*/
+/*}*/
+
+/*#menuFile{*/
+    /*-fx-font-family: Monaco;*/
+/*}*/
+
+/*#menuItemExit{*/
+    /*-fx-font-family: Monaco;*/
+/*}*/
+
 #root {
     -fx-background-color: #D9E4F1
 }

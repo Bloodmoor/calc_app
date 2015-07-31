@@ -57,6 +57,11 @@ public class CalculatorFormatter {
     private static final String DIVIDE_BY_ZERO_MESSAGE = "Деление на ноль невозможно";
 
     /**
+     * Message to be shown after invalid input.
+     */
+    private static final String INVALID_INPUT_MESSAGE = "Недопустимый ввод";
+
+    /**
      * First screen big font size.
      */
     private static final int FIRST_SCREEN_BIG_FONT_SIZE = 22;
@@ -162,6 +167,7 @@ public class CalculatorFormatter {
      */
     private static final String REVERSE_TEXT = "reciproc";
     private static final String MINUS_SYMBOL = "-";
+
 
 
     /**
@@ -472,7 +478,7 @@ public class CalculatorFormatter {
     private void replaceLast(String newString) {
         String text = secondScreen.getText();
         int lastSpace = text.lastIndexOf(SPACE_SYMBOL);
-        int lastIndex = lastSpace == -1 ? 0 : lastSpace + 1;
+        int lastIndex = lastSpace == -1 ? 0 : lastSpace;
         setSecondScreenText(text.substring(0, lastIndex) + newString);
     }
 
@@ -504,7 +510,12 @@ public class CalculatorFormatter {
      * @param function - function name.
      */
     private void surroundLastWithFunction(String function) {
-        replaceLast(surroundWithFunction(function, getLast()));
+        if (secondScreen.getText().contains(SPACE_SYMBOL)){
+            replaceLast(SPACE_SYMBOL + surroundWithFunction(function, getLast()));
+        }else{
+            replaceLast(surroundWithFunction(function, getLast()));
+        }
+
     }
 
     /**
@@ -734,7 +745,12 @@ public class CalculatorFormatter {
             }
 
         }
-        setFirstScreenText(controller.getSqrt(getCurrentScreenValue()));
+        try{
+            setFirstScreenText(controller.getSqrt(getCurrentScreenValue()));
+        }catch (IllegalArgumentException e){
+            setFirstScreenText(INVALID_INPUT_MESSAGE);
+        }
+
 
         isSqrtOrReverseResult = true;
         isWeakNumber = true;

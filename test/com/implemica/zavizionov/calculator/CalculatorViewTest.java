@@ -6,6 +6,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.BorderPane;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.loadui.testfx.GuiTest;
 
@@ -30,6 +31,7 @@ public class CalculatorViewTest extends GuiTest {
     private static final int FIRST_SCREEN_SMALL_FONT_SIZE = 12;
     private static final long DELAY = 100;
     private static final String DOT_BUTTON_ID = ",";
+    private static final String INVALID_INPUT_MESSAGE = "\u041D\u0435\u0434\u043E\u043F\u0443\u0441\u0442\u0438\u043C\u044B\u0439 \u0432\u0432\u043E\u0434";
 
     private TextField firstScreen;
     private TextField secondScreen;
@@ -64,25 +66,25 @@ public class CalculatorViewTest extends GuiTest {
     }
 
     private void clickSequence(String sequence) {
-        for(int i = 0; i<sequence.length();i++){
-            String b = sequence.substring(i,i+1);
+        for (int i = 0; i < sequence.length(); i++) {
+            String b = sequence.substring(i, i + 1);
 
-            if (b.equals("(")){
+            if (b.equals("(")) {
                 int indexOfBrace = sequence.indexOf(')', i);
-                b = sequence.substring(i+1, indexOfBrace);
+                b = sequence.substring(i + 1, indexOfBrace);
 
                 i = indexOfBrace;
             }
-            if(b.equals("+/-")){
+            if (b.equals("+/-")) {
                 b = INVERT_BUTTON_LABEL;
             }
-            if (b.equals(".")){
+            if (b.equals(".")) {
                 b = DOT_BUTTON_ID;
             }
-            if (b.equals("<")){
+            if (b.equals("<")) {
                 b = BACKSPACE_BUTTON_LABEL;
             }
-            if (b.equals("s")){
+            if (b.equals("s")) {
                 b = SQRT_BUTTON_LABEL;
             }
             click(b);
@@ -119,7 +121,7 @@ public class CalculatorViewTest extends GuiTest {
         assertSecondScreen(expectedSecondScreen);
     }
 
-    private void assertExpression(String expression){
+    private void assertExpression(String expression) {
         formatter.pressClearButton();
         String sequence = expression.substring(0, expression.lastIndexOf("=") + 1);
         String expectedResult = expression.substring(expression.lastIndexOf("=") + 1, expression.length());
@@ -458,7 +460,6 @@ public class CalculatorViewTest extends GuiTest {
 
     @Test
     public void testReverse() {
-
         assertExpression("0+1(1/x)=1");
         assertExpression("0+1(+/-)(1/x)=-1");
         assertExpression("0+2(1/x)=0.5");
@@ -477,7 +478,6 @@ public class CalculatorViewTest extends GuiTest {
         assertExpression("0+0.00000000000001(1/x)(1/x)=0.00000000000001");
 
 
-
         //for second screen
         assertSequence("0.2", "reciproc(5)", "5(1/x)");
         assertSequence("5", "reciproc(reciproc(5))", "5(1/x)(1/x)");
@@ -491,16 +491,64 @@ public class CalculatorViewTest extends GuiTest {
 
     @Test
     public void testSqrt() {
-        assertSequence("10", "sqrt(100)", "100" + SQRT_BUTTON_LABEL);
-        assertSequence("3", "5 + sqrt(9)", "5+9" + SQRT_BUTTON_LABEL);
-        assertSequence("3", "sqrt(sqrt(81))", "81" + SQRT_BUTTON_LABEL + SQRT_BUTTON_LABEL);
-        assertSequence("3", "5 + sqrt(sqrt(81))", "5+81" + SQRT_BUTTON_LABEL + SQRT_BUTTON_LABEL);
-        assertSequence("3", "", "9" + SQRT_BUTTON_LABEL + "=");
-        assertSequence("1", "sqrt(9) +", "9" + SQRT_BUTTON_LABEL + "+1");
+        assertExpression("9s=3");
+        assertExpression("81ss=3");
+        assertExpression("6561sss=3");
+        assertExpression("9s+81s=12");
+
+        assertExpression("0.09s=0.3");
+        assertExpression("0.0081ss=0.3");
+        assertExpression("0.00006561sss=0.3");
+
+        assertExpression("0.00000000000001s=0.0000001");
+        assertExpression("0.00000000000001ss=0.000316227766017");
+
+        assertExpression("9999999999999999s=100000000");
+        assertExpression("9999999999999999ss=10000");
+        assertExpression("9999999999999999sssss=3.16227766016838");
+
+
+        //for second screen
+        assertSequence("10", "sqrt(100)", "100s");
+        assertSequence("3", "5 + sqrt(9)", "5+9s");
+        assertSequence("3", "sqrt(sqrt(81))", "81ss");
+        assertSequence("3", "5 + sqrt(sqrt(81))", "5+81ss");
+        assertSequence("3", "", "9s=");
+        assertSequence("1", "sqrt(9) +", "9s+1");
+
+        //for bad input
+        assertSequence(INVALID_INPUT_MESSAGE, "sqrt(-100)", "100(+/-)s");
+        assertSequence(INVALID_INPUT_MESSAGE, "sqrt(-0.09)", "0.09(+/-)s");
+        assertSequence(INVALID_INPUT_MESSAGE, "sqrt(-5)", "3-8=s");
+        assertSequence(INVALID_INPUT_MESSAGE, "sqrt(-9999999999999999)", "9999999999999999(+/-)s");
+        assertSequence(INVALID_INPUT_MESSAGE, "sqrt(-0.00000000000001)", "0.00000000000001(+/-)s");
+
     }
 
     @Test
     public void testOperatorCombinations() {
+        assertExpression("5+9-1=13");
+        assertExpression("5-9+5-2=-1");
+        assertExpression("2*3/4=1.5");
+        assertExpression("-5*2/4=-2.5");
+        assertExpression("3+5/2=4");
+        assertExpression("5-1*4=16");
+        assertExpression("3+4-5/2*8=8");
+
+        assertExpression("0.00000000000001+0.00000000000001/0.00000000000001=2");
+        assertExpression("9999999999999999+5-4/10=1000000000000000");
+        assertExpression("9999999999999999+9999999999999999/9999999999999999=2");
+
+        assertExpression("9s+5=8");
+        assertExpression("5+9s=8");
+        assertExpression("5+81ss=8");
+        assertExpression("81ss+5=8");
+
+        assertExpression("5(1/x)+1=1.2");
+        assertExpression("1+5(1/x)=1.2");
+
+
+        //for second screen
         //5 + 9 * 2 - 1 / 3 =
         assertSequence("27", "5 + 9 * 2 - 1 /", "5+9*2-1/");
 
@@ -528,16 +576,10 @@ public class CalculatorViewTest extends GuiTest {
         assertFirstScreen("4");
         assertSecondScreen("");
 
-        //3+sqrt(9)=
-        assertSequence("6", "3+9" + SQRT_BUTTON_LABEL + "=");
-
-        //3+5(+/-)=
-        assertSequence("-2", "3+5" + INVERT_BUTTON_LABEL + "=");
-
         //100+10%=
         assertSequence("110", "100+10%=");
 
-        assertSequence("5", "10 +", "10+9" + SQRT_BUTTON_LABEL + "5");
+        assertSequence("5", "10 +", "10+9s5");
         assertSequence("5", "10 +", "10+10%5");
 
     }
@@ -545,56 +587,36 @@ public class CalculatorViewTest extends GuiTest {
     @Test
     public void testBackSpace() {
         //one symbol
-        assertSequence("0", "", "1" + BACKSPACE_BUTTON_LABEL);
-
+        assertSequence("0", "", "1<");
 
         //many symbols
-        assertSequence("123", "", "123");
-
-        click(BACKSPACE_BUTTON_LABEL);
-
-        assertFirstScreen("12");
-
-        click(BACKSPACE_BUTTON_LABEL);
-
-        assertFirstScreen("1");
-
-        click("5");
-
-        assertFirstScreen("15");
-
-        clickSequence(BACKSPACE_BUTTON_LABEL + BACKSPACE_BUTTON_LABEL);
-
-        assertFirstScreen("0");
-
-        formatter.pressClearButton();
+        assertSequence("0", "", "123<<<");
 
         //for second operand
         assertSequence("12", "12 +", "12+");
 
-        click(BACKSPACE_BUTTON_LABEL);
-
+        clickSequence("<");
         assertFirstScreen("1");
-        assertSecondScreen("12 +");
+
+        clickSequence("<");
+        assertFirstScreen("0");
 
         clickSequence("34");
-
         assertFirstScreen("34");
-        assertSecondScreen("12 +");
 
-        click(BACKSPACE_BUTTON_LABEL);
-
+        clickSequence("<");
         assertFirstScreen("3");
-        assertSecondScreen("12 +");
 
-        click(BACKSPACE_BUTTON_LABEL);
-
+        clickSequence("<");
         assertFirstScreen("0");
-        assertSecondScreen("12 +");
 
+        assertSequence("0.", "", "0.00000000000001<<<<<<<<<<<<<<");
+        clickSequence("<");
+        assertFirstScreen("0");
     }
 
     @Test
+    @Ignore
     public void testEquals() {
         assertSequence("0", "", "==");
         assertSequence("13", "", "3+5==");
@@ -619,6 +641,7 @@ public class CalculatorViewTest extends GuiTest {
     //@Ignore
     public void testSecondScreenOverflow() {
         assertSequence("1.00000001e+16", SCREEN_OVERFLOW_SYMBOL + "9999999999999 + 99999999 + 1 +", "9999999999999999+99999999+1+");
+        assertSequence("987654321", SCREEN_OVERFLOW_SYMBOL + "6789*987654321+123456789", "123456789*987654321/123456789-");
     }
 
     @Test
@@ -641,7 +664,7 @@ public class CalculatorViewTest extends GuiTest {
     //@Ignore
     public void testMemoryStoreAndRecall() {
         // for single number
-        assertSequence("5", "", new String[]{"5", "MS"});
+        assertSequence("5", "", "5(MS)");
         assertMemoryScreen("M");
 
         click("C");
@@ -660,7 +683,7 @@ public class CalculatorViewTest extends GuiTest {
         click("MC");
 
         //in expression
-        assertSequence("8", "5 +", new String[]{"5", "+", "8", "MS"});
+        assertSequence("8", "5 +", "5+8(MS)");
         assertMemoryScreen("M");
 
         click("C");
@@ -679,7 +702,7 @@ public class CalculatorViewTest extends GuiTest {
         click("MC");
 
         //for result
-        assertSequence("13", "", new String[]{"5", "+", "8", "=","MS"});
+        assertSequence("13", "", "5+8=(MS)");
         assertMemoryScreen("M");
 
         click("C");
@@ -698,16 +721,16 @@ public class CalculatorViewTest extends GuiTest {
     @Test
     //@Ignore
     public void testMemoryPlus() {
-        assertSequence("5", "", new String[]{"5", "M+"});
+        assertSequence("5", "", "5(M+)");
         assertMemoryScreen("M");
 
-        clickSequence(new String[]{"C", "MR"});
+        clickSequence("C(MR)");
 
         assertFirstScreen("5");
         assertSecondScreen("");
         assertMemoryScreen("M");
 
-        clickSequence(new String[]{"C", "3", "M+", "C", "MR"});
+        clickSequence("C3(M+)C(MR)");
 
 
         assertFirstScreen("8");
@@ -731,16 +754,16 @@ public class CalculatorViewTest extends GuiTest {
     @Test
     //@Ignore
     public void testMemoryMinus() {
-        assertSequence("5", "", new String[]{"5", "M-"});
+        assertSequence("5", "", "5(M-)");
         assertMemoryScreen("M");
 
-        clickSequence(new String[]{"C", "MR"});
+        clickSequence("C(MR)");
 
         assertFirstScreen("-5");
         assertSecondScreen("");
         assertMemoryScreen("M");
 
-        clickSequence(new String[]{"C", "3", "M-", "C", "MR"});
+        clickSequence("C3(M-)C(MR)");
 
         assertFirstScreen("-8");
         assertSecondScreen("");
@@ -763,7 +786,7 @@ public class CalculatorViewTest extends GuiTest {
     @Test
     //@Ignore
     public void testMemoryClear() {
-        assertSequence("5", "", new String[]{"5", "MS"});
+        assertSequence("5", "", "5(MS)");
         assertMemoryScreen("M");
 
         click("C");
@@ -778,7 +801,7 @@ public class CalculatorViewTest extends GuiTest {
         assertSecondScreen("");
         assertMemoryScreen("M");
 
-        clickSequence(new String[]{"MC", "C", "MR"});
+        clickSequence("(MC)C(MR)");
 
         assertFirstScreen("0");
         assertSecondScreen("");
@@ -791,12 +814,12 @@ public class CalculatorViewTest extends GuiTest {
 
         assertSequence("58", "55+3=");
 
-        click("3");
-        assertFirstScreen("3");
+        click("7");
+        assertFirstScreen("7");
         assertSecondScreen("");
 
         click("=");
-        assertFirstScreen("6");
+        assertFirstScreen("10");
         assertSecondScreen("");
 
         //after sqrt
@@ -812,33 +835,19 @@ public class CalculatorViewTest extends GuiTest {
     @Test
     //@Ignore
     public void testScienceRepresentation() {
-        for (int i = 0; i < 16; i++) {
-            click("9");
-        }
-        clickSequence("+1=");
 
-        assertSequence("1e+16", "", "9999999999999999+1=");
+        assertExpression("9999999999999999+1=1e+16");
+        assertExpression("9999999999999999+1=-1=9999999999999999");
+        assertExpression("9999999999999999*999=9.989999999999999e+18");
+        assertExpression("0.00000000000001/10==1e-16");
+        assertExpression("0.00000000000001/10==*10=0.000000000000001");
 
-        click("-");
+        assertExpression("1/365==7.506098705197973e-6");
+        assertExpression("9999999999*=9.999999998e+19");
 
-        assertFirstScreen("1e+16");
-        assertSecondScreen("1e+16 -");
-
-        clickSequence("1=");
-
-        assertFirstScreen("9999999999999999");
-        assertSecondScreen("");
-
-        clickSequence("*999=");
-
-        assertFirstScreen("9.989999999999999e+18");
-        assertSecondScreen("");
-
-        formatter.pressClearButton();
-
-
-        assertSequence("7.506098705197973e-6", "", "1/365==");
-        assertSequence("9.999999998e+19", "", "9999999999*=");
+        //for second screen
+        assertSequence("9.999999998e+19", "9.999999998e+19 +", "9999999999*=+");
+        assertSequence("7.506098705197973e-6", "7.506098705197973e-6 +", "1/365==+");
 
 
     }
@@ -861,18 +870,22 @@ public class CalculatorViewTest extends GuiTest {
 
     @Test
     public void testOperationAfterResult() {
-        assertSequence("50", "55-5=");
-
-        clickSequence("-7=");
-
-        assertFirstScreen("43");
+        assertExpression("55-5=50-7=43");
+        assertExpression("10+5=12-3=9");
+        assertExpression("10+5=12-9s=9");
+        assertExpression("1+9s=12-3=9");
+        assertExpression("9999999999999999-1=+1=9999999999999999");
+        assertExpression("0.00000000000001+0.00000000000001=-1=-0.99999999999998");
     }
 
     @Test
     //@Ignore
     public void testRounding() {
-        assertSequence("3", "3" + SQRT_BUTTON_LABEL + "*=");
-        assertSequence("7", "7" + SQRT_BUTTON_LABEL + "*=");
+        assertExpression("3s*=3");
+        assertExpression("7s*=7");
+        assertExpression("9999999999999999/568=1.76056338028169e+13");
+        assertExpression("1-0.00000000000001=0.99999999999999");
+        assertExpression("1000-0.00000000000001=1000");
     }
 
     @Test
@@ -889,7 +902,6 @@ public class CalculatorViewTest extends GuiTest {
                 } else {
                     throw e;
                 }
-
             }
             switch (keyCode) {
                 case NUMPAD0:
@@ -997,6 +1009,7 @@ public class CalculatorViewTest extends GuiTest {
     //@Ignore
     public void testNumberOverflow() {
         assertSequence(OVERFLOW_MESSAGE, "1*0.0000000001==========*=========*=========*0.1=");
+        assertSequence(OVERFLOW_MESSAGE, "1*10000000000==========*=========*=========*10==");
     }
 
     @Test
