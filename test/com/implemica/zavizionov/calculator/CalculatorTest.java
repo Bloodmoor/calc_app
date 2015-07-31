@@ -93,7 +93,7 @@ public class CalculatorTest {
         Calculator calc = new Calculator();
         calc.setOperation(leftOperand, op);
         try {
-            calc.getResult();
+            calc.getResult(BigDecimal.ZERO);
             fail(String.format("Expected DivideByZeroException for arguments:\nleftOperand  : %s\nrightOperand :%s", leftOperand, leftOperand));
         } catch (DivideByZeroException e) {
             //correct for this arguments

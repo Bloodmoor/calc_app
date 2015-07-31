@@ -416,7 +416,6 @@ public class CalculatorFormatter {
      */
     private static String format(BigDecimal value) {
         String result;
-
         if (value.compareTo(MAX) >= 0 || value.compareTo(MIN) < 0 || value.scale() > MAX_SCALE) {
             result = SCIENTIFIC_FORMATTER.format(value);
         } else {
@@ -725,9 +724,8 @@ public class CalculatorFormatter {
      * pressing square root operation button.
      */
     private void pressSqrtButton() {
-        String text = secondScreen.getText();
         String value = firstScreen.getText();
-        if (text.isEmpty()) {
+        if (secondScreen.getText().isEmpty()) {
             setSecondScreenText(surroundWithFunction(SQRT_TEXT, value));
         } else {
 
@@ -812,10 +810,8 @@ public class CalculatorFormatter {
      * pressing reverse operation button.
      */
     private void pressReverseButton() throws NumberOverflowException, DivideByZeroException {
-        String text = secondScreen.getText();
         String value = firstScreen.getText();
-
-        if (text.isEmpty()) {
+        if (secondScreen.getText().isEmpty()) {
             setSecondScreenText(surroundWithFunction(REVERSE_TEXT, value));
         } else {
 
@@ -828,7 +824,6 @@ public class CalculatorFormatter {
         }
         setFirstScreenText(controller.getReversed(getCurrentScreenValue()));
 
-//        isResult = true;
         isWeakNumber = true;
         isSqrtOrReverseResult = true;
     }
