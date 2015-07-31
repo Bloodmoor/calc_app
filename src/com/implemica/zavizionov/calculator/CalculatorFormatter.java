@@ -166,6 +166,9 @@ public class CalculatorFormatter {
      */
     private static final String REVERSE_TEXT = "reciproc";
     private static final String MINUS_SYMBOL = "-";
+    private static final String BIG_FONT_STYLE = "-fx-font-size: " + FIRST_SCREEN_BIG_FONT_SIZE + ";";
+    private static final String MEDIUM_FONT_STYLE = "-fx-font-size: " + FIRST_SCREEN_MEDIUM_FONT_SIZE + ";";
+    private static final String SMALL_FONT_STYLE = "-fx-font-size: " + FIRST_SCREEN_SMALL_FONT_SIZE + ";";
 
 
 
@@ -335,11 +338,11 @@ public class CalculatorFormatter {
     private void ensureSize() {
 
         if (firstScreen.getLength() <= BIG_FONT_SYMBOLS_COUNT) {
-            firstScreen.setStyle("-fx-font-size: " + FIRST_SCREEN_BIG_FONT_SIZE + ";");
+            firstScreen.setStyle(BIG_FONT_STYLE);
         } else if (firstScreen.getLength() < MEDIUM_FONT_SYMBOLS_COUNT) {
-            firstScreen.setStyle("-fx-font-size: " + FIRST_SCREEN_MEDIUM_FONT_SIZE + ";");
+            firstScreen.setStyle(MEDIUM_FONT_STYLE);
         } else {
-            firstScreen.setStyle("-fx-font-size: " + FIRST_SCREEN_SMALL_FONT_SIZE + ";");
+            firstScreen.setStyle(SMALL_FONT_STYLE);
         }
     }
 

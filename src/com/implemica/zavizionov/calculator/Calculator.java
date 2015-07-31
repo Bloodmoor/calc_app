@@ -69,7 +69,7 @@ public class Calculator {
     private BigDecimal performOperation() throws NumberOverflowException, DivideByZeroException{
         if (operation == Operation.NOOP) {
             return BigDecimal.ZERO;
-        }
+    }
         BigDecimal result = BigDecimal.ZERO;
         switch (operation) {
             case PLUS:

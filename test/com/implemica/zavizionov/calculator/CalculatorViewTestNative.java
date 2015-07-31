@@ -1,16 +1,22 @@
 package com.implemica.zavizionov.calculator;
 
+import com.sun.javafx.robot.FXRobot;
+import com.sun.javafx.robot.FXRobotFactory;
+import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.scene.Node;
 import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
+import javafx.stage.Stage;
 import org.junit.Before;
-import org.junit.Ignore;
+import org.junit.BeforeClass;
 import org.junit.Test;
-import org.loadui.testfx.GuiTest;
 
 import java.awt.*;
 import java.awt.datatransfer.Clipboard;
@@ -20,11 +26,7 @@ import java.io.IOException;
 
 import static org.junit.Assert.assertEquals;
 
-/**
- * Tests for calculators GUI and logic.
- * @author Zavivionov Andrii
- */
-public class CalculatorViewTest extends GuiTest {
+public class CalculatorViewTestNative {
 
     //Деление на ноль
     private static final String DIVIDE_BY_ZERO_MESSAGE = "\u0414\u0435\u043B\u0435\u043D\u0438\u0435 \u043D\u0430 \u043D\u043E\u043B\u044C \u043D\u0435\u0432\u043E\u0437\u043C\u043E\u0436\u043D\u043E";
@@ -39,31 +41,63 @@ public class CalculatorViewTest extends GuiTest {
     private static final int FIRST_SCREEN_BIG_FONT_SIZE = 22;
     private static final int FIRST_SCREEN_MEDIUM_FONT_SIZE = 18;
     private static final int FIRST_SCREEN_SMALL_FONT_SIZE = 12;
-    private static final long DELAY = 100;
+    private static final long KEYBOARD_DELAY = 100;
+    private static final long DELAY = 500;
     private static final String DOT_BUTTON_ID = ",";
 
+    private static TextField firstScreen;
+    private static TextField secondScreen;
+    private static Label memoryScreen;
+    private static CalculatorFormatter formatter;
+    private static GridPane buttons;
+    private static BorderPane root;
+    private static FXRobot robot;
 
-    private TextField firstScreen;
-    private TextField secondScreen;
-    private Label memoryScreen;
-    private CalculatorFormatter formatter;
-
-    public Parent getRootNode() {
+    public static Parent getRootNode() {
         CalculatorView view = new CalculatorView();
-        BorderPane root = view.getRoot();
+        root = view.getRoot();
         firstScreen = view.getFirstScreen();
         secondScreen = view.getSecondScreen();
         memoryScreen = view.getMemoryScreen();
         formatter = view.getFormatter();
+        buttons = (GridPane) root.getCenter();
         root.getStylesheets().removeAll();
         root.getStylesheets().add("testStyle.css");
         return root;
     }
 
+    public static class App extends Application {
+        @Override
+        public void start(Stage primaryStage) throws Exception {
+            Scene scene = new Scene(getRootNode());
+            primaryStage.setScene(scene);
+            primaryStage.show();
+        }
+    }
+
+
+    @BeforeClass
+    public static void initJFX() throws InterruptedException {
+        System.out.printf("About to launch FX App\n");
+        Thread t = new Thread("JavaFX Init Thread") {
+            public void run() {
+                Application.launch(App.class, new String[0]);
+            }
+        };
+        t.setDaemon(true);
+        t.start();
+        System.out.printf("FX App thread started\n");
+        Thread.sleep(5000);
+        robot = FXRobotFactory.createRobot(root.getScene());
+    }
+
     @Before
     public void initialize() {
-        formatter.pressClearButton();
-        formatter.pressOperationButton(Operation.MC);
+        runLater(() -> {
+            formatter.pressClearButton();
+            formatter.pressOperationButton(Operation.MC);
+        });
+
     }
 
     private void assertDigitButton(String buttonId) {
@@ -73,6 +107,31 @@ public class CalculatorViewTest extends GuiTest {
             String result = buttonId + buttonId;
             assertSequence(result, result);
         }
+    }
+
+    private void runLater(Runnable r) {
+        int limit = 5000;
+        final boolean[] waiting = {true};
+        Platform.runLater(new Runnable() {
+            @Override
+            public void run() {
+                r.run();
+                waiting[0] = false;
+            }
+        });
+        int count = 0;
+        while (waiting[0] && count < limit) {
+            try {
+                Thread.sleep(1);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            count++;
+        }
+    }
+
+    private void click(String button) {
+        clickSequence(button);
     }
 
     private void clickSequence(String sequence) {
@@ -97,15 +156,17 @@ public class CalculatorViewTest extends GuiTest {
             if (b.equals("s")) {
                 b = SQRT_BUTTON_LABEL;
             }
-            for(Node n:((GridPane)((BorderPane)GuiTest.getWindowByIndex(0).getScene().getRoot()).getCenter()).getChildren()){
-                javafx.scene.control.Button button = (javafx.scene.control.Button)n;
-                if (button.getText().equals(b)){
-                    button.fire();
+            for (Node n : buttons.getChildren()) {
+                Button button = (Button) n;
+                if (button.getText().equals(b)) {
+                    runLater(button::fire);
                 }
             }
 
+
         }
     }
+
 
     private void clickSequence(String[] sequence) {
         for (String s : sequence) {
@@ -115,7 +176,7 @@ public class CalculatorViewTest extends GuiTest {
     }
 
     private void assertSequence(String expectedFirstScreen, String expectedSecondScreen, String buttonSequence) {
-        formatter.pressClearButton();
+        runLater(formatter::pressClearButton);
         clickSequence(buttonSequence);
 
         assertFirstScreen(expectedFirstScreen);
@@ -123,14 +184,17 @@ public class CalculatorViewTest extends GuiTest {
     }
 
     private void assertSequence(String expectedFirstScreen, String buttonSequence) {
-        formatter.pressClearButton();
+        runLater(formatter::pressClearButton);
         clickSequence(buttonSequence);
 
         assertFirstScreen(expectedFirstScreen);
     }
 
     private void assertExpression(String expression) {
-        formatter.pressClearButton();
+        runLater(() -> {
+            formatter.pressClearButton();
+            formatter.pressOperationButton(Operation.MC);
+        });
         String sequence = expression.substring(0, expression.lastIndexOf("=") + 1);
         String expectedResult = expression.substring(expression.lastIndexOf("=") + 1, expression.length());
         assertSequence(expectedResult, sequence);
@@ -624,7 +688,6 @@ public class CalculatorViewTest extends GuiTest {
     }
 
     @Test
-    @Ignore
     public void testEquals() {
         assertSequence("0", "", "==");
         assertSequence("13", "", "3+5==");
@@ -681,14 +744,14 @@ public class CalculatorViewTest extends GuiTest {
         assertSecondScreen("");
         assertMemoryScreen("M");
 
-        click("MR");
+        click("(MR)");
 
         assertFirstScreen("5");
         assertSecondScreen("");
         assertMemoryScreen("M");
 
         formatter.pressClearButton();
-        click("MC");
+        click("(MC)");
 
         //in expression
         assertSequence("8", "5 +", "5+8(MS)");
@@ -700,14 +763,14 @@ public class CalculatorViewTest extends GuiTest {
         assertSecondScreen("");
         assertMemoryScreen("M");
 
-        click("MR");
+        click("(MR)");
 
         assertFirstScreen("8");
         assertSecondScreen("");
         assertMemoryScreen("M");
 
         formatter.pressClearButton();
-        click("MC");
+        click("(MC)");
 
         //for result
         assertSequence("13", "", "5+8=(MS)");
@@ -719,7 +782,7 @@ public class CalculatorViewTest extends GuiTest {
         assertSecondScreen("");
         assertMemoryScreen("M");
 
-        click("MR");
+        click("(MR)");
 
         assertFirstScreen("13");
         assertSecondScreen("");
@@ -751,7 +814,7 @@ public class CalculatorViewTest extends GuiTest {
         assertSecondScreen("");
         assertMemoryScreen("M");
 
-        click("MR");
+        click("(MR)");
 
         assertFirstScreen("8");
         assertSecondScreen("");
@@ -783,7 +846,7 @@ public class CalculatorViewTest extends GuiTest {
         assertSecondScreen("");
         assertMemoryScreen("M");
 
-        click("MR");
+        click("(MR)");
 
         assertFirstScreen("-8");
         assertSecondScreen("");
@@ -803,7 +866,7 @@ public class CalculatorViewTest extends GuiTest {
         assertSecondScreen("");
         assertMemoryScreen("M");
 
-        click("MR");
+        click("(MR)");
 
         assertFirstScreen("5");
         assertSecondScreen("");
@@ -862,18 +925,31 @@ public class CalculatorViewTest extends GuiTest {
 
     @Test
     //@Ignore
-    public void testTextSizing() {
+    public void testTextSizing() throws InterruptedException {
+        double fontSize[] = {0, 0, 0};
         clickSequence("999999999999");
+        runLater(() -> {
+            fontSize[0] = firstScreen.getFont().getSize();
+        });
 
-        assertEquals(FIRST_SCREEN_BIG_FONT_SIZE, firstScreen.getFont().getSize(), 0.1);
+        assertEquals(FIRST_SCREEN_BIG_FONT_SIZE, fontSize[0], 0.1);
 
+        Thread.sleep(DELAY);
         click("9");
+        runLater(() -> {
+            fontSize[1] = firstScreen.getFont().getSize();
+        });
 
-        assertEquals(FIRST_SCREEN_MEDIUM_FONT_SIZE, firstScreen.getFont().getSize(), 0.1);
+        assertEquals(FIRST_SCREEN_MEDIUM_FONT_SIZE, fontSize[1], 0.1);
 
-        click("1/x");
+        Thread.sleep(DELAY);
+        click("(1/x)");
 
-        assertEquals(FIRST_SCREEN_SMALL_FONT_SIZE, firstScreen.getFont().getSize(), 0.1);
+        runLater(() -> {
+            fontSize[2] = firstScreen.getFont().getSize();
+        });
+
+        assertEquals(FIRST_SCREEN_SMALL_FONT_SIZE, fontSize[2], 0.1);
     }
 
     @Test
@@ -1030,9 +1106,11 @@ public class CalculatorViewTest extends GuiTest {
         //simple
         pressKey(KeyCode.NUMPAD1);
         pressKey(KeyCode.NUMPAD2);
-        press(KeyCode.CONTROL, KeyCode.C);
-        release(KeyCode.CONTROL, KeyCode.C);
-        sleep(DELAY);
+        robot.keyPress(KeyCode.CONTROL);
+        robot.keyPress(KeyCode.C);
+        robot.keyRelease(KeyCode.CONTROL);
+        robot.keyRelease(KeyCode.C);
+        Thread.sleep(KEYBOARD_DELAY);
 
         assertFirstScreen("12");
         assertSecondScreen("");
@@ -1041,9 +1119,11 @@ public class CalculatorViewTest extends GuiTest {
 
         formatter.pressClearButton();
 
-        press(KeyCode.CONTROL, KeyCode.V);
-        release(KeyCode.CONTROL, KeyCode.V);
-        sleep(DELAY);
+        robot.keyPress(KeyCode.CONTROL);
+        robot.keyPress(KeyCode.V);
+        robot.keyRelease(KeyCode.CONTROL);
+        robot.keyRelease(KeyCode.V);
+        Thread.sleep(KEYBOARD_DELAY);
 
         assertFirstScreen("12");
         assertSecondScreen("");
@@ -1063,18 +1143,22 @@ public class CalculatorViewTest extends GuiTest {
         assertFirstScreen("9.999999999999998e+31");
         assertSecondScreen("");
 
-        press(KeyCode.CONTROL, KeyCode.C);
-        release(KeyCode.CONTROL, KeyCode.C);
-        sleep(DELAY);
+        robot.keyPress(KeyCode.CONTROL);
+        robot.keyPress(KeyCode.C);
+        robot.keyRelease(KeyCode.CONTROL);
+        robot.keyRelease(KeyCode.C);
+        Thread.sleep(KEYBOARD_DELAY);
 
         clip = (String) clipboard.getData(DataFlavor.stringFlavor);
         assertEquals("9.999999999999998e+31", clip);
 
         formatter.pressClearButton();
 
-        press(KeyCode.CONTROL, KeyCode.V);
-        release(KeyCode.CONTROL, KeyCode.V);
-        sleep(DELAY);
+        robot.keyPress(KeyCode.CONTROL);
+        robot.keyPress(KeyCode.V);
+        robot.keyRelease(KeyCode.CONTROL);
+        robot.keyRelease(KeyCode.V);
+        Thread.sleep(KEYBOARD_DELAY);
 
         assertFirstScreen("9.999999999999998");
         assertSecondScreen("");
@@ -1094,8 +1178,12 @@ public class CalculatorViewTest extends GuiTest {
     }
 
     private void pressKey(KeyCode keyCode) throws InterruptedException {
-        press(keyCode);
-        release(keyCode);
-        sleep(DELAY);
+
+        robot.keyPress(keyCode);
+        robot.keyRelease(keyCode);
+        Thread.sleep(KEYBOARD_DELAY);
     }
+//}
+
+
 }
