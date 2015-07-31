@@ -18,10 +18,18 @@ import java.io.IOException;
 
 import static org.junit.Assert.assertEquals;
 
+/**
+ * Tests for calculators GUI and logic.
+ * @author Zavivionov Andrii
+ */
 public class CalculatorViewTest extends GuiTest {
 
+    //Деление на ноль
     private static final String DIVIDE_BY_ZERO_MESSAGE = "\u0414\u0435\u043B\u0435\u043D\u0438\u0435 \u043D\u0430 \u043D\u043E\u043B\u044C \u043D\u0435\u0432\u043E\u0437\u043C\u043E\u0436\u043D\u043E";
+    //Переполнение
     private static final String OVERFLOW_MESSAGE = "\u041F\u0435\u0440\u0435\u043F\u043E\u043B\u043D\u0435\u043D\u0438\u0435";
+    //Недопустимый ввод
+    private static final String INVALID_INPUT_MESSAGE = "\u041D\u0435\u0434\u043E\u043F\u0443\u0441\u0442\u0438\u043C\u044B\u0439 \u0432\u0432\u043E\u0434";
     private static final String SQRT_BUTTON_LABEL = "\u221A";
     private static final String INVERT_BUTTON_LABEL = "\u00B1";
     private static final String BACKSPACE_BUTTON_LABEL = "\u2190";
@@ -31,7 +39,7 @@ public class CalculatorViewTest extends GuiTest {
     private static final int FIRST_SCREEN_SMALL_FONT_SIZE = 12;
     private static final long DELAY = 100;
     private static final String DOT_BUTTON_ID = ",";
-    private static final String INVALID_INPUT_MESSAGE = "\u041D\u0435\u0434\u043E\u043F\u0443\u0441\u0442\u0438\u043C\u044B\u0439 \u0432\u0432\u043E\u0434";
+
 
     private TextField firstScreen;
     private TextField secondScreen;
@@ -113,14 +121,6 @@ public class CalculatorViewTest extends GuiTest {
         assertFirstScreen(expectedFirstScreen);
     }
 
-    private void assertSequence(String expectedFirstScreen, String expectedSecondScreen, String[] buttonSequence) {
-        formatter.pressClearButton();
-        clickSequence(buttonSequence);
-
-        assertFirstScreen(expectedFirstScreen);
-        assertSecondScreen(expectedSecondScreen);
-    }
-
     private void assertExpression(String expression) {
         formatter.pressClearButton();
         String sequence = expression.substring(0, expression.lastIndexOf("=") + 1);
@@ -140,17 +140,17 @@ public class CalculatorViewTest extends GuiTest {
         assertSequence("0", "", "5(CE)");
         assertSequence("0", "", "9999999999999999(CE)");
         assertSequence("0", "", "0.00000000000001(CE)");
-        assertSequence("0", "", "9999999999999999+1=1e+16CE");
+        assertSequence("0", "", "9999999999999999+1=(CE)");
 
-        assertSequence("0", "1 +", "1+3CE");
+        assertSequence("0", "1 +", "1+3(CE)");
         assertSequence("0", "1 +", "1+9999999999999999(CE)");
         assertSequence("0", "1 +", "1+0.00000000000001(CE)");
-        assertSequence("0", "1 +", "1+9999999999999999+1+(CE)");
+        assertSequence("0", "1 + 9999999999999999 + 1 +", "1+9999999999999999+1+(CE)");
 
-        assertSequence("5", "1 +", "1+3CE5");
+        assertSequence("5", "1 +", "1+3(CE)5");
         assertSequence("15", "1 +", "1+9999999999999999(CE)15");
         assertSequence("0.5", "1 +", "1+0.00000000000001(CE)0.5");
-        assertSequence("1.5", "1 +", "1+9999999999999999+1+(CE)1.5");
+        assertSequence("1.5", "1 + 9999999999999999 + 1 +", "1+9999999999999999+1+(CE)1.5");
 
     }
 
@@ -160,7 +160,7 @@ public class CalculatorViewTest extends GuiTest {
         assertSequence("0", "", "5C");
         assertSequence("0", "", "9999999999999999C");
         assertSequence("0", "", "0.00000000000001C");
-        assertSequence("0", "", "9999999999999999+1=1e+16C");
+        assertSequence("0", "", "9999999999999999+1=C");
 
         assertSequence("0", "", "1+3C");
         assertSequence("0", "", "1+9999999999999999C");
@@ -641,7 +641,7 @@ public class CalculatorViewTest extends GuiTest {
     //@Ignore
     public void testSecondScreenOverflow() {
         assertSequence("1.00000001e+16", SCREEN_OVERFLOW_SYMBOL + "9999999999999 + 99999999 + 1 +", "9999999999999999+99999999+1+");
-        assertSequence("987654321", SCREEN_OVERFLOW_SYMBOL + "6789*987654321+123456789", "123456789*987654321/123456789-");
+        assertSequence("987654321", SCREEN_OVERFLOW_SYMBOL + "6789 * 987654321 / 123456789 -", "123456789*987654321/123456789-");
     }
 
     @Test

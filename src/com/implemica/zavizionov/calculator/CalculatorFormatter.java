@@ -1,7 +1,6 @@
 package com.implemica.zavizionov.calculator;
 
 import com.implemica.zavizionov.calculator.exception.DivideByZeroException;
-import com.implemica.zavizionov.calculator.exception.NoOperationException;
 import com.implemica.zavizionov.calculator.exception.NumberOverflowException;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
@@ -592,9 +591,6 @@ public class CalculatorFormatter {
         } catch (NumberOverflowException e) {
             setFirstScreenText(OVERFLOW_MESSAGE);
             isLocked = true;
-        } catch (NoOperationException e) {
-            //if it happens, something is done wrong
-            e.printStackTrace();
         }
     }
 
@@ -671,9 +667,6 @@ public class CalculatorFormatter {
             setFirstScreenText(DIVIDE_BY_ZERO_MESSAGE);
         } catch (NumberOverflowException e) {
             setFirstScreenText(OVERFLOW_MESSAGE);
-        } catch (NoOperationException e) {
-            //if it happens, smthng is done wrong
-            e.printStackTrace();
         }
     }
 
@@ -763,7 +756,7 @@ public class CalculatorFormatter {
      *
      * @param operation - operation of pressed button.
      */
-    private void pressTwoOperandOperationButton(Operation operation) throws NumberOverflowException, DivideByZeroException, NoOperationException {
+    private void pressTwoOperandOperationButton(Operation operation) throws NumberOverflowException, DivideByZeroException{
         String text = firstScreen.getText();
         if (isSequence) {
             if (isWeakNumber) {
@@ -818,7 +811,7 @@ public class CalculatorFormatter {
      * Describes behavior of calculator after
      * pressing reverse operation button.
      */
-    private void pressReverseButton() throws NumberOverflowException, DivideByZeroException, NoOperationException {
+    private void pressReverseButton() throws NumberOverflowException, DivideByZeroException {
         String text = secondScreen.getText();
         String value = firstScreen.getText();
 

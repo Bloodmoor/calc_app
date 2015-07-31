@@ -1,7 +1,6 @@
 package com.implemica.zavizionov.calculator;
 
 import com.implemica.zavizionov.calculator.exception.DivideByZeroException;
-import com.implemica.zavizionov.calculator.exception.NoOperationException;
 import com.implemica.zavizionov.calculator.exception.NumberOverflowException;
 
 import java.math.BigDecimal;
@@ -23,23 +22,19 @@ public class CalculatorController {
     }
 
 
-    public BigDecimal getResultAfterEqual(BigDecimal newLeftOperand) throws NumberOverflowException, DivideByZeroException, NoOperationException {
+    public BigDecimal getResultAfterEqual(BigDecimal newLeftOperand) throws NumberOverflowException, DivideByZeroException{
         return calculator.getResultAfterEqual(newLeftOperand);
     }
 
-    public BigDecimal getResult(BigDecimal rightOperand) throws NumberOverflowException, DivideByZeroException, NoOperationException {
+    public BigDecimal getResult(BigDecimal rightOperand) throws NumberOverflowException, DivideByZeroException {
         return calculator.getResult(rightOperand);
-    }
-
-    public BigDecimal getResult() throws NumberOverflowException, DivideByZeroException, NoOperationException {
-        return calculator.getResult();
     }
 
     public void setOperation(BigDecimal leftOperand, Operation operation) {
         calculator.setOperation(leftOperand, operation);
     }
 
-    public BigDecimal getResultOnGo(BigDecimal rightOperand) throws NumberOverflowException, DivideByZeroException, NoOperationException {
+    public BigDecimal getResultOnGo(BigDecimal rightOperand) throws NumberOverflowException, DivideByZeroException {
         return calculator.getResultOnGo(rightOperand);
     }
 

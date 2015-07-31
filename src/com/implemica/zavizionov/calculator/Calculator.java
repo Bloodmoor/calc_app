@@ -2,7 +2,6 @@ package com.implemica.zavizionov.calculator;
 
 
 import com.implemica.zavizionov.calculator.exception.DivideByZeroException;
-import com.implemica.zavizionov.calculator.exception.NoOperationException;
 import com.implemica.zavizionov.calculator.exception.NumberOverflowException;
 
 import java.math.BigDecimal;
@@ -66,11 +65,10 @@ public class Calculator {
      * @return result of operation.
      * @throws NumberOverflowException - occurs when resulting number overflows maximal scale.
      * @throws DivideByZeroException   - if divide by zero was performed
-     * @throws NoOperationException   - if no operation was set
      */
-    private BigDecimal performOperation() throws NumberOverflowException, DivideByZeroException, NoOperationException {
+    private BigDecimal performOperation() throws NumberOverflowException, DivideByZeroException{
         if (operation == Operation.NOOP) {
-            throw new NoOperationException("You should set operation before getting result");
+            return BigDecimal.ZERO;
         }
         BigDecimal result = BigDecimal.ZERO;
         switch (operation) {
@@ -105,20 +103,19 @@ public class Calculator {
         this.operation = operation;
     }
 
-    /**
-     * Returns a result of operation.
-     * Should be called for one-operand operations.
-     * Example: sqrt(3)
-     *
-     * @return result of one-operand operation.
-     * @throws NumberOverflowException - occurs when resulting number overflows maximal scale.
-     * @throws DivideByZeroException   - if divide by zero was performed
-     * @throws NoOperationException   - if no operation was set
-     */
-    public BigDecimal getResult() throws NumberOverflowException, DivideByZeroException, NoOperationException {
-        leftOperand = performOperation();
-        return leftOperand;
-    }
+//    /**
+//     * Returns a result of operation.
+//     * Should be called for one-operand operations.
+//     * Example: sqrt(3)
+//     *
+//     * @return result of one-operand operation.
+//     * @throws NumberOverflowException - occurs when resulting number overflows maximal scale.
+//     * @throws DivideByZeroException   - if divide by zero was performed
+//     */
+//    public BigDecimal getResult() throws NumberOverflowException, DivideByZeroException{
+//        leftOperand = performOperation();
+//        return leftOperand;
+//    }
 
     /**
      * Returns a result of operation.
@@ -129,9 +126,8 @@ public class Calculator {
      * @return result of two-operand operation
      * @throws NumberOverflowException - occurs when resulting number overflows maximal scale.
      * @throws DivideByZeroException   - if divide by zero was performed
-     * @throws NoOperationException   - if no operation was set
      */
-    public BigDecimal getResult(BigDecimal rightOperand) throws NumberOverflowException, DivideByZeroException, NoOperationException {
+    public BigDecimal getResult(BigDecimal rightOperand) throws NumberOverflowException, DivideByZeroException{
         if (!nextOperation) {
             this.rightOperand = rightOperand;
         }
@@ -153,9 +149,8 @@ public class Calculator {
      * @return result of operation
      * @throws NumberOverflowException - occurs when resulting number overflows maximal scale.
      * @throws DivideByZeroException   - if divide by zero was performed
-     * @throws NoOperationException   - if no operation was set
      */
-    public BigDecimal getResultOnGo(BigDecimal rightOperand) throws NumberOverflowException, DivideByZeroException, NoOperationException {
+    public BigDecimal getResultOnGo(BigDecimal rightOperand) throws NumberOverflowException, DivideByZeroException {
         nextOperation = false;
         this.rightOperand = rightOperand;
         leftOperand = performOperation();
@@ -285,9 +280,8 @@ public class Calculator {
      * @return result of operation
      * @throws NumberOverflowException - occurs when resulting number overflows maximal scale.
      * @throws DivideByZeroException   - if divide by zero was performed
-     * @throws NoOperationException   - if no operation was set
      */
-    public BigDecimal getResultAfterEqual(BigDecimal newLeftOperand) throws NumberOverflowException, DivideByZeroException, NoOperationException {
+    public BigDecimal getResultAfterEqual(BigDecimal newLeftOperand) throws NumberOverflowException, DivideByZeroException {
         this.leftOperand = newLeftOperand;
         this.leftOperand = performOperation();
         return this.leftOperand;

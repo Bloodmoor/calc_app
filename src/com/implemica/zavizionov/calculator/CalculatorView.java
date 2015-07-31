@@ -16,8 +16,11 @@ import javafx.stage.Stage;
 
 public class CalculatorView extends Application {
 
+    //Файл
     private static final String MENU_FILE_TEXT = "\u0424\u0430\u0439\u043B";
+    //Выход
     private static final String MENU_FILE_EXIT_TEXT = "\u0412\u044B\u0445\u043E\u0434";
+    //Калькулятор
     private static final String TITLE_TEXT = "\u041A\u0430\u043B\u044C\u043A\u0443\u043B\u044F\u0442\u043E\u0440";
     private static final double BUTTON_GRID_VGAP = 5;
     private static final double BUTTON_GRID_HGAP = 5;
